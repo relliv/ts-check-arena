@@ -1,0 +1,165 @@
+{
+  "schema": 1,
+  "id": "2026-10-28-cobalt-100-win32-vite",
+  "label": "vite",
+  "date": "2026-10-28T10:58:51.282Z",
+  "source": {
+    "kind": "ci",
+    "runner": "windows-11-arm",
+    "image": "win11-vs2026-arm64 20261022.194.1",
+    "runUrl": "https://github.com/relliv/ts-check-arena/actions/runs/40675277822",
+    "commit": "0fbae72673960c2b6d0efa9c96f5410024840029"
+  },
+  "machine": {
+    "platform": "win32-arm64",
+    "cpu": "Cobalt 100",
+    "cores": 4,
+    "memoryGiB": 16,
+    "os": "Windows 11 Enterprise (10.0.26200)",
+    "node": "v24.22.1"
+  },
+  "reference": "tsgo@7.1.0-beta",
+  "rounds": 7,
+  "configs": {
+    "checked": 11,
+    "rejected": 0,
+    "shadowed": 0
+  },
+  "settings": [
+    {
+      "threads": "default",
+      "checkers": [
+        {
+          "id": "bun@1.4.3",
+          "family": "bun",
+          "version": "1.4.3",
+          "runs": 7,
+          "median": 4.7914894,
+          "min": 4.5946294000000005,
+          "max": 4.9885264,
+          "cpu": 10.046875,
+          "rssMiB": 202.91015625,
+          "speedup": 2.523277396794408
+        },
+        {
+          "id": "tsc-rs@0.7.0",
+          "family": "tsc-rs",
+          "version": "0.7.0",
+          "runs": 7,
+          "median": 6.6441718,
+          "min": 6.470436,
+          "max": 7.249427,
+          "cpu": 11.8125,
+          "rssMiB": 608.9921875,
+          "speedup": 1.8196785489502245
+        },
+        {
+          "id": "tsc-rs@0.6.0",
+          "family": "tsc-rs",
+          "version": "0.6.0",
+          "runs": 7,
+          "median": 6.72212,
+          "min": 6.5264787,
+          "max": 7.0166445,
+          "cpu": 12.125,
+          "rssMiB": 607.84375,
+          "speedup": 1.7985779634996102
+        },
+        {
+          "id": "tsgo@7.1.0-beta",
+          "family": "tsgo",
+          "version": "7.1.0-beta",
+          "runs": 7,
+          "median": 12.0902569,
+          "min": 11.603515499999999,
+          "max": 12.184451100000002,
+          "cpu": 22.765625,
+          "rssMiB": 691.17578125,
+          "speedup": 1
+        },
+        {
+          "id": "tsgo@7.0.2",
+          "family": "tsgo",
+          "version": "7.0.2",
+          "runs": 7,
+          "median": 16.9770904,
+          "min": 16.2206656,
+          "max": 17.2700574,
+          "cpu": 30.625,
+          "rssMiB": 944.5234375,
+          "speedup": 0.7121512941934973
+        },
+        {
+          "id": "tsc@6.0.3",
+          "family": "tsc",
+          "version": "6.0.3",
+          "runs": 7,
+          "median": 53.3185541,
+          "min": 51.8707127,
+          "max": 55.8433906,
+          "cpu": 91.71875,
+          "rssMiB": 914.1015625,
+          "speedup": 0.22675515313720782
+        }
+      ]
+    }
+  ],
+  "parity": [
+    {
+      "id": "tsgo@7.1.0-beta",
+      "identical": 11,
+      "sameNormalized": 0,
+      "differs": 0,
+      "failed": 0,
+      "extra": 0,
+      "missing": 0
+    },
+    {
+      "id": "bun@1.4.3",
+      "identical": 0,
+      "sameNormalized": 11,
+      "differs": 0,
+      "failed": 0,
+      "extra": 0,
+      "missing": 0
+    },
+    {
+      "id": "tsc@6.0.3",
+      "identical": 11,
+      "sameNormalized": 0,
+      "differs": 0,
+      "failed": 0,
+      "extra": 0,
+      "missing": 0
+    },
+    {
+      "id": "tsc-rs@0.6.0",
+      "identical": 11,
+      "sameNormalized": 0,
+      "differs": 0,
+      "failed": 0,
+      "extra": 0,
+      "missing": 0
+    },
+    {
+      "id": "tsc-rs@0.7.0",
+      "identical": 11,
+      "sameNormalized": 0,
+      "differs": 0,
+      "failed": 0,
+      "extra": 0,
+      "missing": 0
+    },
+    {
+      "id": "tsgo@7.0.2",
+      "identical": 11,
+      "sameNormalized": 0,
+      "differs": 0,
+      "failed": 0,
+      "extra": 0,
+      "missing": 0
+    }
+  ],
+  "unavailable": [],
+  "untimed": []
+}
