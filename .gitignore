@@ -1,0 +1,8 @@
+node_modules/
+dist/
+.DS_Store
+*.log
+
+# Runs against a local path stay on this machine until `pnpm arena publish`.
+results/private/
+results/.smoke/

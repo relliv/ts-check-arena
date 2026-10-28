@@ -1,0 +1,157 @@
+@import 'tailwindcss';
+
+/* Family colors: one hue per checker family, stable across every chart. */
+@theme {
+  --color-family-tsc: oklch(0.6 0.02 250);
+  --color-family-tsgo: oklch(0.62 0.15 240);
+  --color-family-tsrs: oklch(0.7 0.17 55);
+  --color-family-tsc-rs: oklch(0.62 0.2 20);
+  --color-family-tsc-ts: oklch(0.65 0.13 170);
+  --color-family-bun: oklch(0.78 0.14 85);
+  --font-sans: 'Inter', ui-sans-serif, system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, monospace;
+}
+
+body {
+  @apply bg-stone-50 text-stone-900 antialiased dark:bg-stone-950 dark:text-stone-100;
+}
+
+.page {
+  @apply mx-auto max-w-6xl px-4 py-8 sm:px-6;
+
+  .masthead {
+    @apply mb-8 flex flex-col gap-2;
+
+    .title {
+      @apply font-mono text-2xl font-semibold tracking-tight;
+    }
+
+    .lede {
+      @apply max-w-3xl text-stone-600 dark:text-stone-400;
+    }
+  }
+
+  .controls {
+    @apply mb-6 flex flex-wrap items-end gap-4;
+
+    label {
+      @apply flex flex-col gap-1 text-xs font-medium tracking-wide text-stone-500 uppercase;
+    }
+
+    select {
+      @apply rounded-md border border-stone-300 bg-white px-3 py-2 text-sm text-stone-900 normal-case dark:border-stone-700 dark:bg-stone-900 dark:text-stone-100;
+    }
+  }
+
+  .panel {
+    @apply mb-8 rounded-xl border border-stone-200 bg-white p-5 dark:border-stone-800 dark:bg-stone-900;
+
+    h2 {
+      @apply mb-1 text-lg font-semibold;
+    }
+
+    .hint {
+      @apply mb-4 text-sm text-stone-500;
+    }
+  }
+
+  .meta {
+    @apply mb-4 flex flex-wrap gap-2 text-xs;
+
+    .badge {
+      @apply rounded-full bg-stone-100 px-2.5 py-1 font-mono text-stone-700 dark:bg-stone-800 dark:text-stone-300;
+
+      &.ci {
+        @apply bg-sky-100 text-sky-800 dark:bg-sky-950 dark:text-sky-300;
+      }
+
+      &.local {
+        @apply bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300;
+      }
+    }
+  }
+
+  .bars {
+    @apply flex flex-col gap-2;
+
+    .row {
+      @apply grid grid-cols-[minmax(9rem,16rem)_1fr_5rem] items-center gap-3 text-sm;
+    }
+
+    .name {
+      @apply truncate font-mono text-xs;
+    }
+
+    .track {
+      @apply relative h-5 rounded bg-stone-100 dark:bg-stone-800;
+    }
+
+    .fill {
+      @apply absolute inset-y-0 left-0 rounded;
+    }
+
+    .whisker {
+      @apply absolute top-1/2 h-px bg-stone-900/60 dark:bg-stone-100/60;
+    }
+
+    .value {
+      @apply text-right font-mono text-xs tabular-nums;
+    }
+  }
+
+  .grid-table {
+    @apply w-full border-collapse text-sm;
+
+    th {
+      @apply border-b border-stone-200 px-2 py-2 text-left text-xs font-medium tracking-wide text-stone-500 uppercase dark:border-stone-800;
+    }
+
+    td {
+      @apply border-b border-stone-100 px-2 py-1.5 font-mono text-xs tabular-nums dark:border-stone-800/60;
+    }
+
+    .good {
+      @apply text-emerald-700 dark:text-emerald-400;
+    }
+
+    .bad {
+      @apply text-rose-700 dark:text-rose-400;
+    }
+  }
+
+  .table-scroll {
+    @apply overflow-x-auto;
+  }
+
+  .trend {
+    @apply grid gap-4 sm:grid-cols-2 lg:grid-cols-3;
+
+    .family {
+      @apply rounded-lg border border-stone-200 p-3 dark:border-stone-800;
+    }
+
+    .family-name {
+      @apply mb-2 flex items-center gap-2 font-mono text-sm font-medium;
+    }
+
+    svg {
+      @apply h-32 w-full overflow-visible;
+    }
+  }
+
+  .swatch {
+    @apply inline-block size-2.5 rounded-sm;
+  }
+
+  .empty {
+    @apply rounded-xl border border-dashed border-stone-300 p-8 text-center text-stone-500 dark:border-stone-700;
+  }
+
+  .footer {
+    @apply mt-12 text-xs text-stone-500;
+
+    a {
+      @apply underline underline-offset-2;
+    }
+  }
+}

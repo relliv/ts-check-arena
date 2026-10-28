@@ -1,0 +1,30 @@
+{
+  "name": "ts-check-arena",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Reproducible speed, memory and diagnostics benchmark of TypeScript type checkers, across versions, on any project",
+  "license": "MIT",
+  "type": "module",
+  "packageManager": "pnpm@11.24.0",
+  "engines": {
+    "node": ">=24"
+  },
+  "scripts": {
+    "arena": "node src/cli.ts",
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "test": "vitest run",
+    "typecheck": "tsc -p tsconfig.json"
+  },
+  "dependencies": {
+    "typescript": "6.0.3"
+  },
+  "devDependencies": {
+    "@tailwindcss/vite": "4.3.3",
+    "@types/node": "24.19.2",
+    "tailwindcss": "4.3.3",
+    "vite": "8.3.5",
+    "vitest": "5.0.5"
+  }
+}

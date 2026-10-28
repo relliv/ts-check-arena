@@ -1,0 +1,36 @@
+# Every checker version lives in its own workspace package, tools/<family>@<version>/,
+# written by `pnpm arena tool add`. One lockfile pins all of them, so a run on any
+# machine or CI runner checks with byte-identical checker binaries.
+packages:
+  - tools/*
+
+# Supply chain policy. A version must be 7 days old before it can be installed;
+# `pnpm arena tool add <id> --allow-young` adds the exact version to a
+# minimumReleaseAgeExclude list here, for nightlies and deliberate early tests.
+minimumReleaseAge: 10080 # 7 days, in minutes
+
+# Refuses a version whose publish trust is weaker than an earlier version of the
+# same package (for example, provenance dropped).
+trustPolicy: no-downgrade
+trustPolicyIgnoreAfter: 525600 # 1 year, in minutes
+# Reviewed downgrades, exact versions only; `tool add --allow-trust-downgrade`
+# appends here, and each entry needs its evidence in the commit that adds it.
+#
+# tsrs: the npm name changed hands in October 2026 (qidanta published 0.0.0
+# snapshots in 2024, then transferred it to boshen, the Oxc maintainer, as the
+# oxc-project/tsrs README acknowledges); 0.0.0-bootstrap.0 was a staged publish.
+# Every release from 0.12.0 on is published by GitHub Actions trusted publishing
+# (npm OIDC) with SLSA provenance, checked for 0.14.1 to 0.20.0. Reviewed 2026-10-28.
+trustPolicyExclude:
+  - tsrs@0.16.0-ts7.1.0-dev.20260929
+  - tsrs@0.18.0-ts7.1.0-dev.20260929
+
+# Transitive dependencies come from the registry only.
+blockExoticSubdeps: true
+
+# Install scripts run only for packages listed here. The checkers' own postinstall
+# scripts only relink a platform binary the arena runs directly, so they are off.
+strictDepBuilds: true
+allowBuilds:
+  bun: false
+  tsc-rs: false

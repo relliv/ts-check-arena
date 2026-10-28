@@ -1,0 +1,9 @@
+{
+  "name": "tool-tsgo-7.0.2",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Microsoft's native TypeScript 7 compiler (Go), typescript@7.0.2",
+  "dependencies": {
+    "typescript": "7.0.2"
+  }
+}
