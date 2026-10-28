@@ -16,10 +16,15 @@ const runs: RunSummary[] = [
 
 type Metric = 'wall' | 'cpu' | 'memory';
 
-const state: { runId: string; threads: string; metric: Metric } = {
+type CompareMetric = 'speedup' | Metric;
+
+const state: { runId: string; threads: string; metric: Metric; compare: string[] | null; compareMetric: CompareMetric } = {
   runId: runs[0]?.id ?? '',
   threads: 'default',
   metric: 'wall',
+  // Runs shown side by side, from a day's Compare button; null hides the panel.
+  compare: null,
+  compareMetric: 'speedup',
 };
 
 // ---------------------------------------------------------------------------- formatting
@@ -306,6 +311,256 @@ function platformChart(list: RunSummary[]) {
   };
 }
 
+// ---------------------------------------------------------------------------- run picker
+
+const searchText = (r: RunSummary): string =>
+  [r.label, r.machine.platform, r.machine.cpu, r.machine.os, where(r), day(r.date), r.id, `node ${r.machine.node}`].join(' ').toLowerCase();
+
+/** Runs grouped by calendar day, in the order of `runs`: newest day first. */
+function byDay(list: RunSummary[]): [string, RunSummary[]][] {
+  const groups = new Map<string, RunSummary[]>();
+  for (const r of list) {
+    const key = day(r.date);
+    if (!groups.has(key)) groups.set(key, []);
+    groups.get(key)!.push(r);
+  }
+  return [...groups];
+}
+
+const icon = {
+  chevron: `<svg class="chevron" viewBox="0 0 16 16" aria-hidden="true"><path d="M4 6l4 4 4-4" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/></svg>`,
+  check: `<svg class="check" viewBox="0 0 16 16" aria-hidden="true"><path d="M3.5 8.5l3 3 6-7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>`,
+  search: `<svg viewBox="0 0 16 16" aria-hidden="true"><circle cx="7" cy="7" r="4.5" fill="none" stroke="currentColor" stroke-width="1.75"/><path d="M10.5 10.5L14 14" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"/></svg>`,
+  cross: `<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M4 4l8 8M12 4l-8 8" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"/></svg>`,
+};
+
+const platformTag = (r: RunSummary): string => `<span class="platform">${esc(r.machine.platform)}</span>`;
+
+/** A searchable run picker: a trigger showing the current run, and a popover listing every run by day. */
+function runPicker(current: RunSummary): string {
+  let index = 0;
+  const option = (r: RunSummary): string => `<button type="button" role="option" class="option" id="run-option-${index++}" data-id="${esc(r.id)}" data-search="${esc(searchText(r))}" aria-selected="${r.id === current.id}">
+    <span class="option-text">
+      <span class="option-main">${esc(r.label)}${platformTag(r)}<span class="source ${esc(r.source.kind)}">${r.source.kind === 'ci' ? 'CI' : 'Local'}</span></span>
+      <span class="option-sub">${esc(r.machine.cpu)} · ${r.machine.cores} cores · ${esc(r.machine.os)}${r.source.kind === 'ci' && r.source.runner ? ` · ${esc(r.source.runner)}` : ''}</span>
+    </span>
+    ${icon.check}
+  </button>`;
+  const group = ([date, list]: [string, RunSummary[]], g: number): string => `<div class="group" role="group" aria-labelledby="run-group-${g}">
+    <div class="group-head">
+      <span class="group-date" id="run-group-${g}">${esc(date)}</span>
+      <span class="group-count">${list.length} run${list.length === 1 ? '' : 's'}</span>
+      ${list.length > 1 ? `<button type="button" class="compare-button">Compare</button>` : ''}
+    </div>
+    ${list.map(option).join('')}
+  </div>`;
+  return `<div class="run-picker" id="run">
+    <button type="button" class="trigger" aria-haspopup="listbox" aria-expanded="false" aria-controls="run-list">
+      <span class="trigger-text">
+        <span class="trigger-main">${esc(current.label)}${platformTag(current)}</span>
+        <span class="trigger-sub">${esc(where(current))} · ${esc(current.machine.cpu)} · ${esc(day(current.date))}</span>
+      </span>
+      ${icon.chevron}
+    </button>
+    <div class="popover" hidden>
+      <label class="search">${icon.search}<input type="text" placeholder="Search by project, platform, CPU or date" aria-label="Search runs" autocomplete="off" spellcheck="false" role="combobox" aria-expanded="true" aria-controls="run-list" aria-autocomplete="list" /></label>
+      <div class="list" role="listbox" id="run-list" aria-label="Runs">${byDay(runs).map(group).join('')}</div>
+      <p class="empty" hidden>No runs match.</p>
+    </div>
+  </div>`;
+}
+
+/** Open, filter, keyboard and selection for the picker rendered by `runPicker`. */
+function wireRunPicker(app: HTMLElement): void {
+  const picker = app.querySelector<HTMLElement>('#run')!;
+  const trigger = picker.querySelector<HTMLButtonElement>('.trigger')!;
+  const popover = picker.querySelector<HTMLElement>('.popover')!;
+  const input = picker.querySelector<HTMLInputElement>('input')!;
+  const empty = picker.querySelector<HTMLElement>('.empty')!;
+  const visible = () => [...picker.querySelectorAll<HTMLButtonElement>('.option:not([hidden])')];
+  let active = -1;
+
+  const highlight = (i: number): void => {
+    const list = visible();
+    active = list.length ? ((i % list.length) + list.length) % list.length : -1;
+    list.forEach((o, k) => o.classList.toggle('active', k === active));
+    const current = list[active];
+    if (current) {
+      current.scrollIntoView({ block: 'nearest' });
+      input.setAttribute('aria-activedescendant', current.id);
+    } else input.removeAttribute('aria-activedescendant');
+  };
+  const filter = (): void => {
+    const words = input.value.toLowerCase().split(/\s+/).filter(Boolean);
+    for (const o of picker.querySelectorAll<HTMLElement>('.option')) o.hidden = !words.every(w => o.dataset['search']!.includes(w));
+    for (const g of picker.querySelectorAll<HTMLElement>('.group')) {
+      const shown = g.querySelectorAll('.option:not([hidden])').length;
+      g.hidden = shown === 0;
+      // Compare covers the runs still listed under the day, so it needs two of them.
+      const button = g.querySelector<HTMLElement>('.compare-button');
+      if (button) button.hidden = shown < 2;
+    }
+    const list = visible();
+    empty.hidden = list.length > 0;
+    highlight(Math.max(0, list.findIndex(o => o.getAttribute('aria-selected') === 'true')));
+  };
+  const open = (): void => {
+    popover.hidden = false;
+    trigger.setAttribute('aria-expanded', 'true');
+    input.value = '';
+    filter();
+    input.focus();
+  };
+  const close = (): void => {
+    popover.hidden = true;
+    trigger.setAttribute('aria-expanded', 'false');
+  };
+
+  trigger.onclick = () => (popover.hidden ? open() : close());
+  trigger.onkeydown = e => {
+    if (e.key === 'ArrowDown' && popover.hidden) {
+      e.preventDefault();
+      open();
+    }
+  };
+  input.oninput = filter;
+  input.onkeydown = e => {
+    const moves: Record<string, () => void> = {
+      ArrowDown: () => highlight(active + 1),
+      ArrowUp: () => highlight(active - 1),
+      Home: () => highlight(0),
+      End: () => highlight(-1),
+      Enter: () => visible()[active]?.click(),
+      Escape: () => {
+        close();
+        trigger.focus();
+      },
+    };
+    const move = moves[e.key];
+    if (!move) return;
+    e.preventDefault();
+    move();
+  };
+  popover.onclick = e => {
+    const target = e.target as HTMLElement;
+    const option = target.closest<HTMLElement>('.option');
+    const compare = target.closest<HTMLElement>('.compare-button');
+    if (option) {
+      state.runId = option.dataset['id']!;
+      render();
+    } else if (compare) {
+      const group = compare.closest<HTMLElement>('.group')!;
+      state.compare = [...group.querySelectorAll<HTMLElement>('.option:not([hidden])')].map(o => o.dataset['id']!);
+      render();
+    }
+  };
+}
+
+// A click anywhere else closes the picker. The page re-renders its markup, so the picker is looked up each time.
+document.addEventListener('pointerdown', e => {
+  const picker = document.querySelector<HTMLElement>('#run');
+  if (!picker || picker.contains(e.target as Node)) return;
+  picker.querySelector<HTMLElement>('.popover')!.hidden = true;
+  picker.querySelector('.trigger')!.setAttribute('aria-expanded', 'false');
+});
+
+// ---------------------------------------------------------------------------- compare
+
+const COMPARE_METRICS: [CompareMetric, string][] = [
+  ['speedup', 'Speedup'],
+  ['wall', 'Wall time'],
+  ['cpu', 'CPU time'],
+  ['memory', 'Peak memory'],
+];
+const RUN_COLORS = ['#2a78d6', '#eb6834', '#1baf7a', '#c98500', '#d55181', '#13a3b8', '#8a8a85'];
+const runColor = (i: number): string => RUN_COLORS[i % RUN_COLORS.length]!;
+
+const defaultCheckers = (r: RunSummary): CheckerSummary[] => r.settings.find(s => s.threads === 'default')?.checkers ?? r.settings[0]?.checkers ?? [];
+
+const compareValue = (c: CheckerSummary, metric: CompareMetric): number =>
+  metric === 'speedup' ? c.speedup : metric === 'wall' ? c.median : metric === 'cpu' ? c.cpu : c.rssMiB;
+const compareFormat = (v: number, metric: CompareMetric): string => (metric === 'speedup' ? times(v) : metric === 'memory' ? mib(v) : secs(v));
+
+/** Checker ids present in any of the runs, in family order, then by version. */
+function compareIds(list: RunSummary[]): string[] {
+  const rank = (id: string) => FAMILIES.indexOf(familyOf(id) as (typeof FAMILIES)[number]);
+  return [...new Set(list.flatMap(r => defaultCheckers(r).map(c => c.id)))].sort((a, b) => rank(a) - rank(b) || compareVersions(versionOf(a), versionOf(b)));
+}
+
+/** "vite · darwin-arm64", with the CPU, then the source and day, added only when two runs would otherwise share a name. */
+function compareNames(list: RunSummary[]): string[] {
+  const extend = (names: string[], more: (r: RunSummary) => string): string[] =>
+    names.map((n, i) => (names.filter(x => x === n).length > 1 ? `${n} · ${more(list[i]!)}` : n));
+  const base = list.map(r => `${r.label} · ${r.machine.platform}`);
+  return extend(extend(base, r => r.machine.cpu), r => `${where(r)} · ${day(r.date)}`);
+}
+
+function compareSection(list: RunSummary[]): string {
+  const ids = compareIds(list);
+  const names = compareNames(list);
+  const metric = state.compareMetric;
+  const better = metric === 'speedup' ? Math.max : Math.min;
+  const days = [...new Set(list.map(r => day(r.date)))];
+  const when = days.length === 1 ? days[0]! : `${days[days.length - 1]} to ${days[0]}`;
+  const row = (id: string): string => {
+    const cells = list.map(r => defaultCheckers(r).find(c => c.id === id));
+    const values = cells.map(c => (c ? compareValue(c, metric) : NaN)).filter(Number.isFinite);
+    const best = values.length ? better(...values) : NaN;
+    return `<tr><td><span class="swatch" style="background:${familyColor(familyOf(id))}"></span><span title="${esc(id)}">${esc(short(id))}</span></td>${cells
+      .map(c => {
+        const v = c ? compareValue(c, metric) : NaN;
+        return `<td class="num${v === best ? ' best' : ''}">${Number.isFinite(v) ? compareFormat(v, metric) : '<span class="muted">n/a</span>'}</td>`;
+      })
+      .join('')}</tr>`;
+  };
+  return `<section class="card compare-panel">
+    <div class="card-head">
+      <div><h2>Compare ${list.length} runs</h2><p class="hint">${esc(when)}. Checkers as shipped. Speedups are against each run's own reference, so compare ratios across machines and seconds within one.</p></div>
+      <div class="compare-actions">${segmented('compare-metric', COMPARE_METRICS, metric)}<button type="button" class="close" id="compare-close" aria-label="Close comparison">${icon.cross}</button></div>
+    </div>
+    <div class="compare-runs">${list
+      .map((r, i) => `<span class="compare-run"><span class="swatch" style="background:${runColor(i)}"></span>${esc(names[i]!)}<span class="muted"> · ${esc(where(r))} · ${esc(r.machine.cpu)}</span></span>`)
+      .join('')}</div>
+    <div class="chart" id="chart-compare" style="height:340px"></div>
+    <div class="table-scroll"><table class="data compare-table">
+      <thead><tr><th>Checker</th>${list
+        .map((r, i) => `<th class="num run-head" title="${esc(names[i]!)}"><span class="swatch" style="background:${runColor(i)}"></span>${esc(r.machine.platform)}<span class="sub">${esc(r.machine.cpu)}</span></th>`)
+        .join('')}</tr></thead>
+      <tbody>${ids.map(row).join('')}</tbody></table></div>
+  </section>`;
+}
+
+/** Grouped bars: one group per checker, one bar per run. */
+function compareChart(list: RunSummary[], metric: CompareMetric) {
+  const c = ink();
+  const ids = compareIds(list);
+  const names = compareNames(list);
+  type Param = { seriesName: string; dataIndex: number; value: number | null; marker: string };
+  return {
+    // The run list above the chart is the legend.
+    grid: { left: 8, right: 16, top: 16, bottom: 8, containLabel: true },
+    xAxis: categoryAxis(ids.map(short), { axisLabel: { color: c.secondary, rotate: 30 } }),
+    yAxis: valueAxis(undefined, v => (metric === 'speedup' ? `${v}×` : compareFormat(v, metric))),
+    tooltip: {
+      trigger: 'axis',
+      axisPointer: { type: 'none' },
+      formatter: (params: Param[]) =>
+        `<b>${esc(ids[params[0]!.dataIndex]!)}</b><br>${params.map(p => `${p.marker}${esc(p.seriesName)}: ${p.value == null ? 'n/a' : compareFormat(p.value, metric)}`).join('<br>')}`,
+    },
+    series: list.map((r, i) => ({
+      type: 'bar',
+      name: names[i],
+      barMaxWidth: 14,
+      emphasis: { focus: 'none', itemStyle: { borderColor: c.primary, borderWidth: 1.5 } },
+      itemStyle: { color: runColor(i), borderRadius: [4, 4, 0, 0] },
+      data: ids.map(id => {
+        const x = defaultCheckers(r).find(k => k.id === id);
+        return x ? compareValue(x, metric) : null;
+      }),
+    })),
+  };
+}
+
 // ---------------------------------------------------------------------------- page
 
 function render(): void {
@@ -324,14 +579,14 @@ function render(): void {
   const families = FAMILIES.filter(f => checkers.some(c => c.family === f));
   const trends = trendData(run);
   const platforms = platformData(run);
+  const compared = state.compare ? runs.filter(r => state.compare!.includes(r.id)) : [];
 
   app.innerHTML = `${brand}
     <div class="controls">
-      <label class="field"><span>Run</span><select id="run">${runs
-        .map(r => `<option value="${esc(r.id)}" ${r.id === run.id ? 'selected' : ''}>${esc(r.label)} · ${esc(r.machine.platform)} · ${esc(where(r))} · ${esc(day(r.date))}</option>`)
-        .join('')}</select></label>
+      <div class="field"><span>Run</span>${runPicker(run)}</div>
       ${settings.length > 1 ? `<div class="field"><span>Threads</span>${segmented('threads', settings.map(t => [t, t === 'default' ? 'As shipped' : `${t}`]), state.threads)}</div>` : ''}
     </div>
+    ${compared.length ? compareSection(compared) : ''}
     ${hero(run, checkers)}
     <div class="meta">
       <span class="badge ${run.source.kind}">${esc(where(run))}</span>
@@ -390,16 +645,18 @@ function render(): void {
   mount(app.querySelector('#chart-scatter'), scatterChart(checkers));
   for (const [family, points] of trends) mount(app.querySelector(`[data-trend="${family}"]`), trendChart(family, points));
   if (platforms.length > 1) mount(app.querySelector('#chart-platforms'), platformChart(platforms));
+  if (compared.length) mount(app.querySelector('#chart-compare'), compareChart(compared, state.compareMetric));
 
-  app.querySelector<HTMLSelectElement>('#run')!.onchange = e => {
-    state.runId = (e.target as HTMLSelectElement).value;
+  wireRunPicker(app);
+  app.querySelector('#compare-close')?.addEventListener('click', () => {
+    state.compare = null;
     render();
-  };
-  for (const [id, key] of [['threads', 'threads'], ['metric', 'metric']] as const) {
+  });
+  for (const [id, key] of [['threads', 'threads'], ['metric', 'metric'], ['compare-metric', 'compareMetric']] as const) {
     app.querySelector(`#${id}`)?.addEventListener('click', e => {
       const value = (e.target as HTMLElement).closest('button')?.dataset['value'];
       if (!value) return;
-      (state as Record<string, string>)[key] = value;
+      (state as unknown as Record<string, string>)[key] = value;
       render();
     });
   }

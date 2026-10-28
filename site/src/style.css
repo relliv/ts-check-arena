@@ -49,6 +49,193 @@ code {
   }
 }
 
+.run-picker {
+  @apply relative w-full sm:w-auto sm:min-w-[26rem];
+
+  .platform {
+    @apply ml-1.5 rounded-md bg-stone-100 px-1.5 py-0.5 font-mono text-[11px] font-medium text-stone-600 dark:bg-stone-800 dark:text-stone-300;
+  }
+
+  .trigger {
+    @apply flex w-full items-center gap-3 rounded-lg border border-stone-300 bg-white px-3 py-2 text-left shadow-xs transition-colors hover:border-stone-400 dark:border-stone-700 dark:bg-stone-900 dark:hover:border-stone-500;
+
+    &[aria-expanded='true'] {
+      @apply border-[#2a78d6] ring-2 ring-[#2a78d6]/20;
+
+      .chevron {
+        @apply rotate-180;
+      }
+    }
+  }
+
+  .trigger-text {
+    @apply flex min-w-0 flex-1 flex-col;
+  }
+
+  .trigger-main {
+    @apply flex items-center text-sm font-semibold;
+  }
+
+  .trigger-sub {
+    @apply truncate text-xs text-stone-500;
+  }
+
+  .chevron {
+    @apply size-4 shrink-0 text-stone-500 transition-transform;
+  }
+
+  .popover {
+    @apply absolute top-full left-0 z-20 mt-2 w-full overflow-hidden rounded-xl border border-stone-200 bg-white shadow-xl sm:w-[32rem] dark:border-stone-700 dark:bg-[#1a1a19];
+
+    &[hidden] {
+      @apply hidden;
+    }
+  }
+
+  .search {
+    @apply flex items-center gap-2 border-b border-stone-200 px-3 py-2.5 dark:border-stone-800;
+
+    svg {
+      @apply size-4 shrink-0 text-stone-400;
+    }
+
+    input {
+      @apply w-full bg-transparent text-sm outline-none placeholder:text-stone-400;
+    }
+  }
+
+  .list {
+    @apply max-h-80 overflow-y-auto overscroll-contain py-1;
+  }
+
+  .group {
+    &[hidden] {
+      @apply hidden;
+    }
+  }
+
+  .group-head {
+    @apply sticky top-0 z-10 flex items-center gap-2 bg-white/95 px-3 py-1.5 backdrop-blur dark:bg-[#1a1a19]/95;
+  }
+
+  .group-date {
+    @apply text-[11px] font-semibold tracking-wider text-stone-500 uppercase;
+  }
+
+  .group-count {
+    @apply text-[11px] text-stone-400;
+  }
+
+  .compare-button {
+    @apply ml-auto rounded-md border border-stone-200 px-2 py-0.5 text-[11px] font-medium text-[#2a78d6] transition-colors hover:border-[#2a78d6] hover:bg-[#2a78d6]/5 dark:border-stone-700;
+
+    &[hidden] {
+      @apply hidden;
+    }
+  }
+
+  .option {
+    @apply flex w-full items-center gap-3 px-3 py-2 text-left transition-colors;
+
+    &[hidden] {
+      @apply hidden;
+    }
+
+    &.active,
+    &:hover {
+      @apply bg-stone-100 dark:bg-stone-800;
+    }
+
+    &[aria-selected='true'] .check {
+      @apply opacity-100;
+    }
+  }
+
+  .option-text {
+    @apply flex min-w-0 flex-1 flex-col;
+  }
+
+  .option-main {
+    @apply flex items-center text-sm font-medium;
+  }
+
+  .option-sub {
+    @apply truncate text-xs text-stone-500;
+  }
+
+  .source {
+    @apply ml-1.5 rounded-full px-1.5 py-0.5 text-[10px] font-semibold tracking-wider uppercase;
+
+    &.ci {
+      @apply bg-sky-50 text-sky-700 dark:bg-sky-950/60 dark:text-sky-300;
+    }
+
+    &.local {
+      @apply bg-emerald-50 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-300;
+    }
+  }
+
+  .check {
+    @apply size-4 shrink-0 text-[#2a78d6] opacity-0;
+  }
+
+  .empty {
+    @apply px-3 py-6 text-center text-sm text-stone-500;
+
+    &[hidden] {
+      @apply hidden;
+    }
+  }
+}
+
+.compare-panel {
+  @apply border-[#2a78d6]/30 ring-1 ring-[#2a78d6]/10;
+
+  .compare-actions {
+    @apply flex items-center gap-2;
+  }
+
+  .close {
+    @apply grid size-8 shrink-0 place-items-center rounded-lg border border-stone-300 text-stone-500 transition-colors hover:bg-stone-100 hover:text-stone-900 dark:border-stone-700 dark:hover:bg-stone-800 dark:hover:text-stone-100;
+
+    svg {
+      @apply size-4;
+    }
+  }
+
+  .compare-runs {
+    @apply mb-2 flex flex-wrap gap-x-4 gap-y-1 text-xs text-stone-600 dark:text-stone-400;
+  }
+
+  .compare-run {
+    @apply inline-flex items-center;
+  }
+
+  .muted {
+    @apply text-stone-400;
+  }
+
+  .compare-table {
+    @apply mt-4;
+
+    th .swatch {
+      @apply mr-1.5;
+    }
+
+    .run-head {
+      @apply align-bottom text-xs font-medium tracking-normal normal-case;
+
+      .sub {
+        @apply block max-w-40 truncate text-[11px] font-normal text-stone-400;
+      }
+    }
+
+    .best {
+      @apply font-semibold text-[#2a78d6];
+    }
+  }
+}
+
 .segmented {
   @apply inline-flex rounded-lg border border-stone-300 bg-white p-0.5 shadow-xs dark:border-stone-700 dark:bg-stone-900;
 
