@@ -1,8 +1,8 @@
 #!/usr/bin/env node
 // pnpm arena <command>. Run `pnpm arena help` for the list.
-import { cpSync, existsSync, readFileSync, readdirSync, writeFileSync } from 'node:fs';
+import { cpSync, existsSync, readFileSync, readdirSync, renameSync, writeFileSync } from 'node:fs';
 import { cpus } from 'node:os';
-import { isAbsolute, join, relative, resolve } from 'node:path';
+import { dirname, isAbsolute, join, relative, resolve } from 'node:path';
 import { parseArgs } from 'node:util';
 import { type ThreadSetting, availableOn, binaryPath, families, parseTool } from './lib/checkers.ts';
 import { corpusProject, setupCorpus } from './lib/corpus.ts';
@@ -34,6 +34,7 @@ const HELP = `ts-check-arena: TypeScript type checkers, side by side, across ver
       --shadow <mode>      auto | never (default: auto)
       --label <name>       how the target is named in results (default: its folder name)
       --smoke              one round, written to results/.smoke/
+      --no-save            keep nothing: print the report, then delete every record
       --allow-battery      run on battery power
   pnpm arena run --corpus <name> [options]  benchmark a pinned public project
 
@@ -41,8 +42,9 @@ const HELP = `ts-check-arena: TypeScript type checkers, side by side, across ver
   pnpm arena corpus setup [name]            clone and install corpus projects
   pnpm arena report <run-dir>               regenerate summary.json and report.md
   pnpm arena index                          regenerate results/index.json
-  pnpm arena publish <private-run-id> --label <public name>
-                                            copy a local run into results/ under a neutral name
+  pnpm arena publish <private-run-id> --label <public name> [--anonymize-configs]
+                                            copy a local run into results/ under a neutral name;
+                                            --anonymize-configs renames config paths to config-001...
 
 Path targets are written to results/private/ (gitignored). Nothing leaves this
 machine unless you publish it and push.`;
@@ -123,6 +125,7 @@ async function main(): Promise<void> {
           shadow: { type: 'string' },
           label: { type: 'string' },
           smoke: { type: 'boolean' },
+          'no-save': { type: 'boolean' },
           'allow-battery': { type: 'boolean' },
         },
       });
@@ -158,9 +161,10 @@ async function main(): Promise<void> {
         threads: values.threads ? parseThreads(values.threads) : undefined,
         shadow: values.shadow === 'never' ? 'never' : 'auto',
         smoke: values.smoke,
+        save: !values['no-save'],
         allowBattery: values['allow-battery'],
       });
-      writeIndex();
+      if (!values['no-save']) writeIndex();
       return;
     }
 
@@ -181,24 +185,51 @@ async function main(): Promise<void> {
       return;
 
     case 'publish': {
-      const { values } = parseArgs({ args: rest, options: { label: { type: 'string' } } });
+      const { values } = parseArgs({ args: rest, options: { label: { type: 'string' }, 'anonymize-configs': { type: 'boolean' } } });
       if (!sub || !values.label) fail('publish: pnpm arena publish <private-run-id> --label <public name>');
       const from = join(RESULTS_DIR, 'private', sub);
       if (!existsSync(join(from, 'run.json'))) fail(`no private run ${sub}`);
-      const meta = JSON.parse(readFileSync(join(from, 'run.json'), 'utf8')) as { label: string; id: string };
-      const publicId = meta.id.replace(new RegExp(`${meta.label.toLowerCase().replace(/[^a-z0-9]+/g, '-')}$`), values.label.toLowerCase().replace(/[^a-z0-9]+/g, '-'));
+      const meta = JSON.parse(readFileSync(join(from, 'run.json'), 'utf8')) as {
+        label: string;
+        id: string;
+        configs: { checked: { config: string }[]; rejected: { config: string }[] };
+      };
+      // config-001 and so on, longest path first so no path is replaced inside another.
+      const configNames = values['anonymize-configs']
+        ? [...meta.configs.checked, ...meta.configs.rejected]
+            .map(c => c.config)
+            .sort()
+            .map((config, i) => [config, `config-${String(i + 1).padStart(3, '0')}`] as const)
+            .sort((a, b) => b[0].length - a[0].length)
+        : [];
+      const configSlug = (t: string) => t.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+      const slug = (t: string) => t.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+      // The id ends in the label's slug, and a -N suffix for a second run that day.
+      const privateTail = new RegExp(`${slug(meta.label)}(-\\d+)?$`);
+      if (!privateTail.test(meta.id)) fail(`run id ${meta.id} does not end in its label ${meta.label}`);
+      const publicId = meta.id.replace(privateTail, slug(values.label));
       const to = join(RESULTS_DIR, publicId);
       if (existsSync(to)) fail(`results/${publicId} exists`);
       cpSync(from, to, { recursive: true });
+      if (values['anonymize-configs']) hideShadowValues(join(to, 'run.json'));
       // Replace the private label everywhere, including config paths in raw output.
       const relabel = scrubber({});
       for (const file of listFiles(to)) {
-        const text = readFileSync(file, 'utf8').replaceAll(meta.id, publicId).replaceAll(`"label": "${meta.label}"`, `"label": "${values.label}"`);
+        let text = readFileSync(file, 'utf8').replaceAll(meta.id, publicId).replaceAll(meta.label, values.label);
+        for (const [config, name] of configNames) text = text.replaceAll(config, name);
         writeFileSync(file, relabel(text));
+      }
+      // parity/<checker>/<config slug>.txt files are named after configs too.
+      for (const [config, name] of configNames) {
+        for (const file of listFiles(to).filter(f => f.endsWith(`/${configSlug(config)}.txt`))) {
+          renameSync(file, join(dirname(file), `${name}.txt`));
+        }
       }
       writeReport(to);
       writeIndex();
-      console.log(`published to ${relative(ROOT, to)}; review it before you commit: config paths and rejected-config details name the project's folders`);
+      console.log(
+        `published to ${relative(ROOT, to)}; review it before you commit${values['anonymize-configs'] ? '' : ': config paths name the project folders (--anonymize-configs hides them)'}`
+      );
       return;
     }
 
@@ -216,6 +247,23 @@ async function main(): Promise<void> {
     default:
       fail(`unknown command "${cmd}"; run pnpm arena help`);
   }
+}
+
+/**
+ * Keeps which options a shadow config overrode but not their values: `paths` and
+ * `typeRoots` list the project's own folders.
+ */
+function hideShadowValues(file: string): void {
+  const meta = JSON.parse(readFileSync(file, 'utf8')) as {
+    shadows?: Record<string, Record<string, unknown>>;
+    configs: { checked: { shadow: unknown }[] };
+  };
+  const names = (o: Record<string, unknown>) => Object.fromEntries(Object.keys(o).map(k => [k, '(hidden)']));
+  for (const key of Object.keys(meta.shadows ?? {})) meta.shadows![key] = names(meta.shadows![key]!);
+  for (const c of meta.configs.checked) {
+    if (c.shadow && typeof c.shadow === 'object') c.shadow = names(c.shadow as Record<string, unknown>);
+  }
+  writeFileSync(file, `${JSON.stringify(meta, null, 2)}\n`);
 }
 
 function listFiles(dir: string): string[] {

@@ -126,28 +126,54 @@ const s2 = (n: number) => (n < 1 ? n.toFixed(3) : n.toFixed(2));
 
 export function renderMarkdown(meta: RunMeta, summary: RunSummary): string {
   const lines: string[] = [];
-  const where = meta.source.kind === 'ci' ? `CI runner ${meta.source.runner}` : 'local machine';
-  lines.push(`# ${meta.label}: ${meta.id}`, '');
-  lines.push(`${meta.machine.cpu}, ${meta.machine.cores} cores, ${meta.machine.memoryGiB} GiB, ${meta.machine.os}, ${where}. Node ${meta.machine.node}.`);
-  lines.push(`Started ${meta.startedAt}, ended ${meta.endedAt}. Median of ${meta.rounds} rounds after one warm-up round; checker order rotated every round.`, '');
-  lines.push(`Configs: ${summary.configs.checked} checked (${summary.configs.shadowed} through a shadow config), ${summary.configs.rejected} rejected. Reference: ${meta.reference}.`, '');
-  if (summary.unavailable.length) lines.push(`No build for ${meta.machine.platform}: ${summary.unavailable.join(', ')}.`, '');
-  if (summary.untimed.length) lines.push(`Not timed, because they failed on a config (see the diagnostics table and parity/): ${summary.untimed.join(', ')}.`, '');
+  const where = meta.source.kind === 'ci' ? `CI runner \`${meta.source.runner}\`` : 'local machine';
+  const shortId = (id: string) => id.replace(/-ts\d.*$/, '');
+  const minutes = Math.round((Date.parse(meta.endedAt) - Date.parse(meta.startedAt)) / 60000);
+  const main = summary.settings.find(s => s.threads === 'default') ?? summary.settings[0];
+  const fastest = main?.checkers[0];
+  const agree = summary.parity.filter(p => p.differs === 0 && p.failed === 0).length;
+
+  lines.push(`# ${meta.label}`, '');
+  if (fastest) {
+    const lead = fastest.id === meta.reference ? 'is the fastest checker' : `is **${fastest.speedup.toFixed(1)}×** faster than \`${shortId(meta.reference)}\``;
+    lines.push(`> **\`${shortId(fastest.id)}\`** ${lead}: ${s2(fastest.median)} s for one pass over ${summary.configs.checked} configs. ${agree} of ${summary.parity.length} checkers report exactly the reference's diagnostics.`, '');
+  }
+  lines.push('| | |', '|---|---|');
+  lines.push(`| **Machine** | ${meta.machine.cpu}, ${meta.machine.cores} cores, ${meta.machine.memoryGiB} GiB |`);
+  lines.push(`| **System** | ${meta.machine.os}, Node ${meta.machine.node}, ${where} |`);
+  lines.push(`| **When** | ${meta.startedAt.slice(0, 16).replace('T', ' ')} UTC, ${minutes} min |`);
+  lines.push(`| **Method** | median of ${meta.rounds} rounds after one warm-up; checker order rotated every round |`);
+  lines.push(`| **Configs** | ${summary.configs.checked} checked, ${summary.configs.shadowed} through a shadow config, ${summary.configs.rejected} rejected |`);
+  lines.push(`| **Reference** | \`${meta.reference}\` |`);
+  lines.push(`| **Run** | \`${meta.id}\` |`, '');
+  if (summary.unavailable.length) lines.push(`No build for ${meta.machine.platform}: ${summary.unavailable.map(i => `\`${i}\``).join(', ')}.`, '');
+  if (summary.untimed.length) lines.push(`**Not timed**, because they failed on a config (see Diagnostics and \`parity/\`): ${summary.untimed.map(i => `\`${i}\``).join(', ')}.`, '');
+
   for (const setting of summary.settings) {
-    lines.push(`## Threads: ${setting.threads}`, '');
-    lines.push('A pass checks every config once, one after another. Wall and CPU are summed over the pass; peak memory is the largest single config.', '');
-    lines.push('| Checker | Wall s, median (min to max) | vs reference | CPU s | Peak MiB |', '|---|---|---|---|---|');
+    lines.push(`## ${setting.threads === 'default' ? 'Speed, as shipped' : `Speed, ${setting.threads} ${setting.threads === '1' ? 'thread' : 'threads'}`}`, '');
+    lines.push('One pass checks every config once, one after another. Wall and CPU time are summed over the pass; peak memory is the largest single config.', '');
+    lines.push('| Checker | Wall | Range | vs reference | CPU | Peak |', '|---|--:|--:|--:|--:|--:|');
     for (const c of setting.checkers) {
-      lines.push(`| ${c.id} | ${s2(c.median)} (${s2(c.min)} to ${s2(c.max)}) | ${c.speedup.toFixed(1)}x | ${s2(c.cpu)} | ${Math.round(c.rssMiB)} |`);
+      lines.push(`| \`${shortId(c.id)}\` | **${s2(c.median)} s** | ${s2(c.min)} to ${s2(c.max)} | ${c.speedup.toFixed(1)}× | ${s2(c.cpu)} s | ${Math.round(c.rssMiB)} MiB |`);
     }
     lines.push('');
   }
-  lines.push('## Diagnostics compared with the reference', '');
-  lines.push('| Checker | Identical | Same after normalizing | Differs | Failed | Extra | Missing |', '|---|---|---|---|---|---|---|');
+  lines.push('## Diagnostics', '', `Each checker's output on every config, compared with \`${meta.reference}\`.`, '');
+  lines.push('| Checker | Result | Identical | Same after normalizing | Differs | Failed | Extra | Missing |', '|---|---|--:|--:|--:|--:|--:|--:|');
   for (const p of summary.parity) {
-    lines.push(`| ${p.id} | ${p.identical} | ${p.sameNormalized} | ${p.differs} | ${p.failed} | ${p.extra} | ${p.missing} |`);
+    const result = p.failed ? '❌ failed' : p.differs ? '⚠️ differs' : p.sameNormalized ? '✅ same errors' : '✅ identical';
+    lines.push(`| \`${p.id.replace(/-ts\d.*$/, '')}\` | ${result} | ${p.identical} | ${p.sameNormalized} | ${p.differs} | ${p.failed} | ${p.extra} | ${p.missing} |`);
   }
   lines.push('', 'Extra: diagnostics only that checker reported. Missing: diagnostics only the reference reported. The full output of every differing config is in parity/.', '');
+  const sets = Object.entries(meta.shadows ?? {});
+  if (sets.length) {
+    lines.push('## Shadow configs', '', 'Overrides applied so TypeScript 7 reads the configs; full values in run.json.', '', '| Set | Configs | Overrides |', '|---|---|---|');
+    for (const [key, overrides] of sets) {
+      const count = meta.configs.checked.filter(c => c.shadow === key).length;
+      lines.push(`| ${key} | ${count} | ${Object.keys(overrides).map(k => `\`${k}\``).join(', ')} |`);
+    }
+    lines.push('');
+  }
   if (meta.configs.rejected.length) {
     lines.push('## Rejected configs', '', '| Config | Reason | Detail |', '|---|---|---|');
     for (const r of meta.configs.rejected) lines.push(`| ${r.config} | ${r.reason} | ${r.detail.replace(/\s+/g, ' ').replaceAll('|', '\\|').slice(0, 160)} |`);

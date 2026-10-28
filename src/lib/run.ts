@@ -1,7 +1,7 @@
 // One benchmark run into results/<id>/. docs/METHOD.md describes every step; this
 // file is the only place they are carried out.
 import { createHash } from 'node:crypto';
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import os from 'node:os';
 import { basename, dirname, join, relative } from 'node:path';
 import { type ThreadSetting, type Tool, availableOn, binaryPath, command, installedVersion, parseTool, threadArgs } from './checkers.ts';
@@ -29,6 +29,11 @@ export interface RunOptions {
   shadow?: 'auto' | 'never';
   allowBattery?: boolean;
   smoke?: boolean;
+  /**
+   * false: nothing is kept. The run writes to a temporary folder, prints its report
+   * and deletes the folder, so a private project leaves no record in results/.
+   */
+  save?: boolean;
   log?: (line: string) => void;
 }
 
@@ -59,7 +64,13 @@ export interface RunMeta {
     versionOutput: string | null;
     binarySha256: string | null;
   }[];
-  configs: { checked: { config: string; shadow: Record<string, unknown> | null }[]; rejected: Rejected[] };
+  /**
+   * Shadow config overrides, recorded once per distinct set and keyed by a short
+   * hash; a config's `shadow` names its set. Configs that extend one base share a
+   * set, so a monorepo records a handful instead of one copy per config.
+   */
+  shadows: Record<string, Record<string, unknown>>;
+  configs: { checked: { config: string; shadow: string | null }[]; rejected: Rejected[] };
   conditions: { warnings: string[]; loadStart: number[]; loadEnd: number[] };
 }
 
@@ -94,7 +105,7 @@ function versionOutput(tool: Tool): string | null {
   return capture(argv, ROOT).text.trim().split('\n')[0] ?? null;
 }
 
-export async function run(options: RunOptions): Promise<string> {
+export async function run(options: RunOptions): Promise<string | null> {
   const log = options.log ?? (line => console.log(line));
   const label = options.label ?? basename(options.target);
   const smoke = Boolean(options.smoke);
@@ -116,15 +127,24 @@ export async function run(options: RunOptions): Promise<string> {
   if (!options.allowBattery && !onAC()) blockers.push('on battery power; connect power or pass --allow-battery');
   if (blockers.length) throw new Error(`refusing to run:\n  ${blockers.join('\n  ')}`);
 
-  // TypeScript loads node_modules/@types from every folder above a config, so a
-  // node_modules above the target can change what is checked. Smoke fixtures set
-  // "types": [] and are exempt.
+  // TypeScript includes every node_modules/@types package from the folders above a
+  // config that sets no `types`, so @types above a corpus checkout would change what
+  // is checked: refused. Any other node_modules above the target only matters for an
+  // import the project does not install itself, which the gate would show: recorded.
   const above: string[] = [];
   for (let d = dirname(options.target); d !== dirname(d); d = dirname(d)) if (existsSync(join(d, 'node_modules'))) above.push(d);
-  if (above.length && options.corpus) throw new Error('refusing to run: a node_modules folder sits above the corpus checkout');
+  const typesAbove = above.filter(d => existsSync(join(d, 'node_modules', '@types')));
+  if (typesAbove.length && options.corpus) {
+    throw new Error(`refusing to run: node_modules/@types above the corpus checkout, in ${typesAbove.join(', ')}; set ARENA_CORPUS_DIR elsewhere`);
+  }
 
-  const id = runId(label, smoke);
-  const dir = uniqueDir(join(RESULTS_DIR, smoke ? '.smoke' : options.corpus ? '' : 'private', id));
+  // The folder name is the run's id, so a second run on the same day (folder -2)
+  // gets its own id too.
+  const save = options.save !== false;
+  const dir = save
+    ? uniqueDir(join(RESULTS_DIR, smoke ? '.smoke' : options.corpus ? '' : 'private', runId(label, smoke)))
+    : join(mkdtempSync(join(os.tmpdir(), 'arena-run-')), runId(label, smoke));
+  const id = basename(dir);
   mkdirSync(dir, { recursive: true });
   const scrub: Scrubber = scrubber({ '<target>': options.target, '<arena>': ROOT });
 
@@ -211,6 +231,16 @@ export async function run(options: RunOptions): Promise<string> {
       }
     }
 
+    const shadowSets: Record<string, Record<string, unknown>> = {};
+    const shadowKey = (overrides: Record<string, unknown> | null): string | null => {
+      if (!overrides) return null;
+      const text = scrub(JSON.stringify(overrides));
+      const key = createHash('sha256').update(text).digest('hex').slice(0, 12);
+      shadowSets[key] ??= JSON.parse(text) as Record<string, unknown>;
+      return key;
+    };
+    const checkedConfigs = checked.map(c => ({ config: c.config, shadow: shadowKey(c.overrides) }));
+
     const meta: RunMeta = {
       schema: 1,
       id,
@@ -235,8 +265,9 @@ export async function run(options: RunOptions): Promise<string> {
           binarySha256: bin ? sha256(bin) : null,
         };
       }),
+      shadows: shadowSets,
       configs: {
-        checked: checked.map(c => ({ config: c.config, shadow: c.overrides ? JSON.parse(scrub(JSON.stringify(c.overrides))) : null })),
+        checked: checkedConfigs,
         rejected,
       },
       conditions: { warnings: conditionWarnings.map(scrub), loadStart, loadEnd: os.loadavg() },
@@ -249,10 +280,17 @@ export async function run(options: RunOptions): Promise<string> {
     );
     writeFileSync(join(dir, 'parity.json'), `${JSON.stringify(parity, null, 2)}\n`);
     writeReport(dir);
+    if (!save) {
+      log('');
+      log(readFileSync(join(dir, 'report.md'), 'utf8'));
+      log('not saved (--no-save): the records above were deleted with their temporary folder');
+      return null;
+    }
     log(`results: ${relative(ROOT, dir)}`);
     return dir;
   } finally {
     shadows.cleanup();
+    if (!save) rmSync(dirname(dir), { recursive: true, force: true });
     release();
   }
 }
