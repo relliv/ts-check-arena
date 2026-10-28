@@ -1,157 +1,266 @@
 @import 'tailwindcss';
 
-/* Family colors: one hue per checker family, stable across every chart. */
 @theme {
-  --color-family-tsc: oklch(0.6 0.02 250);
-  --color-family-tsgo: oklch(0.62 0.15 240);
-  --color-family-tsrs: oklch(0.7 0.17 55);
-  --color-family-tsc-rs: oklch(0.62 0.2 20);
-  --color-family-tsc-ts: oklch(0.65 0.13 170);
-  --color-family-bun: oklch(0.78 0.14 85);
   --font-sans: 'Inter', ui-sans-serif, system-ui, sans-serif;
-  --font-mono: 'JetBrains Mono', ui-monospace, monospace;
+  --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, monospace;
 }
 
 body {
-  @apply bg-stone-50 text-stone-900 antialiased dark:bg-stone-950 dark:text-stone-100;
+  @apply bg-[#f6f5f2] text-stone-900 antialiased dark:bg-[#121211] dark:text-stone-100;
+}
+
+code {
+  @apply rounded bg-stone-200/60 px-1.5 py-0.5 font-mono text-[0.85em] dark:bg-stone-800;
 }
 
 .page {
-  @apply mx-auto max-w-6xl px-4 py-8 sm:px-6;
+  @apply mx-auto max-w-6xl px-4 pb-16 sm:px-6;
+}
 
-  .masthead {
-    @apply mb-8 flex flex-col gap-2;
+.topbar {
+  @apply flex items-center justify-between py-5;
 
-    .title {
-      @apply font-mono text-2xl font-semibold tracking-tight;
-    }
-
-    .lede {
-      @apply max-w-3xl text-stone-600 dark:text-stone-400;
-    }
+  .brand {
+    @apply flex items-center gap-2.5 font-mono text-sm font-semibold tracking-tight;
   }
 
-  .controls {
-    @apply mb-6 flex flex-wrap items-end gap-4;
-
-    label {
-      @apply flex flex-col gap-1 text-xs font-medium tracking-wide text-stone-500 uppercase;
-    }
-
-    select {
-      @apply rounded-md border border-stone-300 bg-white px-3 py-2 text-sm text-stone-900 normal-case dark:border-stone-700 dark:bg-stone-900 dark:text-stone-100;
-    }
+  .brand-mark {
+    @apply grid h-7 place-items-center rounded-md bg-[#2a78d6] px-1.5 text-[11px] font-bold text-white;
   }
 
-  .panel {
-    @apply mb-8 rounded-xl border border-stone-200 bg-white p-5 dark:border-stone-800 dark:bg-stone-900;
+  .topbar-link {
+    @apply text-sm text-stone-500 hover:text-stone-900 dark:hover:text-stone-100;
+  }
+}
 
-    h2 {
-      @apply mb-1 text-lg font-semibold;
-    }
+.controls {
+  @apply mb-8 flex flex-wrap items-end gap-4;
+}
 
-    .hint {
-      @apply mb-4 text-sm text-stone-500;
-    }
+.field {
+  @apply flex min-w-0 flex-col gap-1.5;
+
+  > span {
+    @apply text-[11px] font-medium tracking-wider text-stone-500 uppercase;
   }
 
-  .meta {
-    @apply mb-4 flex flex-wrap gap-2 text-xs;
+  select {
+    @apply max-w-full rounded-lg border border-stone-300 bg-white px-3 py-2 text-sm shadow-xs dark:border-stone-700 dark:bg-stone-900;
+  }
+}
 
-    .badge {
-      @apply rounded-full bg-stone-100 px-2.5 py-1 font-mono text-stone-700 dark:bg-stone-800 dark:text-stone-300;
+.segmented {
+  @apply inline-flex rounded-lg border border-stone-300 bg-white p-0.5 shadow-xs dark:border-stone-700 dark:bg-stone-900;
 
-      &.ci {
-        @apply bg-sky-100 text-sky-800 dark:bg-sky-950 dark:text-sky-300;
-      }
+  button {
+    @apply rounded-md px-3 py-1.5 text-sm text-stone-600 transition-colors dark:text-stone-400;
 
-      &.local {
-        @apply bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300;
-      }
+    &[aria-selected='true'] {
+      @apply bg-stone-900 text-white dark:bg-stone-100 dark:text-stone-900;
+    }
+
+    &:hover:not([aria-selected='true']) {
+      @apply text-stone-900 dark:text-stone-100;
     }
   }
+}
 
-  .bars {
-    @apply flex flex-col gap-2;
+.hero {
+  @apply mb-6;
 
-    .row {
-      @apply grid grid-cols-[minmax(9rem,16rem)_1fr_5rem] items-center gap-3 text-sm;
-    }
-
-    .name {
-      @apply truncate font-mono text-xs;
-    }
-
-    .track {
-      @apply relative h-5 rounded bg-stone-100 dark:bg-stone-800;
-    }
-
-    .fill {
-      @apply absolute inset-y-0 left-0 rounded;
-    }
-
-    .whisker {
-      @apply absolute top-1/2 h-px bg-stone-900/60 dark:bg-stone-100/60;
-    }
-
-    .value {
-      @apply text-right font-mono text-xs tabular-nums;
-    }
+  .eyebrow {
+    @apply mb-3 font-mono text-xs tracking-wider text-stone-500 uppercase;
   }
 
-  .grid-table {
-    @apply w-full border-collapse text-sm;
-
-    th {
-      @apply border-b border-stone-200 px-2 py-2 text-left text-xs font-medium tracking-wide text-stone-500 uppercase dark:border-stone-800;
-    }
-
-    td {
-      @apply border-b border-stone-100 px-2 py-1.5 font-mono text-xs tabular-nums dark:border-stone-800/60;
-    }
-
-    .good {
-      @apply text-emerald-700 dark:text-emerald-400;
-    }
-
-    .bad {
-      @apply text-rose-700 dark:text-rose-400;
-    }
+  .headline {
+    @apply max-w-4xl text-3xl leading-tight font-semibold tracking-tight text-balance sm:text-4xl;
   }
 
-  .table-scroll {
-    @apply overflow-x-auto;
+  .accent {
+    @apply underline decoration-stone-300 decoration-2 underline-offset-4 dark:decoration-stone-600;
   }
+
+  .sub {
+    @apply mt-3 max-w-3xl text-stone-600 dark:text-stone-400;
+  }
+}
+
+.tiles {
+  @apply mt-6 grid grid-cols-2 gap-3 lg:grid-cols-4;
+}
+
+.tile {
+  @apply rounded-xl border border-stone-200 bg-white p-4 dark:border-stone-800 dark:bg-[#1a1a19];
+
+  .tile-label {
+    @apply flex items-center gap-2 text-xs font-medium text-stone-500;
+  }
+
+  .tile-value {
+    @apply mt-2 font-mono text-2xl font-semibold tracking-tight tabular-nums;
+  }
+
+  .tile-of {
+    @apply text-base font-normal text-stone-400;
+  }
+
+  .tile-note {
+    @apply mt-1 truncate text-xs text-stone-500;
+  }
+}
+
+.meta {
+  @apply mb-8 flex flex-wrap gap-2;
+}
+
+.badge {
+  @apply rounded-full border border-stone-200 bg-white px-3 py-1 text-xs text-stone-600 dark:border-stone-800 dark:bg-[#1a1a19] dark:text-stone-400;
+
+  &.local {
+    @apply border-emerald-200 bg-emerald-50 text-emerald-800 dark:border-emerald-900 dark:bg-emerald-950/50 dark:text-emerald-300;
+  }
+
+  &.ci {
+    @apply border-sky-200 bg-sky-50 text-sky-800 dark:border-sky-900 dark:bg-sky-950/50 dark:text-sky-300;
+  }
+
+  &.warn {
+    @apply border-amber-200 bg-amber-50 text-amber-800 dark:border-amber-900 dark:bg-amber-950/50 dark:text-amber-300;
+  }
+}
+
+.card {
+  @apply mb-6 rounded-2xl border border-stone-200 bg-white p-5 shadow-xs sm:p-6 dark:border-stone-800 dark:bg-[#1a1a19];
+
+  h2 {
+    @apply text-base font-semibold tracking-tight;
+  }
+
+  .hint {
+    @apply mt-1 mb-4 text-sm text-stone-500;
+  }
+
+  .card-head {
+    @apply flex flex-wrap items-start justify-between gap-4;
+  }
+}
+
+.grid-2 {
+  @apply grid gap-6 lg:grid-cols-2;
+
+  .card {
+    @apply mb-0;
+  }
+
+  & + .card {
+    @apply mt-6;
+  }
+}
+
+.chart {
+  @apply w-full;
+}
+
+.legend {
+  @apply mb-2 flex flex-wrap gap-x-4 gap-y-1 text-xs text-stone-600 dark:text-stone-400;
+
+  .legend-item {
+    @apply inline-flex items-center gap-1.5;
+  }
+}
+
+.swatch {
+  @apply mr-2 inline-block size-2.5 shrink-0 rounded-[3px] align-middle;
+}
+
+.trends {
+  @apply grid gap-4 sm:grid-cols-2 lg:grid-cols-3;
 
   .trend {
-    @apply grid gap-4 sm:grid-cols-2 lg:grid-cols-3;
+    @apply rounded-xl border border-stone-200 p-3 dark:border-stone-800;
+  }
 
-    .family {
-      @apply rounded-lg border border-stone-200 p-3 dark:border-stone-800;
-    }
+  .trend-name {
+    @apply flex items-center font-mono text-sm font-medium;
+  }
+}
 
-    .family-name {
-      @apply mb-2 flex items-center gap-2 font-mono text-sm font-medium;
-    }
+.table-scroll {
+  @apply -mx-1 overflow-x-auto px-1;
+}
 
-    svg {
-      @apply h-32 w-full overflow-visible;
+.data {
+  @apply w-full border-collapse text-sm;
+
+  th {
+    @apply border-b border-stone-200 px-2 pb-2 text-left text-[11px] font-medium tracking-wider whitespace-nowrap text-stone-500 uppercase dark:border-stone-800;
+  }
+
+  td {
+    @apply border-b border-stone-100 px-2 py-2 whitespace-nowrap dark:border-stone-800/70;
+  }
+
+  tr:last-child td {
+    @apply border-b-0;
+  }
+
+  .num {
+    @apply text-right font-mono tabular-nums;
+  }
+
+  .strong {
+    @apply font-semibold;
+  }
+
+  .muted {
+    @apply text-stone-500;
+  }
+
+  .meter {
+    @apply inline-block h-1.5 w-14 overflow-hidden rounded-full bg-stone-100 align-middle dark:bg-stone-800;
+
+    span {
+      @apply block h-full rounded-full;
     }
   }
 
-  .swatch {
-    @apply inline-block size-2.5 rounded-sm;
+  .meter-value {
+    @apply ml-2 font-mono text-xs tabular-nums;
+  }
+}
+
+.chip {
+  @apply inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-medium;
+
+  &.ok {
+    @apply bg-emerald-50 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300;
   }
 
-  .empty {
-    @apply rounded-xl border border-dashed border-stone-300 p-8 text-center text-stone-500 dark:border-stone-700;
+  &.warn {
+    @apply bg-amber-50 text-amber-800 dark:bg-amber-950/60 dark:text-amber-300;
   }
 
-  .footer {
-    @apply mt-12 text-xs text-stone-500;
+  &.bad {
+    @apply bg-rose-50 text-rose-800 dark:bg-rose-950/60 dark:text-rose-300;
+  }
+}
 
-    a {
-      @apply underline underline-offset-2;
-    }
+.empty {
+  @apply mt-16 rounded-2xl border border-dashed border-stone-300 p-12 text-center dark:border-stone-700;
+
+  h2 {
+    @apply mb-2 text-lg font-semibold;
+  }
+
+  p {
+    @apply text-stone-500;
+  }
+}
+
+.footer {
+  @apply mt-10 text-xs text-stone-500;
+
+  a {
+    @apply underline underline-offset-2;
   }
 }

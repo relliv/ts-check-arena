@@ -11,5 +11,6 @@ export default defineConfig({
     __ARENA_PRIVATE__: JSON.stringify(process.env['ARENA_SITE_PRIVATE'] === '1'),
   },
   server: { fs: { allow: ['..'] } },
-  build: { outDir: '../dist', emptyOutDir: true },
+  // ECharts, tree-shaken to the charts the site uses, is most of the bundle.
+  build: { outDir: '../dist', emptyOutDir: true, chunkSizeWarningLimit: 800 },
 });
