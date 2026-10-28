@@ -26,11 +26,14 @@ const secs = (n: number): string => (n < 1 ? `${Math.round(n * 1000)} ms` : `${n
 const times = (n: number): string => (Number.isFinite(n) ? `${n >= 10 ? n.toFixed(0) : n.toFixed(1)}×` : 'n/a');
 const mib = (n: number): string => (n >= 1024 ? `${(n / 1024).toFixed(1)} GiB` : `${Math.round(n)} MiB`);
 
-/** "tsrs@0.20.1-ts7.1.0-beta" reads as "tsrs 0.20.1"; the full id stays in tooltips. */
+/** "tsrs@0.20.1-ts7.1.0-beta+fast" reads as "tsrs 0.20.1 +fast"; the full id stays in tooltips. */
 function short(id: string): string {
   const at = id.lastIndexOf('@');
-  return `${id.slice(0, at)} ${id.slice(at + 1).replace(/-ts\d.*$/, '')}`;
+  return `${id.slice(0, at)} ${shortVersion(id.slice(at + 1))}`;
 }
+
+/** Drops the TypeScript port tag and spaces out a variant: "0.20.1-ts7.1.0-beta+fast" is "0.20.1 +fast". */
+const shortVersion = (version: string): string => version.replace(/-ts\d[^+]*/, '').replace('+', ' +');
 
 const familyOf = (id: string): string => id.slice(0, id.lastIndexOf('@'));
 const versionOf = (id: string): string => id.slice(id.lastIndexOf('@') + 1);
@@ -219,7 +222,7 @@ function scatterChart(checkers: CheckerSummary[]) {
             position: 'right',
             color: c.secondary,
             fontSize: 11,
-            formatter: () => `${f} ${group.map(a => versionOf(a.id).replace(/-ts\d.*$/, '')).join(', ')}`,
+            formatter: () => `${f} ${group.map(a => shortVersion(versionOf(a.id))).join(', ')}`,
           },
         }))
       ),
@@ -233,7 +236,7 @@ function trendChart(family: string, points: [string, number][]) {
   const color = familyColor(family);
   return {
     grid: { left: 8, right: 16, top: 24, bottom: 8, containLabel: true },
-    xAxis: categoryAxis(points.map(p => p[0].replace(/-ts\d.*$/, '')), { boundaryGap: points.length === 1 }),
+    xAxis: categoryAxis(points.map(p => shortVersion(p[0])), { boundaryGap: points.length === 1 }),
     yAxis: { ...valueAxis(undefined, v => `${v}×`), min: 0 },
     tooltip: { trigger: 'axis', formatter: (p: { dataIndex: number }[]) => `<b>${esc(family)}@${esc(points[p[0]!.dataIndex]![0])}</b><br>${times(points[p[0]!.dataIndex]![1])} vs reference` },
     series: [

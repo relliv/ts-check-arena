@@ -1,5 +1,5 @@
 {
-  "$comment": "Checker families. A family describes what stays the same across its versions; the version is chosen per run (family@version) and installed into tools/<family>@<version>/ by `pnpm arena tool add`. Fields: package: the npm package installed; versions: the major versions this family covers (a version outside the range belongs to another family, such as typescript 6 under tsc and 7 under tsgo); binary: per <platform>-<arch>, the package holding the native executable and its path inside that package, with an optional versions range for a platform added in a later release (a platform that is missing, or out of range, means no build is published for it); runtime: 'node' when the executable is a JavaScript file run with the current node, otherwise it is run directly; args: placed before the config arguments, where an {args, versions} entry applies only to that version range (bun check gained --no-script in 1.4.4); project: how the config is passed; plainOutput: one line per diagnostic; listFiles: how it lists its program's files, or null; threads: thread flags as documented by the checker, {n} replaced, or null when it documents none; defaultThreads: what it uses with no thread flag, as documented: a number or 'per-core'; source: where the thread flags are documented.",
+  "$comment": "Checker families. A family describes what stays the same across its versions; the version is chosen per run (family@version) and installed into tools/<family>@<version>/ by `pnpm arena tool add`. Fields: package: the npm package installed; versions: the major versions this family covers (a version outside the range belongs to another family, such as typescript 6 under tsc and 7 under tsgo); binary: per <platform>-<arch>, the package holding the native executable and its path inside that package, with an optional versions range for a platform added in a later release (a platform that is missing, or out of range, means no build is published for it); runtime: 'node' when the executable is a JavaScript file run with the current node, otherwise it is run directly; args: placed before the config arguments, where an {args, versions} entry applies only to that version range (bun check gained --no-script in 1.4.4); project: how the config is passed; plainOutput: one line per diagnostic; listFiles: how it lists its program's files, or null; threads: thread flags as documented by the checker, {n} replaced, or null when it documents none; defaultThreads: what it uses with no thread flag, as documented: a number or 'per-core', or a list of {versions, value} when a release changed it; variants: documented opt-in modes, each {args, versions, description}, run as family@version+name; source: where the thread flags are documented.",
   "families": [
     {
       "name": "tsc",
@@ -35,7 +35,10 @@
       "project": ["-p", "{config}", "--noEmit"],
       "plainOutput": ["--pretty", "false"],
       "listFiles": ["--listFilesOnly"],
-      "threads": { "one": ["--singleThreaded"], "n": ["--checkers", "{n}"] },
+      "threads": {
+        "one": ["--singleThreaded"],
+        "n": ["--checkers", "{n}"]
+      },
       "defaultThreads": 4,
       "source": "tsc --help --all; the default of 4 checkers is stated in the tsc-ts and tsc-rs READMEs"
     },
@@ -55,9 +58,22 @@
       "project": ["-p", "{config}", "--noEmit"],
       "plainOutput": ["--pretty", "false"],
       "listFiles": ["--listFilesOnly"],
-      "threads": { "one": ["--singleThreaded"], "n": ["--checkers", "{n}"] },
-      "defaultThreads": "per-core",
-      "source": "oxc-project/tsrs docs/COMPATIBILITY.md"
+      "threads": {
+        "one": ["--singleThreaded"],
+        "n": ["--checkers", "{n}"]
+      },
+      "defaultThreads": [
+        { "versions": "<0.20", "value": "per-core" },
+        { "versions": ">=0.20", "value": 4 }
+      ],
+      "source": "oxc-project/tsrs docs/COMPATIBILITY.md; 0.20.0 release notes: TypeScript's checker defaults (4 checkers, tsgo's file assignment, eager members), --fast for the previous optimizations",
+      "variants": {
+        "fast": {
+          "args": ["--fast"],
+          "versions": ">=0.20",
+          "description": "The tsrs optimizations that were the default before 0.20: more checkers, its own file assignment, lazy members. May report different diagnostics in known cases."
+        }
+      }
     },
     {
       "name": "tsc-rs",
@@ -76,7 +92,10 @@
       "project": ["-p", "{config}", "--noEmit"],
       "plainOutput": ["--pretty", "false"],
       "listFiles": ["--listFilesOnly"],
-      "threads": { "one": ["--singleThreaded"], "n": ["--checkers", "{n}"] },
+      "threads": {
+        "one": ["--singleThreaded"],
+        "n": ["--checkers", "{n}"]
+      },
       "defaultThreads": 4,
       "source": "pingdotgg/ts-rust README: --checkers is Go's option, default 4"
     },
@@ -96,7 +115,10 @@
       "project": ["-p", "{config}", "--noEmit"],
       "plainOutput": ["--pretty", "false"],
       "listFiles": ["--listFilesOnly"],
-      "threads": { "one": ["--singleThreaded"], "n": ["--checkers", "{n}"] },
+      "threads": {
+        "one": ["--singleThreaded"],
+        "n": ["--checkers", "{n}"]
+      },
       "defaultThreads": "per-core",
       "source": "tsc-ts README: one checker per CPU, up to 16, at least 4"
     },
@@ -113,11 +135,20 @@
         "win32-arm64": { "package": "@oven/bun-windows-aarch64", "file": "bin/bun.exe" },
         "win32-x64": { "package": "@oven/bun-windows-x64", "file": "bin/bun.exe" }
       },
-      "args": ["check", { "args": ["--no-script"], "versions": ">=1.4.4" }],
+      "args": [
+        "check",
+        {
+          "args": ["--no-script"],
+          "versions": ">=1.4.4"
+        }
+      ],
       "project": ["-p", "{config}"],
       "plainOutput": ["--no-pretty", "--all"],
       "listFiles": null,
-      "threads": { "one": ["--threads=1"], "n": ["--threads={n}"] },
+      "threads": {
+        "one": ["--threads=1"],
+        "n": ["--threads={n}"]
+      },
       "defaultThreads": "per-core",
       "source": "bun check --help: one thread per CPU core"
     }

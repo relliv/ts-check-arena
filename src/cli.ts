@@ -4,7 +4,7 @@ import { cpSync, existsSync, readFileSync, readdirSync, renameSync, writeFileSyn
 import { cpus } from 'node:os';
 import { dirname, isAbsolute, join, relative, resolve } from 'node:path';
 import { parseArgs } from 'node:util';
-import { type ThreadSetting, availableOn, binaryPath, families, parseTool } from './lib/checkers.ts';
+import { type ThreadSetting, availableOn, binaryPath, families, parseTool, variantIds } from './lib/checkers.ts';
 import { corpusProject, setupCorpus } from './lib/corpus.ts';
 import { CORPUS_DIR, PLATFORM, RESULTS_DIR, ROOT } from './lib/paths.ts';
 import { writeIndex, writeReport } from './lib/report.ts';
@@ -24,7 +24,8 @@ const HELP = `ts-check-arena: TypeScript type checkers, side by side, across ver
   pnpm arena families                       checker families and platforms
 
   pnpm arena run --target <path> [options]  benchmark a project on this machine
-      --checkers <ids>     comma-separated family@version list (default: every installed tool)
+      --checkers <ids>     comma-separated family@version[+variant] list
+                           (default: every installed tool and its variants, such as tsrs@...+fast)
       --reference <id>     the checker every other is compared with (default: newest installed tsgo)
       --configs <list>     comma-separated configs, relative to the target
       --configs-file <f>   one config per line
@@ -85,6 +86,7 @@ async function main(): Promise<void> {
       for (const f of families) {
         console.log(`${f.name.padEnd(8)} ${f.package.padEnd(12)} ${f.versions.padEnd(6)} ${f.description}`);
         console.log(`${''.padEnd(8)} platforms: ${Object.keys(f.binary).join(', ')}`);
+        for (const [name, v] of Object.entries(f.variants ?? {})) console.log(`${''.padEnd(8)} variant +${name} (${v.args.join(' ')}${v.versions ? `, ${v.versions}` : ''}): ${v.description}`);
       }
       return;
 
@@ -145,7 +147,8 @@ async function main(): Promise<void> {
         fail('run: pass --target <path> or --corpus <name>');
       }
       if (values['configs-file']) configs = readConfigList(values['configs-file']);
-      const checkers = values.checkers?.split(',').filter(Boolean) ?? listTools().filter(t => binaryPath(t)).map(t => t.id);
+      // By default every installed tool, each followed by its documented variants.
+      const checkers = values.checkers?.split(',').filter(Boolean) ?? listTools().filter(t => binaryPath(t)).flatMap(t => [t.id, ...variantIds(t)]);
       const reference = values.reference ?? newestTsgo();
       if (!reference) fail('no reference: install a tsgo version (pnpm arena tool add tsgo@7.0.2) or pass --reference');
       checkers.forEach(parseTool);

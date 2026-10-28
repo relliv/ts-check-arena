@@ -4,7 +4,7 @@ import { createHash } from 'node:crypto';
 import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import os from 'node:os';
 import { basename, dirname, join, relative } from 'node:path';
-import { type ThreadSetting, type Tool, availableOn, binaryPath, command, installedVersion, parseTool, threadArgs } from './checkers.ts';
+import { type ThreadSetting, type Tool, availableOn, binaryPath, command, defaultThreads, installedVersion, parseTool, threadArgs } from './checkers.ts';
 import { type ParityResult, compareOutputs } from './diagnostics.ts';
 import { type Machine, type Source, holdAwake, machine, onAC, source, underRosetta, warnings } from './machine.ts';
 import { capture, measure, timingPrerequisites } from './measure.ts';
@@ -60,6 +60,10 @@ export interface RunMeta {
     family: string;
     package: string;
     version: string;
+    variant: string | null;
+    /** Arguments the variant adds to the shipped defaults. */
+    variantArgs: string[];
+    defaultThreads: number | 'per-core' | null;
     available: boolean;
     versionOutput: string | null;
     binarySha256: string | null;
@@ -260,6 +264,10 @@ export async function run(options: RunOptions): Promise<string | null> {
           family: t.family.name,
           package: t.family.package,
           version: installedVersion(t) ?? t.version,
+          variant: t.variant ?? null,
+          variantArgs: t.variant ? t.family.variants![t.variant]!.args : [],
+          // A variant's mode can set its own thread count, so only plain entries record one.
+          defaultThreads: t.variant ? null : defaultThreads(t),
           available: availableOn(t),
           versionOutput: bin ? scrub(versionOutput(t) ?? '') : null,
           binarySha256: bin ? sha256(bin) : null,

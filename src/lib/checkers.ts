@@ -27,15 +27,26 @@ export interface Family {
   plainOutput: string[];
   listFiles: string[] | null;
   threads: { one: string[]; n: string[] } | null;
-  defaultThreads: number | 'per-core';
+  /** As documented; a list when a release changed it, each entry for a version range. */
+  defaultThreads: DefaultThreads | { versions: string; value: DefaultThreads }[];
+  /**
+   * Opt-in modes a checker documents, run as their own entry (tsrs@0.20.1+fast) so
+   * the shipped default and the mode are both measured and compared.
+   */
+  variants?: Record<string, { args: string[]; versions?: string; description: string }>;
   source: string;
 }
 
+export type DefaultThreads = number | 'per-core';
+
 export interface Tool {
-  /** family@version, the name used everywhere: tools/<id>/, results, charts. */
+  /** family@version, or family@version+variant: the name in results and charts. */
   id: string;
+  /** family@version: the installed package, tools/<base>/, shared by its variants. */
+  base: string;
   family: Family;
   version: string;
+  variant?: string;
 }
 
 /** `default` runs a checker as it ships; a number sets that many checkers or threads. */
@@ -109,24 +120,53 @@ export function inRange(version: string, range: string): boolean {
   }
 }
 
-/** Parses "tsgo@7.0.2" and checks the version belongs to the family. */
+/**
+ * Parses "tsgo@7.0.2", or "tsrs@0.20.1-ts7.1.0-beta+fast" for a declared variant,
+ * and checks the version belongs to the family and the variant applies to it.
+ */
 export function parseTool(id: string): Tool {
   const at = id.lastIndexOf('@');
   if (at <= 0 || at === id.length - 1) {
     throw new Error(`"${id}" is not family@version, for example tsgo@7.0.2`);
   }
   const fam = family(id.slice(0, at));
-  const version = id.slice(at + 1);
+  let version = id.slice(at + 1);
+  let variant: string | undefined;
+  const plus = version.lastIndexOf('+');
+  if (plus > 0) {
+    const name = version.slice(plus + 1);
+    const declared = fam.variants?.[name];
+    if (!declared) throw new Error(`"${id}": ${fam.name} has no variant "${name}" (known: ${Object.keys(fam.variants ?? {}).join(', ') || 'none'})`);
+    version = version.slice(0, plus);
+    if (declared.versions && !inRange(version, declared.versions)) {
+      throw new Error(`"${id}": the ${name} variant needs ${fam.name} ${declared.versions}`);
+    }
+    variant = name;
+  }
   if (!/^\d+\.\d+\.\d+[\w.+-]*$/.test(version)) {
     throw new Error(`"${id}": give an exact version, not a range or tag`);
   }
   if (!inRange(version, fam.versions)) {
     throw new Error(`${fam.package}@${version} is outside the ${fam.name} family (${fam.versions})`);
   }
-  return { id, family: fam, version };
+  return { id, base: `${fam.name}@${version}`, family: fam, version, variant };
 }
 
-export const toolDir = (tool: Tool): string => join(TOOLS_DIR, tool.id);
+export const toolDir = (tool: Tool): string => join(TOOLS_DIR, tool.base);
+
+/** The variants that apply to this tool's version, as full ids. */
+export function variantIds(tool: Tool): string[] {
+  return Object.entries(tool.family.variants ?? {})
+    .filter(([, v]) => !v.versions || inRange(tool.version, v.versions))
+    .map(([name]) => `${tool.base}+${name}`);
+}
+
+/** The documented thread count with no thread flag, for this tool's version. */
+export function defaultThreads(tool: Tool): DefaultThreads | null {
+  const d = tool.family.defaultThreads;
+  if (!Array.isArray(d)) return d;
+  return d.find(entry => inRange(tool.version, entry.versions))?.value ?? null;
+}
 
 /** The binary spec for this machine, or null when the checker publishes no build for it. */
 export function binarySpec(tool: Tool, platform = PLATFORM): BinarySpec | null {
@@ -192,6 +232,7 @@ export function command(
   return [
     ...(tool.family.runtime === 'node' ? [process.execPath, bin] : [bin]),
     ...familyArgs(tool),
+    ...(tool.variant ? tool.family.variants![tool.variant]!.args : []),
     ...tool.family.project.map(a => a.replaceAll('{config}', config)),
     ...threads,
     ...(options.plain ? tool.family.plainOutput : []),

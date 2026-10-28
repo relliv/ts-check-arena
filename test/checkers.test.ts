@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { binarySpec, compareVersions, familyArgs, inRange, parseTool, threadArgs } from '../src/lib/checkers.ts';
+import { binarySpec, command, compareVersions, defaultThreads, familyArgs, inRange, parseTool, threadArgs, toolDir, variantIds } from '../src/lib/checkers.ts';
 
 describe('inRange', () => {
   it('compares only the numeric prefix, so prereleases fall in their major', () => {
@@ -35,6 +35,34 @@ describe('parseTool', () => {
     expect(() => parseTool('tsgo@latest')).toThrow(/exact version/);
     expect(() => parseTool('tsgo')).toThrow(/family@version/);
     expect(() => parseTool('nope@1.0.0')).toThrow(/unknown checker family/);
+  });
+});
+
+describe('variants', () => {
+  it('parses family@version+variant and shares the installed package', () => {
+    const fast = parseTool('tsrs@0.20.1-ts7.1.0-beta+fast');
+    expect(fast).toMatchObject({ id: 'tsrs@0.20.1-ts7.1.0-beta+fast', base: 'tsrs@0.20.1-ts7.1.0-beta', variant: 'fast', version: '0.20.1-ts7.1.0-beta' });
+    expect(toolDir(fast)).toBe(toolDir(parseTool('tsrs@0.20.1-ts7.1.0-beta')));
+  });
+
+  it('applies a variant only where its version range allows', () => {
+    expect(() => parseTool('tsrs@0.18.0-ts7.1.0-dev.20260929+fast')).toThrow(/needs tsrs >=0.20/);
+    expect(() => parseTool('tsgo@7.0.2+fast')).toThrow(/no variant "fast"/);
+    expect(variantIds(parseTool('tsrs@0.20.1-ts7.1.0-beta'))).toEqual(['tsrs@0.20.1-ts7.1.0-beta+fast']);
+    expect(variantIds(parseTool('tsrs@0.18.0-ts7.1.0-dev.20260929'))).toEqual([]);
+  });
+
+  it('adds the variant arguments to the command', () => {
+    const argv = command(parseTool('tsrs@0.20.1-ts7.1.0-beta+fast'), 'tsconfig.json');
+    expect(argv).toContain('--fast');
+  });
+});
+
+describe('defaultThreads', () => {
+  it('follows the release that changed it', () => {
+    expect(defaultThreads(parseTool('tsrs@0.18.0-ts7.1.0-dev.20260929'))).toBe('per-core');
+    expect(defaultThreads(parseTool('tsrs@0.20.1-ts7.1.0-beta'))).toBe(4);
+    expect(defaultThreads(parseTool('tsgo@7.0.2'))).toBe(4);
   });
 });
 

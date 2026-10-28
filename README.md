@@ -26,7 +26,10 @@ Each family ([checkers.json](checkers.json)) is a set of exact versions, one wor
 pnpm arena tool add tsgo@7.1.0-beta tsrs@0.18.0-ts7.1.0-dev.20260929 bun@1.4.3
 pnpm arena tool remove tsc-ts@0.0.4
 pnpm arena watch                   # versions on npm older than 7 days that the store lacks
+pnpm arena families                # families, platforms and variants
 ```
+
+A documented opt-in mode runs as a variant next to the default: `tsrs@0.20.1-ts7.1.0-beta+fast` adds `--fast`. Runs include every installed tool's variants unless `--checkers` lists entries.
 
 | Family | Package | Platforms |
 |---|---|---|

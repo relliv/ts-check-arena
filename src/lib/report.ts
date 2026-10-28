@@ -124,10 +124,13 @@ export function summarizeRun(meta: RunMeta, rows: Row[], parity: Record<string, 
 
 const s2 = (n: number) => (n < 1 ? n.toFixed(3) : n.toFixed(2));
 
+/** tsrs@0.20.1-ts7.1.0-beta+fast reads as tsrs@0.20.1+fast: the TypeScript port tag is in run.json. */
+export const shortToolId = (id: string): string => id.replace(/-ts\d[^+]*/, '');
+
 export function renderMarkdown(meta: RunMeta, summary: RunSummary): string {
   const lines: string[] = [];
   const where = meta.source.kind === 'ci' ? `CI runner \`${meta.source.runner}\`` : 'local machine';
-  const shortId = (id: string) => id.replace(/-ts\d.*$/, '');
+  const shortId = shortToolId;
   const minutes = Math.round((Date.parse(meta.endedAt) - Date.parse(meta.startedAt)) / 60000);
   const main = summary.settings.find(s => s.threads === 'default') ?? summary.settings[0];
   const fastest = main?.checkers[0];
@@ -162,7 +165,7 @@ export function renderMarkdown(meta: RunMeta, summary: RunSummary): string {
   lines.push('| Checker | Result | Identical | Same after normalizing | Differs | Failed | Extra | Missing |', '|---|---|--:|--:|--:|--:|--:|--:|');
   for (const p of summary.parity) {
     const result = p.failed ? '❌ failed' : p.differs ? '⚠️ differs' : p.sameNormalized ? '✅ same errors' : '✅ identical';
-    lines.push(`| \`${p.id.replace(/-ts\d.*$/, '')}\` | ${result} | ${p.identical} | ${p.sameNormalized} | ${p.differs} | ${p.failed} | ${p.extra} | ${p.missing} |`);
+    lines.push(`| \`${shortToolId(p.id)}\` | ${result} | ${p.identical} | ${p.sameNormalized} | ${p.differs} | ${p.failed} | ${p.extra} | ${p.missing} |`);
   }
   lines.push('', 'Extra: diagnostics only that checker reported. Missing: diagnostics only the reference reported. The full output of every differing config is in parity/.', '');
   const sets = Object.entries(meta.shadows ?? {});
@@ -179,9 +182,10 @@ export function renderMarkdown(meta: RunMeta, summary: RunSummary): string {
     for (const r of meta.configs.rejected) lines.push(`| ${r.config} | ${r.reason} | ${r.detail.replace(/\s+/g, ' ').replaceAll('|', '\\|').slice(0, 160)} |`);
     lines.push('');
   }
-  lines.push('## Checkers', '', '| Checker | Package | Version output | Binary sha256 |', '|---|---|---|---|');
+  lines.push('## Checkers', '', '| Checker | Package | Default threads | Version output | Binary sha256 |', '|---|---|---|---|---|');
   for (const c of meta.checkers) {
-    lines.push(`| ${c.id} | ${c.package}@${c.version} | ${c.available ? (c.versionOutput ?? '') : 'no build'} | ${c.binarySha256?.slice(0, 16) ?? ''} |`);
+    const mode = c.variant ? ` with \`${(c.variantArgs ?? []).join(' ')}\`` : '';
+    lines.push(`| ${c.id} | ${c.package}@${c.version}${mode} | ${c.defaultThreads ?? (c.variant ? 'set by the mode' : '')} | ${c.available ? (c.versionOutput ?? '') : 'no build'} | ${c.binarySha256?.slice(0, 16) ?? ''} |`);
   }
   if (meta.conditions.warnings.length) lines.push('', '## Conditions', '', ...meta.conditions.warnings.map(w => `- ${w}`));
   return `${lines.join('\n')}\n`;
