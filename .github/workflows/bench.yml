@@ -11,7 +11,7 @@ on:
         default: vite
       rounds:
         description: Timed rounds (odd)
-        default: '7'
+        default: '5'
       threads:
         description: Thread settings, such as default,1,4,max
         default: default
@@ -64,7 +64,7 @@ jobs:
         run: |
           list="${PROJECTS:-$(node -e "console.log(require('./corpus.json').projects.map(p => p.name).join(','))")}"
           for project in ${list//,/ }; do
-            pnpm arena run --corpus "$project" --rounds "${ROUNDS:-7}" --threads "${THREADS:-default}"
+            pnpm arena run --corpus "$project" --rounds "${ROUNDS:-5}" --threads "${THREADS:-default}"
           done
         env:
           PROJECTS: ${{ inputs.projects }}
