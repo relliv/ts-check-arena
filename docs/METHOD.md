@@ -38,7 +38,7 @@ Each checker's native executable is run directly, not through its npm launcher, 
 1. **Preflight.** It refuses to start without a timer, on battery, under Rosetta, with a checker missing, or for a corpus project with a `node_modules` folder above it. It records warnings about load, busy processes, a CPU speed limit and `node_modules` folders above the target, since TypeScript loads `@types` packages from every folder above a config.
 2. **Configs.** From a list, from the Nx project graph (each project with a `typecheck` target: its `tsconfig.lib.json`, else `tsconfig.app.json`, else `tsconfig.json`), or the target's `tsconfig.json`.
 3. **Shadows.** Each config is read with the TypeScript 6 API. Where it sets an option TypeScript 7 removed, a shadow config that extends it unsets only that option (see [Shadow configs](#shadow-configs)). Every checker, TypeScript 6 included, checks the same file, so all of them check the same program.
-4. **Gate.** The reference checker runs each config. A config where it reports any error is rejected and recorded with the count; one where it exits non-zero without a diagnostic (crashed, killed, unreadable) is recorded as not measured.
+4. **Gate.** The reference checker, by default the newest installed tsgo (prereleases included, in semver order), runs each config. A config where it reports any error is rejected and recorded with the count; one where it exits non-zero without a diagnostic (crashed, killed, unreadable) is recorded as not measured.
 5. **Diagnostics.** Every checker runs each accepted config once with plain output, and its output is compared with the reference's (see [Diagnostics](#diagnostics)). A checker that failed on any config is excluded from timing.
 6. **Timing.** For each thread setting: one warm-up round, then the given number of rounds (odd, 7 by default). A round checks every config with every checker. Each round starts one checker further along than the round before, so every checker runs in every position. The exit code of every timed check must match the exit code recorded in step 5.
 7. **Records.** `run.json`, `timing.csv` (one row per check, warm-ups marked), `parity.json`, `parity/<checker>/<config>.txt` for every output that differs, `summary.json` and `report.md`.
@@ -121,7 +121,7 @@ Any project on disk can be a target (`--target <path>`). For results that are co
 - **One machine per run.** Results from other hardware or operating systems may differ.
 - **Background activity** is recorded, not controlled.
 - **Between-session variation.** Medians can move by several percent between runs on one machine; compare ratios, and compare runs before reading meaning into small differences.
-- **Versions port different TypeScript builds.** tsrs and tsc-rs port TypeScript 7.1 development builds and say which in `--version`; differences against a 7.0 reference can come from TypeScript itself, not the port.
+- **Versions port different TypeScript builds.** tsrs and tsc-rs port TypeScript 7.1 development or beta builds and say which in `--version`; a difference against a reference built from another TypeScript version can come from TypeScript itself, not the port.
 - **Early tools.** Several checkers are pre-1.0 and describe themselves as experimental.
 - **Scope.** Full `--noEmit` checks only. Emit, `--incremental`, `--build`, `--watch` and editor use are not measured.
 - **Shadowed configs** check the program TypeScript 7 would check after the listed overrides; a project's real TypeScript 7 migration may choose other settings.

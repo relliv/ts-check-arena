@@ -10,6 +10,8 @@ import { PLATFORM, ROOT, TOOLS_DIR } from './paths.ts';
 export interface BinarySpec {
   package: string;
   file: string;
+  /** The versions that publish this platform, when it was added after the first release. */
+  versions?: string;
 }
 
 export interface Family {
@@ -65,6 +67,31 @@ function compare(a: number[], b: number[]): number {
 }
 
 /**
+ * Semver precedence: numeric parts first, then a release above its prereleases,
+ * then prerelease identifiers part by part (numbers numerically, words by text).
+ * So 7.0.2 < 7.1.0-beta < 7.1.0-dev.20261027.1 < 7.1.0.
+ */
+export function compareVersions(a: string, b: string): number {
+  const d = compare(numericParts(a), numericParts(b));
+  if (d !== 0) return d;
+  const pa = a.split('-').slice(1).join('-');
+  const pb = b.split('-').slice(1).join('-');
+  if (!pa || !pb) return pa ? -1 : pb ? 1 : 0;
+  const xa = pa.split('.');
+  const xb = pb.split('.');
+  for (let i = 0; i < Math.max(xa.length, xb.length); i++) {
+    const [ia, ib] = [xa[i], xb[i]];
+    if (ia === undefined) return -1;
+    if (ib === undefined) return 1;
+    const na = /^\d+$/.test(ia);
+    const nb = /^\d+$/.test(ib);
+    const c = na && nb ? Number(ia) - Number(ib) : na ? -1 : nb ? 1 : ia.localeCompare(ib);
+    if (c !== 0) return c;
+  }
+  return 0;
+}
+
+/**
  * Whether `version` is in a family's range: "*", or one comparison such as "<7" or
  * ">=1.4". Only the numeric prefix counts, so 7.1.0-dev.20261008.1 is >=7.
  */
@@ -103,7 +130,8 @@ export const toolDir = (tool: Tool): string => join(TOOLS_DIR, tool.id);
 
 /** The binary spec for this machine, or null when the checker publishes no build for it. */
 export function binarySpec(tool: Tool, platform = PLATFORM): BinarySpec | null {
-  return tool.family.binary[platform] ?? tool.family.binary['*'] ?? null;
+  const spec = tool.family.binary[platform] ?? tool.family.binary['*'] ?? null;
+  return spec && (!spec.versions || inRange(tool.version, spec.versions)) ? spec : null;
 }
 
 export const availableOn = (tool: Tool, platform = PLATFORM): boolean => binarySpec(tool, platform) !== null;

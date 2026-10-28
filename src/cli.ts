@@ -25,7 +25,7 @@ const HELP = `ts-check-arena: TypeScript type checkers, side by side, across ver
 
   pnpm arena run --target <path> [options]  benchmark a project on this machine
       --checkers <ids>     comma-separated family@version list (default: every installed tool)
-      --reference <id>     the checker every other is compared with (default: newest tsgo)
+      --reference <id>     the checker every other is compared with (default: newest installed tsgo)
       --configs <list>     comma-separated configs, relative to the target
       --configs-file <f>   one config per line
       --discover <mode>    auto | nx | root (default: auto)
@@ -52,9 +52,10 @@ function fail(message: string): never {
   process.exit(1);
 }
 
+/** The newest installed tsgo, prereleases included: the default reference. */
 function newestTsgo(): string | undefined {
   return listTools()
-    .filter(t => t.family.name === 'tsgo' && binaryPath(t) && !/-dev|-beta|-rc/.test(t.version))
+    .filter(t => t.family.name === 'tsgo' && binaryPath(t))
     .map(t => t.id)
     .at(-1);
 }
@@ -143,7 +144,7 @@ async function main(): Promise<void> {
       if (values['configs-file']) configs = readConfigList(values['configs-file']);
       const checkers = values.checkers?.split(',').filter(Boolean) ?? listTools().filter(t => binaryPath(t)).map(t => t.id);
       const reference = values.reference ?? newestTsgo();
-      if (!reference) fail('no reference: install a stable tsgo (pnpm arena tool add tsgo@7.0.2) or pass --reference');
+      if (!reference) fail('no reference: install a tsgo version (pnpm arena tool add tsgo@7.0.2) or pass --reference');
       checkers.forEach(parseTool);
       await run({
         target,

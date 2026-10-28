@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { binarySpec, familyArgs, inRange, parseTool, threadArgs } from '../src/lib/checkers.ts';
+import { binarySpec, compareVersions, familyArgs, inRange, parseTool, threadArgs } from '../src/lib/checkers.ts';
 
 describe('inRange', () => {
   it('compares only the numeric prefix, so prereleases fall in their major', () => {
@@ -9,6 +9,13 @@ describe('inRange', () => {
     expect(inRange('1.4.3', '>=1.4.3')).toBe(true);
     expect(inRange('1.4.2', '>=1.4.3')).toBe(false);
     expect(inRange('0.0.1', '*')).toBe(true);
+  });
+});
+
+describe('compareVersions', () => {
+  it('orders by semver precedence', () => {
+    const sorted = ['7.1.0', '7.1.0-dev.20261027.1', '7.0.2', '7.1.0-beta', '7.1.0-dev.20261008.1', '7.0.10'].sort(compareVersions);
+    expect(sorted).toEqual(['7.0.2', '7.0.10', '7.1.0-beta', '7.1.0-dev.20261008.1', '7.1.0-dev.20261027.1', '7.1.0']);
   });
 });
 
@@ -35,6 +42,12 @@ describe('platforms', () => {
   it('knows where a checker publishes no build', () => {
     expect(binarySpec(parseTool('tsrs@0.18.0-ts7.1.0-dev.20260929'), 'win32-x64')).toBeNull();
     expect(binarySpec(parseTool('tsgo@7.0.2'), 'win32-x64')?.file).toBe('lib/tsc.exe');
+  });
+
+  it('adds a platform only from the version that first publishes it', () => {
+    expect(binarySpec(parseTool('tsrs@0.20.1-ts7.1.0-beta'), 'win32-x64')?.file).toBe('tsrs.exe');
+    expect(binarySpec(parseTool('tsrs@0.20.1-ts7.1.0-beta'), 'darwin-x64')?.file).toBe('tsrs');
+    expect(binarySpec(parseTool('tsrs@0.18.0-ts7.1.0-dev.20260929'), 'darwin-x64')).toBeNull();
   });
 
   it('runs the JavaScript tsc everywhere', () => {

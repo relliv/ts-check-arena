@@ -4,7 +4,7 @@
 import { spawnSync } from 'node:child_process';
 import { existsSync, mkdirSync, readdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { type Tool, parseTool, toolDir } from './checkers.ts';
+import { type Tool, compareVersions, parseTool, toolDir } from './checkers.ts';
 import { ROOT, TOOLS_DIR } from './paths.ts';
 
 /** Every tool with a folder under tools/, installed or not. */
@@ -13,7 +13,7 @@ export function listTools(): Tool[] {
   return readdirSync(TOOLS_DIR, { withFileTypes: true })
     .filter(d => d.isDirectory() && d.name.includes('@'))
     .map(d => parseTool(d.name))
-    .sort((a, b) => a.id.localeCompare(b.id, 'en', { numeric: true }));
+    .sort((a, b) => a.family.name.localeCompare(b.family.name) || compareVersions(a.version, b.version));
 }
 
 export function toolManifest(tool: Tool): string {

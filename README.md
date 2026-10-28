@@ -29,7 +29,7 @@ pnpm arena watch                   # versions on npm older than 7 days that the 
 |---|---|---|
 | tsc | `typescript` < 7 | everywhere Node runs |
 | tsgo | `typescript` >= 7 | macOS, Linux, Windows (x64, arm64) |
-| tsrs | `tsrs` | macOS arm64, Linux x64 and arm64 |
+| tsrs | `tsrs` | macOS arm64, Linux x64 and arm64; macOS x64 and Windows x64 from 0.20.1 |
 | tsc-rs | `tsc-rs` | macOS, Linux, Windows (x64, arm64) |
 | tsc-ts | `tsc-ts` | macOS, Linux (x64, arm64), Windows x64 |
 | bun | `bun` >= 1.4.3 | macOS, Linux, Windows (x64, arm64) |

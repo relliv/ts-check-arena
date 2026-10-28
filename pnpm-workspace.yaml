@@ -8,6 +8,17 @@ packages:
 # `pnpm arena tool add <id> --allow-young` adds the exact version to a
 # minimumReleaseAgeExclude list here, for nightlies and deliberate early tests.
 minimumReleaseAge: 10080 # 7 days, in minutes
+minimumReleaseAgeExclude:
+  # Published 2026-10-28 from GitHub Actions with SLSA provenance; added the same
+  # day on request to benchmark it. Remove after 2026-11-04.
+  - tsrs@0.20.1-ts7.1.0-beta
+  - '@tsrs/darwin-arm64@0.20.1-ts7.1.0-beta'
+  - '@tsrs/darwin-x64@0.20.1-ts7.1.0-beta'
+  - '@tsrs/linux-arm64-gnu@0.20.1-ts7.1.0-beta'
+  - '@tsrs/linux-arm64-musl@0.20.1-ts7.1.0-beta'
+  - '@tsrs/linux-x64-gnu@0.20.1-ts7.1.0-beta'
+  - '@tsrs/linux-x64-musl@0.20.1-ts7.1.0-beta'
+  - '@tsrs/win32-x64@0.20.1-ts7.1.0-beta'
 
 # Refuses a version whose publish trust is weaker than an earlier version of the
 # same package (for example, provenance dropped).
@@ -20,8 +31,9 @@ trustPolicyIgnoreAfter: 525600 # 1 year, in minutes
 # snapshots in 2024, then transferred it to boshen, the Oxc maintainer, as the
 # oxc-project/tsrs README acknowledges); 0.0.0-bootstrap.0 was a staged publish.
 # Every release from 0.12.0 on is published by GitHub Actions trusted publishing
-# (npm OIDC) with SLSA provenance, checked for 0.14.1 to 0.20.0. Reviewed 2026-10-28.
+# (npm OIDC) with SLSA provenance, checked for 0.14.1 to 0.20.1. Reviewed 2026-10-28.
 trustPolicyExclude:
+  - tsrs@0.20.1-ts7.1.0-beta
   - tsrs@0.16.0-ts7.1.0-dev.20260929
   - tsrs@0.18.0-ts7.1.0-dev.20260929
 
@@ -34,3 +46,8 @@ strictDepBuilds: true
 allowBuilds:
   bun: false
   tsc-rs: false
+
+# pnpm 11 checks node_modules before every `pnpm run` and installs when stale, so a
+# script started during a benchmark could relink the checker binaries under it.
+# Install explicitly instead.
+verifyDepsBeforeRun: false

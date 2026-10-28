@@ -1,5 +1,5 @@
 {
-  "$comment": "Checker families. A family describes what stays the same across its versions; the version is chosen per run (family@version) and installed into tools/<family>@<version>/ by `pnpm arena tool add`. Fields: package: the npm package installed; versions: the major versions this family covers (a version outside the range belongs to another family, such as typescript 6 under tsc and 7 under tsgo); binary: per <platform>-<arch>, the package holding the native executable and its path inside that package (a platform that is missing means no build is published for it); runtime: 'node' when the executable is a JavaScript file run with the current node, otherwise it is run directly; args: placed before the config arguments, where an {args, versions} entry applies only to that version range (bun check gained --no-script in 1.4.4); project: how the config is passed; plainOutput: one line per diagnostic; listFiles: how it lists its program's files, or null; threads: thread flags as documented by the checker, {n} replaced, or null when it documents none; defaultThreads: what it uses with no thread flag, as documented: a number or 'per-core'; source: where the thread flags are documented.",
+  "$comment": "Checker families. A family describes what stays the same across its versions; the version is chosen per run (family@version) and installed into tools/<family>@<version>/ by `pnpm arena tool add`. Fields: package: the npm package installed; versions: the major versions this family covers (a version outside the range belongs to another family, such as typescript 6 under tsc and 7 under tsgo); binary: per <platform>-<arch>, the package holding the native executable and its path inside that package, with an optional versions range for a platform added in a later release (a platform that is missing, or out of range, means no build is published for it); runtime: 'node' when the executable is a JavaScript file run with the current node, otherwise it is run directly; args: placed before the config arguments, where an {args, versions} entry applies only to that version range (bun check gained --no-script in 1.4.4); project: how the config is passed; plainOutput: one line per diagnostic; listFiles: how it lists its program's files, or null; threads: thread flags as documented by the checker, {n} replaced, or null when it documents none; defaultThreads: what it uses with no thread flag, as documented: a number or 'per-core'; source: where the thread flags are documented.",
   "families": [
     {
       "name": "tsc",
@@ -46,8 +46,10 @@
       "versions": "*",
       "binary": {
         "darwin-arm64": { "package": "@tsrs/darwin-arm64", "file": "tsrs" },
+        "darwin-x64": { "package": "@tsrs/darwin-x64", "file": "tsrs", "versions": ">=0.20.1" },
         "linux-arm64": { "package": "@tsrs/linux-arm64-gnu", "file": "tsrs" },
-        "linux-x64": { "package": "@tsrs/linux-x64-gnu", "file": "tsrs" }
+        "linux-x64": { "package": "@tsrs/linux-x64-gnu", "file": "tsrs" },
+        "win32-x64": { "package": "@tsrs/win32-x64", "file": "tsrs.exe", "versions": ">=0.20.1" }
       },
       "args": [],
       "project": ["-p", "{config}", "--noEmit"],

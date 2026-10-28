@@ -1,0 +1,9 @@
+{
+  "name": "tool-tsrs-0.20.1-ts7.1.0-beta",
+  "version": "0.0.0",
+  "private": true,
+  "description": "A Rust port of the TypeScript 7 checker (oxc-project/tsrs), tsrs@0.20.1-ts7.1.0-beta",
+  "dependencies": {
+    "tsrs": "0.20.1-ts7.1.0-beta"
+  }
+}
