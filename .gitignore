@@ -6,3 +6,18 @@ dist/
 # Runs against a local path stay on this machine until `pnpm arena publish`.
 results/private/
 results/.smoke/
+
+# Playwright: screenshots and snapshots from browser checks of the site, reports and traces.
+.playwright-mcp/
+test-results/
+playwright-report/
+blob-report/
+playwright/.cache/
+
+# Temporary files.
+tmp/
+.tmp/
+*.tmp
+*.temp
+*.swp
+*~
