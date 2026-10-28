@@ -35,13 +35,13 @@ Each checker's native executable is run directly, not through its npm launcher, 
 
 `pnpm arena run` writes `results/<date>-<cpu>-<os>-<label>/` (local paths: `results/private/...`).
 
-1. **Preflight.** It refuses to start without a timer, on battery, under Rosetta, with a checker missing, or for a corpus project with a `node_modules` folder above it. It records warnings about load, busy processes, a CPU speed limit and `node_modules` folders above the target, since TypeScript loads `@types` packages from every folder above a config.
+1. **Preflight.** It refuses to start without a timer, on battery, under Rosetta, with a checker missing, or for a corpus project with a `node_modules/@types` folder above it, since TypeScript includes `@types` packages from every folder above a config that sets no `types`. It records warnings about load, busy processes, a CPU speed limit and any other `node_modules` folder above the target.
 2. **Configs.** From a list, from the Nx project graph (each project with a `typecheck` target: its `tsconfig.lib.json`, else `tsconfig.app.json`, else `tsconfig.json`), or the target's `tsconfig.json`.
 3. **Shadows.** Each config is read with the TypeScript 6 API. Where it sets an option TypeScript 7 removed, a shadow config that extends it unsets only that option (see [Shadow configs](#shadow-configs)). Every checker, TypeScript 6 included, checks the same file, so all of them check the same program.
 4. **Gate.** The reference checker, by default the newest installed tsgo (prereleases included, in semver order), runs each config. A config where it reports any error is rejected and recorded with the count; one where it exits non-zero without a diagnostic (crashed, killed, unreadable) is recorded as not measured.
 5. **Diagnostics.** Every checker runs each accepted config once with plain output, and its output is compared with the reference's (see [Diagnostics](#diagnostics)). A checker that failed on any config is excluded from timing.
 6. **Timing.** For each thread setting: one warm-up round, then the given number of rounds (odd, 7 by default). A round checks every config with every checker. Each round starts one checker further along than the round before, so every checker runs in every position. The exit code of every timed check must match the exit code recorded in step 5.
-7. **Records.** `run.json`, `timing.csv` (one row per check, warm-ups marked), `parity.json`, `parity/<checker>/<config>.txt` for every output that differs, `summary.json` and `report.md`.
+7. **Records.** `run.json`, `timing.csv` (one row per check, warm-ups marked), `parity.json`, `parity/<checker>/<config>.txt` for every output that differs, `summary.json` and `report.md`. With `--no-save` they are written to a temporary folder, the report is printed, and the folder is deleted.
 
 The machine is kept awake with `caffeinate -dis` on macOS and `SetThreadExecutionState` on Windows, and power is checked before every round.
 
@@ -108,7 +108,7 @@ The gate makes the reference clean on every timed config, so on most projects th
 A run records where it ran: `local`, or `ci` with the runner label, image and workflow run link. They answer different questions.
 
 - **Local runs** on a quiet machine are the precise numbers, in seconds.
-- **CI runs** are breadth and history: six runners (Linux x64 and arm64, macOS arm64 and x64, Windows x64 and arm64) on a schedule and for every new checker version. Hosted runners are shared virtual machines whose CPU model can change between runs, so CI results are read as ratios against the reference within one run, never as seconds across runs. Each CI run records its CPU model, and only runs with matching models are compared.
+- **CI runs** are breadth: six runners (Linux x64 and arm64, macOS arm64 and x64, Windows x64 and arm64), started by hand. Hosted runners are shared virtual machines whose CPU model can change between runs, so CI results are read as ratios against the reference within one run, never as seconds across runs. Each CI run records its CPU model, and only runs with matching models are compared.
 
 The site never puts local and CI runs on one axis.
 

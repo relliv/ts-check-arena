@@ -7,12 +7,65 @@
       "repo": "https://github.com/sindresorhus/type-fest",
       "sha": "b550b410e13ff6bf9e1467b863b6ebd120e70781",
       "install": [
-        { "copy": ["{fixtures}/type-fest/package-lock.json", "package-lock.json"] },
-        { "run": ["npm", "ci", "--no-audit", "--no-fund", "--ignore-scripts"] }
+        {
+          "copy": [
+            "{fixtures}/type-fest/package-lock.json",
+            "package-lock.json"
+          ]
+        },
+        {
+          "run": [
+            "npm",
+            "ci",
+            "--no-audit",
+            "--no-fund",
+            "--ignore-scripts"
+          ]
+        }
       ],
       "installNote": "type-fest commits no lockfile; the fixture, from danfry1/ts-checker-bench (MIT), pins its dependency tree.",
-      "configs": ["tsconfig.json"],
+      "configs": [
+        "tsconfig.json"
+      ],
       "source": "package.json test:tsc"
+    },
+    {
+      "name": "vite",
+      "description": "Frontend tooling monorepo: the dev server, build pipeline and module runner, checked as several configs",
+      "repo": "https://github.com/vitejs/vite",
+      "sha": "cce559ab158cc6b177d0911a0bea73436b48faff",
+      "install": [
+        {
+          "run": [
+            "pnpm",
+            "install",
+            "--frozen-lockfile",
+            "--ignore-scripts"
+          ]
+        },
+        {
+          "run": [
+            "pnpm",
+            "run",
+            "build"
+          ]
+        }
+      ],
+      "configs": [
+        "scripts/tsconfig.json",
+        "playground/tsconfig.json",
+        "packages/create-vite/tsconfig.json",
+        "packages/plugin-legacy/tsconfig.json",
+        "packages/vite/tsconfig.json",
+        "packages/vite/src/node/tsconfig.json",
+        "packages/vite/src/client/tsconfig.json",
+        "packages/vite/src/module-runner/tsconfig.json",
+        "packages/vite/src/shared/tsconfig.json",
+        "packages/vite/src/node/__tests_dts__/tsconfig.json",
+        "packages/vite/src/module-runner/__tests_dts__/tsconfig.json"
+      ],
+      "source": "package.json typecheck: tsc -p scripts, then every workspace typecheck script (playground, create-vite, plugin-legacy, vite)",
+      "installNote": "Vite's CI builds before it typechecks: several configs import vite and vite/module-runner through the built dist types."
     }
   ]
 }

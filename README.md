@@ -9,11 +9,14 @@ tsc, tsgo, tsrs, tsc-rs, tsc-ts and `bun check`, each pinned to exact versions, 
 ```sh
 pnpm install                       # the arena and every checker version in tools/
 pnpm arena tool list               # what is installed, and what has no build here
+pnpm arena corpus setup vite       # the default benchmark project, pinned and built
+pnpm arena run --corpus vite       # benchmark it on this machine
 pnpm arena run --target ../my-app  # benchmark a project on this machine
+pnpm arena run --target ../my-app --no-save  # same, but print the report and keep no records
 pnpm dev                           # the site, with published runs
 ```
 
-A run against a path is written to `results/private/` (gitignored) and stays on this machine. To share one, `pnpm arena publish <run-id> --label <neutral name>` copies it into `results/`, scrubbed, for you to review and commit.
+A run against a path is written to `results/private/` (gitignored) and stays on this machine. With `--no-save` nothing is kept at all: the report is printed to the terminal and every record is deleted, which suits private projects. To share one, `pnpm arena publish <run-id> --label <neutral name>` copies it into `results/`, scrubbed of paths and user names, for you to review and commit. Add `--anonymize-configs` for a private project: config paths become `config-001` and so on, and shadow config values are hidden.
 
 ## Checker versions
 
@@ -41,24 +44,25 @@ The supply chain policy in [pnpm-workspace.yaml](pnpm-workspace.yaml) applies: a
 ```sh
 pnpm arena run --target <path> \
   --checkers tsc@6.0.3,tsgo@7.0.2,tsgo@7.1.0-beta,bun@1.4.3 \
-  --reference tsgo@7.0.2 \
+  --reference tsgo@7.1.0-beta \
   --threads default,1,max \
   --rounds 7
 ```
 
 - **Configs:** Nx workspaces are discovered from the project graph (every project with a `typecheck` target); otherwise the root `tsconfig.json`, or `--configs a/tsconfig.json,b/tsconfig.json`.
 - **TypeScript 7 incompatible configs** (`baseUrl`, `moduleResolution: node`, ...) are checked through a shadow config written inside the target in a self-ignoring `.ts-check-arena/` folder, removed afterwards. Nothing in the project is edited.
+- **The reference** defaults to the newest installed tsgo, prereleases included.
 - **The gate:** a config is timed only if the reference reports no errors on it.
 - **Records:** `results/<run>/run.json`, `timing.csv`, `parity.json`, `parity/`, `summary.json`, `report.md`. `pnpm arena report <dir>` regenerates the summary from the raw records.
 
 ## Corpus and CI
 
-[corpus.json](corpus.json) pins public projects to a commit. `pnpm arena corpus setup` clones them into your cache folder, outside this repository, and `pnpm arena run --corpus type-fest` benchmarks one.
+[corpus.json](corpus.json) pins public projects to a commit. **vite** is the default: a popular tooling monorepo checked as 11 configs, small enough for every CI runner. type-fest adds pure type-level work. `pnpm arena corpus setup` clones them into your cache folder, outside this repository, and `pnpm arena run --corpus type-fest` benchmarks one.
 
 | Workflow | When | What |
 |---|---|---|
 | [check](.github/workflows/check.yml) | every push and PR | types, tests, site build, smoke run on macOS, Linux and Windows |
-| [bench](.github/workflows/bench.yml) | weekly, by hand, on tool changes in main | the corpus on six runners; results committed to the `data` branch |
+| [bench](.github/workflows/bench.yml) | by hand (Actions, bench, Run workflow), with projects, rounds and threads as inputs | the corpus on six runners; results committed to the `data` branch |
 | [site](.github/workflows/site.yml) | after bench, on site changes | builds the site with the `data` branch results and deploys GitHub Pages |
 | [watch](.github/workflows/watch.yml) | daily | opens a PR adding checker versions past the release age window |
 
