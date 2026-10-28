@@ -13,7 +13,7 @@ pnpm arena corpus setup vite       # the default benchmark project, pinned and b
 pnpm arena run --corpus vite       # benchmark it on this machine
 pnpm arena run --target ../my-app  # benchmark a project on this machine
 pnpm arena run --target ../my-app --no-save  # same, but print the report and keep no records
-pnpm dev                           # the site, with published runs
+pnpm dev                           # the site, with published runs and the data branch
 ```
 
 A run against a path is written to `results/private/` (gitignored) and stays on this machine. With `--no-save` nothing is kept at all: the report is printed to the terminal and every record is deleted, which suits private projects. To share one, `pnpm arena publish <run-id> --label <neutral name>` copies it into `results/`, scrubbed of paths and user names, for you to review and commit. Add `--anonymize-configs` for a private project: config paths become `config-001` and so on, and shadow config values are hidden.

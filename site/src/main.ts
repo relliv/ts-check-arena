@@ -1,15 +1,18 @@
-// The arena site: every published run, read from results/*/summary.json at build
-// time. No framework; the page re-renders from state on every change.
+// The arena site: every published run, read from results/*/summary.json and from
+// the data branch at build time. No framework; the page re-renders from state on
+// every change.
 import type { CheckerSummary, RunSummary } from '../../src/lib/report.ts';
+import dataBranch from 'virtual:arena-data';
 import { FAMILIES, categoryAxis, disposeAll, familyColor, ink, mount, valueAxis } from './charts.ts';
 
 declare const __ARENA_PRIVATE__: boolean;
 
 const published = import.meta.glob<RunSummary>('../../results/*/summary.json', { eager: true, import: 'default' });
 const local = import.meta.glob<RunSummary>('../../results/private/*/summary.json', { eager: true, import: 'default' });
-const runs: RunSummary[] = [...Object.values(published), ...(__ARENA_PRIVATE__ ? Object.values(local) : [])].sort((a, b) =>
-  b.date.localeCompare(a.date)
-);
+// A run can be both checked out and on the data branch; the checkout wins.
+const runs: RunSummary[] = [
+  ...new Map([...dataBranch, ...Object.values(published), ...(__ARENA_PRIVATE__ ? Object.values(local) : [])].map(r => [r.id, r])).values(),
+].sort((a, b) => b.date.localeCompare(a.date));
 
 type Metric = 'wall' | 'cpu' | 'memory';
 
