@@ -1,0 +1,220 @@
+{
+  "schema": 1,
+  "id": "2026-10-31-amd-epyc-9v74-80-core-processor-win32-vite",
+  "label": "vite",
+  "startedAt": "2026-10-31T14:35:58.378Z",
+  "endedAt": "2026-10-31T14:55:35.173Z",
+  "source": {
+    "kind": "ci",
+    "runner": "windows-2025",
+    "image": "win25-vs2026 20261021.278.1",
+    "runUrl": "https://github.com/relliv/ts-check-arena/actions/runs/41210657999",
+    "commit": "550885a7d52dcfffb40b8aed7984f0c0f3a78c00"
+  },
+  "machine": {
+    "platform": "win32-x64",
+    "cpu": "AMD EPYC 9V74 80-Core Processor",
+    "cores": 4,
+    "memoryGiB": 16,
+    "os": "Windows Server 2025 Datacenter (10.0.26100)",
+    "node": "v26.13.0"
+  },
+  "target": {
+    "kind": "corpus",
+    "discovery": "list",
+    "commit": "cce559ab158cc6b177d0911a0bea73436b48faff",
+    "dirty": false
+  },
+  "reference": "tsgo@7.1.0-beta",
+  "rounds": 5,
+  "threads": [
+    "default"
+  ],
+  "checkers": [
+    {
+      "id": "tsgo@7.1.0-beta",
+      "family": "tsgo",
+      "package": "typescript",
+      "version": "7.1.0-beta",
+      "variant": null,
+      "variantArgs": [],
+      "defaultThreads": 4,
+      "available": true,
+      "versionOutput": "Version 7.1.0-beta",
+      "binarySha256": "498f59d207e22c40f1ecc218dfa67d1db25629a231bd0948c3db92df7457afc7"
+    },
+    {
+      "id": "bun@1.4.3",
+      "family": "bun",
+      "package": "bun",
+      "version": "1.4.3",
+      "variant": null,
+      "variantArgs": [],
+      "defaultThreads": "per-core",
+      "available": true,
+      "versionOutput": "1.4.3",
+      "binarySha256": "095db4abae203d42f29fdec26da4a882fcde6333cdd84e40c0c7828c0cf543f6"
+    },
+    {
+      "id": "tsc@6.0.3",
+      "family": "tsc",
+      "package": "typescript",
+      "version": "6.0.3",
+      "variant": null,
+      "variantArgs": [],
+      "defaultThreads": 1,
+      "available": true,
+      "versionOutput": "Version 6.0.3",
+      "binarySha256": "2cffde0b8c6760dfb0b5b0382bbb7e00ba6a8b2d981b9205b256a700a481d983"
+    },
+    {
+      "id": "tsc-rs@0.6.0",
+      "family": "tsc-rs",
+      "package": "tsc-rs",
+      "version": "0.6.0",
+      "variant": null,
+      "variantArgs": [],
+      "defaultThreads": 4,
+      "available": true,
+      "versionOutput": "Version 7.1.0-dev",
+      "binarySha256": "edbe6ea55bea1d51b2d85512d88422ae3308cf4d6dd60865ccd0598cd6f0364b"
+    },
+    {
+      "id": "tsc-rs@0.7.0",
+      "family": "tsc-rs",
+      "package": "tsc-rs",
+      "version": "0.7.0",
+      "variant": null,
+      "variantArgs": [],
+      "defaultThreads": 4,
+      "available": true,
+      "versionOutput": "Version 7.1.0-dev",
+      "binarySha256": "19097a55fb2407bd30a2ed89e5db1dd772adb3c0ab2761befbb5a1801c2ad76c"
+    },
+    {
+      "id": "tsc-ts@0.0.4",
+      "family": "tsc-ts",
+      "package": "tsc-ts",
+      "version": "0.0.4",
+      "variant": null,
+      "variantArgs": [],
+      "defaultThreads": "per-core",
+      "available": true,
+      "versionOutput": "Version 7.0.2",
+      "binarySha256": "0cf944499ae1db592b889fbc6fdf33e16cd7e89f0aa1a2cfdce6ee4cb554c45d"
+    },
+    {
+      "id": "tsc-ts@0.0.5",
+      "family": "tsc-ts",
+      "package": "tsc-ts",
+      "version": "0.0.5",
+      "variant": null,
+      "variantArgs": [],
+      "defaultThreads": "per-core",
+      "available": true,
+      "versionOutput": "Version 7.0.2",
+      "binarySha256": "fb3f0b0dd59ec17929656711b1971c4c7adac27e80aff5f947e92e78bc91b8e6"
+    },
+    {
+      "id": "tsgo@7.0.2",
+      "family": "tsgo",
+      "package": "typescript",
+      "version": "7.0.2",
+      "variant": null,
+      "variantArgs": [],
+      "defaultThreads": 4,
+      "available": true,
+      "versionOutput": "Version 7.0.2",
+      "binarySha256": "f9ecfbdc93753d2c972d66a8d0d75f5bd737fd4a5f88b422d9091ea282bcb2c7"
+    },
+    {
+      "id": "tsrs@0.20.1-ts7.1.0-beta",
+      "family": "tsrs",
+      "package": "tsrs",
+      "version": "0.20.1-ts7.1.0-beta",
+      "variant": null,
+      "variantArgs": [],
+      "defaultThreads": 4,
+      "available": true,
+      "versionOutput": "Version 7.1.0-beta (tsrs 0.20.1-ts7.1.0-beta, microsoft/TypeScript@3e9236361fa9)",
+      "binarySha256": "f84fb09f51fd7c201384f91cb12077a2b5247f3202bb6cad29f7139fe5ad4415"
+    },
+    {
+      "id": "tsrs@0.20.1-ts7.1.0-beta+fast",
+      "family": "tsrs",
+      "package": "tsrs",
+      "version": "0.20.1-ts7.1.0-beta",
+      "variant": "fast",
+      "variantArgs": [
+        "--fast"
+      ],
+      "defaultThreads": null,
+      "available": true,
+      "versionOutput": "Version 7.1.0-beta (tsrs 0.20.1-ts7.1.0-beta, microsoft/TypeScript@3e9236361fa9)",
+      "binarySha256": "f84fb09f51fd7c201384f91cb12077a2b5247f3202bb6cad29f7139fe5ad4415"
+    }
+  ],
+  "shadows": {},
+  "configs": {
+    "checked": [
+      {
+        "config": "scripts/tsconfig.json",
+        "shadow": null
+      },
+      {
+        "config": "playground/tsconfig.json",
+        "shadow": null
+      },
+      {
+        "config": "packages/create-vite/tsconfig.json",
+        "shadow": null
+      },
+      {
+        "config": "packages/plugin-legacy/tsconfig.json",
+        "shadow": null
+      },
+      {
+        "config": "packages/vite/tsconfig.json",
+        "shadow": null
+      },
+      {
+        "config": "packages/vite/src/node/tsconfig.json",
+        "shadow": null
+      },
+      {
+        "config": "packages/vite/src/client/tsconfig.json",
+        "shadow": null
+      },
+      {
+        "config": "packages/vite/src/module-runner/tsconfig.json",
+        "shadow": null
+      },
+      {
+        "config": "packages/vite/src/shared/tsconfig.json",
+        "shadow": null
+      },
+      {
+        "config": "packages/vite/src/node/__tests_dts__/tsconfig.json",
+        "shadow": null
+      },
+      {
+        "config": "packages/vite/src/module-runner/__tests_dts__/tsconfig.json",
+        "shadow": null
+      }
+    ],
+    "rejected": []
+  },
+  "conditions": {
+    "warnings": [],
+    "loadStart": [
+      0,
+      0,
+      0
+    ],
+    "loadEnd": [
+      0,
+      0,
+      0
+    ]
+  }
+}

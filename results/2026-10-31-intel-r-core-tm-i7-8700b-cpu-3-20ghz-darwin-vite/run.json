@@ -1,0 +1,224 @@
+{
+  "schema": 1,
+  "id": "2026-10-31-intel-r-core-tm-i7-8700b-cpu-3-20ghz-darwin-vite",
+  "label": "vite",
+  "startedAt": "2026-10-31T14:35:46.742Z",
+  "endedAt": "2026-10-31T14:55:37.170Z",
+  "source": {
+    "kind": "ci",
+    "runner": "macos-15-intel",
+    "image": "macos15 20260824.0482.1",
+    "runUrl": "https://github.com/relliv/ts-check-arena/actions/runs/41210657999",
+    "commit": "550885a7d52dcfffb40b8aed7984f0c0f3a78c00"
+  },
+  "machine": {
+    "platform": "darwin-x64",
+    "cpu": "Intel(R) Core(TM) i7-8700B CPU @ 3.20GHz",
+    "cores": 4,
+    "memoryGiB": 14,
+    "os": "macOS 15.7.9 (24G830)",
+    "node": "v26.13.0"
+  },
+  "target": {
+    "kind": "corpus",
+    "discovery": "list",
+    "commit": "cce559ab158cc6b177d0911a0bea73436b48faff",
+    "dirty": false
+  },
+  "reference": "tsgo@7.1.0-beta",
+  "rounds": 5,
+  "threads": [
+    "default"
+  ],
+  "checkers": [
+    {
+      "id": "tsgo@7.1.0-beta",
+      "family": "tsgo",
+      "package": "typescript",
+      "version": "7.1.0-beta",
+      "variant": null,
+      "variantArgs": [],
+      "defaultThreads": 4,
+      "available": true,
+      "versionOutput": "Version 7.1.0-beta",
+      "binarySha256": "57e8068d9b0398b82fa857d1d5d6548a0103d52525e6556805b0d92ce38e7db6"
+    },
+    {
+      "id": "bun@1.4.3",
+      "family": "bun",
+      "package": "bun",
+      "version": "1.4.3",
+      "variant": null,
+      "variantArgs": [],
+      "defaultThreads": "per-core",
+      "available": true,
+      "versionOutput": "1.4.3",
+      "binarySha256": "c2a945a9d33f9088b32ac3550d1d1fd485a7fc10d71c66f91ef0d33b41cefa7c"
+    },
+    {
+      "id": "tsc@6.0.3",
+      "family": "tsc",
+      "package": "typescript",
+      "version": "6.0.3",
+      "variant": null,
+      "variantArgs": [],
+      "defaultThreads": 1,
+      "available": true,
+      "versionOutput": "Version 6.0.3",
+      "binarySha256": "2cffde0b8c6760dfb0b5b0382bbb7e00ba6a8b2d981b9205b256a700a481d983"
+    },
+    {
+      "id": "tsc-rs@0.6.0",
+      "family": "tsc-rs",
+      "package": "tsc-rs",
+      "version": "0.6.0",
+      "variant": null,
+      "variantArgs": [],
+      "defaultThreads": 4,
+      "available": true,
+      "versionOutput": "Version 7.1.0-dev",
+      "binarySha256": "04df6982029022105cd14af2caee814447fa43b1f15ef5646e20de3550b48dd8"
+    },
+    {
+      "id": "tsc-rs@0.7.0",
+      "family": "tsc-rs",
+      "package": "tsc-rs",
+      "version": "0.7.0",
+      "variant": null,
+      "variantArgs": [],
+      "defaultThreads": 4,
+      "available": true,
+      "versionOutput": "Version 7.1.0-dev",
+      "binarySha256": "20472cb2a0d184187d5ae3bb6b3f45042511eb1af50571682d478fed1e5a0437"
+    },
+    {
+      "id": "tsc-ts@0.0.4",
+      "family": "tsc-ts",
+      "package": "tsc-ts",
+      "version": "0.0.4",
+      "variant": null,
+      "variantArgs": [],
+      "defaultThreads": "per-core",
+      "available": true,
+      "versionOutput": "Version 7.0.2",
+      "binarySha256": "9d59d48abb19c153126c5fbe5981c413ea33846c2e5d075b66ca406dce9db223"
+    },
+    {
+      "id": "tsc-ts@0.0.5",
+      "family": "tsc-ts",
+      "package": "tsc-ts",
+      "version": "0.0.5",
+      "variant": null,
+      "variantArgs": [],
+      "defaultThreads": "per-core",
+      "available": true,
+      "versionOutput": "Version 7.0.2",
+      "binarySha256": "6f2884ee5028b1ba784908f8d61edf09babccebb2c37cde6dcf0faf2848625c7"
+    },
+    {
+      "id": "tsgo@7.0.2",
+      "family": "tsgo",
+      "package": "typescript",
+      "version": "7.0.2",
+      "variant": null,
+      "variantArgs": [],
+      "defaultThreads": 4,
+      "available": true,
+      "versionOutput": "Version 7.0.2",
+      "binarySha256": "76e4987d060ef8207875a53a73619ce665ff16fb2800c0d57a452e21c829bd7b"
+    },
+    {
+      "id": "tsrs@0.20.1-ts7.1.0-beta",
+      "family": "tsrs",
+      "package": "tsrs",
+      "version": "0.20.1-ts7.1.0-beta",
+      "variant": null,
+      "variantArgs": [],
+      "defaultThreads": 4,
+      "available": true,
+      "versionOutput": "Version 7.1.0-beta (tsrs 0.20.1-ts7.1.0-beta, microsoft/TypeScript@3e9236361fa9)",
+      "binarySha256": "f31f2a9f56a061cc456b99d9ad94079144a88e1f94ea4c5b8f60ce9a2fc188e7"
+    },
+    {
+      "id": "tsrs@0.20.1-ts7.1.0-beta+fast",
+      "family": "tsrs",
+      "package": "tsrs",
+      "version": "0.20.1-ts7.1.0-beta",
+      "variant": "fast",
+      "variantArgs": [
+        "--fast"
+      ],
+      "defaultThreads": null,
+      "available": true,
+      "versionOutput": "Version 7.1.0-beta (tsrs 0.20.1-ts7.1.0-beta, microsoft/TypeScript@3e9236361fa9)",
+      "binarySha256": "f31f2a9f56a061cc456b99d9ad94079144a88e1f94ea4c5b8f60ce9a2fc188e7"
+    }
+  ],
+  "shadows": {},
+  "configs": {
+    "checked": [
+      {
+        "config": "scripts/tsconfig.json",
+        "shadow": null
+      },
+      {
+        "config": "playground/tsconfig.json",
+        "shadow": null
+      },
+      {
+        "config": "packages/create-vite/tsconfig.json",
+        "shadow": null
+      },
+      {
+        "config": "packages/plugin-legacy/tsconfig.json",
+        "shadow": null
+      },
+      {
+        "config": "packages/vite/tsconfig.json",
+        "shadow": null
+      },
+      {
+        "config": "packages/vite/src/node/tsconfig.json",
+        "shadow": null
+      },
+      {
+        "config": "packages/vite/src/client/tsconfig.json",
+        "shadow": null
+      },
+      {
+        "config": "packages/vite/src/module-runner/tsconfig.json",
+        "shadow": null
+      },
+      {
+        "config": "packages/vite/src/shared/tsconfig.json",
+        "shadow": null
+      },
+      {
+        "config": "packages/vite/src/node/__tests_dts__/tsconfig.json",
+        "shadow": null
+      },
+      {
+        "config": "packages/vite/src/module-runner/__tests_dts__/tsconfig.json",
+        "shadow": null
+      }
+    ],
+    "rejected": []
+  },
+  "conditions": {
+    "warnings": [
+      "load average 12.67 on 4 cores",
+      "busy process: mds at 29.3% CPU",
+      "busy process: mds_stores at 69.1% CPU"
+    ],
+    "loadStart": [
+      12.6728515625,
+      22.50390625,
+      13.86962890625
+    ],
+    "loadEnd": [
+      3.1376953125,
+      3.93310546875,
+      6.525390625
+    ]
+  }
+}

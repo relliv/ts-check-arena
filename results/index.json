@@ -1,8 +1,15 @@
 {
   "runs": [
+    "2026-10-31-unknown-linux-vite",
+    "2026-10-31-intel-r-core-tm-i7-8700b-cpu-3-20ghz-darwin-vite",
+    "2026-10-31-cobalt-100-win32-vite",
+    "2026-10-31-apple-m1-virtual-darwin-vite",
+    "2026-10-31-amd-epyc-9v74-80-core-processor-win32-vite",
+    "2026-10-31-amd-epyc-9v74-80-core-processor-linux-vite",
     "2026-10-28-unknown-linux-vite",
     "2026-10-28-intel-r-core-tm-i7-8700b-cpu-3-20ghz-darwin-vite",
     "2026-10-28-cobalt-100-win32-vite",
+    "2026-10-28-apple-m4-max-darwin-vite",
     "2026-10-28-apple-m1-virtual-darwin-vite",
     "2026-10-28-amd-epyc-9v74-80-core-processor-win32-vite",
     "2026-10-28-amd-epyc-7763-64-core-processor-linux-vite"

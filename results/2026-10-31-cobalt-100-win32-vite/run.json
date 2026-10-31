@@ -1,0 +1,170 @@
+{
+  "schema": 1,
+  "id": "2026-10-31-cobalt-100-win32-vite",
+  "label": "vite",
+  "startedAt": "2026-10-31T14:36:10.197Z",
+  "endedAt": "2026-10-31T14:51:43.194Z",
+  "source": {
+    "kind": "ci",
+    "runner": "windows-11-arm",
+    "image": "win11-vs2026-arm64 20261026.197.1",
+    "runUrl": "https://github.com/relliv/ts-check-arena/actions/runs/41210657999",
+    "commit": "550885a7d52dcfffb40b8aed7984f0c0f3a78c00"
+  },
+  "machine": {
+    "platform": "win32-arm64",
+    "cpu": "Cobalt 100",
+    "cores": 4,
+    "memoryGiB": 16,
+    "os": "Windows 11 Enterprise (10.0.26200)",
+    "node": "v26.13.0"
+  },
+  "target": {
+    "kind": "corpus",
+    "discovery": "list",
+    "commit": "cce559ab158cc6b177d0911a0bea73436b48faff",
+    "dirty": false
+  },
+  "reference": "tsgo@7.1.0-beta",
+  "rounds": 5,
+  "threads": [
+    "default"
+  ],
+  "checkers": [
+    {
+      "id": "tsgo@7.1.0-beta",
+      "family": "tsgo",
+      "package": "typescript",
+      "version": "7.1.0-beta",
+      "variant": null,
+      "variantArgs": [],
+      "defaultThreads": 4,
+      "available": true,
+      "versionOutput": "Version 7.1.0-beta",
+      "binarySha256": "56d73f78be9efa2c8ba86749de10770be9f868df956739da423746bb3dc28d21"
+    },
+    {
+      "id": "bun@1.4.3",
+      "family": "bun",
+      "package": "bun",
+      "version": "1.4.3",
+      "variant": null,
+      "variantArgs": [],
+      "defaultThreads": "per-core",
+      "available": true,
+      "versionOutput": "1.4.3",
+      "binarySha256": "b662cf80f932866036fc2ef33d0d4e2efcf9e4ba282d2deb3391effdcfe0b98f"
+    },
+    {
+      "id": "tsc@6.0.3",
+      "family": "tsc",
+      "package": "typescript",
+      "version": "6.0.3",
+      "variant": null,
+      "variantArgs": [],
+      "defaultThreads": 1,
+      "available": true,
+      "versionOutput": "Version 6.0.3",
+      "binarySha256": "2cffde0b8c6760dfb0b5b0382bbb7e00ba6a8b2d981b9205b256a700a481d983"
+    },
+    {
+      "id": "tsc-rs@0.6.0",
+      "family": "tsc-rs",
+      "package": "tsc-rs",
+      "version": "0.6.0",
+      "variant": null,
+      "variantArgs": [],
+      "defaultThreads": 4,
+      "available": true,
+      "versionOutput": "Version 7.1.0-dev",
+      "binarySha256": "214d4dddaff9d5e3c4807ed47cfea2b7bb9565de36f1fa0a22a06c8b00b31bae"
+    },
+    {
+      "id": "tsc-rs@0.7.0",
+      "family": "tsc-rs",
+      "package": "tsc-rs",
+      "version": "0.7.0",
+      "variant": null,
+      "variantArgs": [],
+      "defaultThreads": 4,
+      "available": true,
+      "versionOutput": "Version 7.1.0-dev",
+      "binarySha256": "620d712a8a8a629c4ceb4796afd39a1a9ca5ff793ea35d691250533228c5624b"
+    },
+    {
+      "id": "tsgo@7.0.2",
+      "family": "tsgo",
+      "package": "typescript",
+      "version": "7.0.2",
+      "variant": null,
+      "variantArgs": [],
+      "defaultThreads": 4,
+      "available": true,
+      "versionOutput": "Version 7.0.2",
+      "binarySha256": "2ec832b3d17ce25676fe92b3810ecc0a7580ffb9287d4972bc9a5acc4da2aa50"
+    }
+  ],
+  "shadows": {},
+  "configs": {
+    "checked": [
+      {
+        "config": "scripts/tsconfig.json",
+        "shadow": null
+      },
+      {
+        "config": "playground/tsconfig.json",
+        "shadow": null
+      },
+      {
+        "config": "packages/create-vite/tsconfig.json",
+        "shadow": null
+      },
+      {
+        "config": "packages/plugin-legacy/tsconfig.json",
+        "shadow": null
+      },
+      {
+        "config": "packages/vite/tsconfig.json",
+        "shadow": null
+      },
+      {
+        "config": "packages/vite/src/node/tsconfig.json",
+        "shadow": null
+      },
+      {
+        "config": "packages/vite/src/client/tsconfig.json",
+        "shadow": null
+      },
+      {
+        "config": "packages/vite/src/module-runner/tsconfig.json",
+        "shadow": null
+      },
+      {
+        "config": "packages/vite/src/shared/tsconfig.json",
+        "shadow": null
+      },
+      {
+        "config": "packages/vite/src/node/__tests_dts__/tsconfig.json",
+        "shadow": null
+      },
+      {
+        "config": "packages/vite/src/module-runner/__tests_dts__/tsconfig.json",
+        "shadow": null
+      }
+    ],
+    "rejected": []
+  },
+  "conditions": {
+    "warnings": [],
+    "loadStart": [
+      0,
+      0,
+      0
+    ],
+    "loadEnd": [
+      0,
+      0,
+      0
+    ]
+  }
+}

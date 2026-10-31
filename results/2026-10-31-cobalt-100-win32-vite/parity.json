@@ -1,0 +1,410 @@
+{
+  "tsgo@7.1.0-beta": {
+    "scripts/tsconfig.json": {
+      "parity": "identical",
+      "errors": 0,
+      "extra": [],
+      "missing": []
+    },
+    "playground/tsconfig.json": {
+      "parity": "identical",
+      "errors": 0,
+      "extra": [],
+      "missing": []
+    },
+    "packages/create-vite/tsconfig.json": {
+      "parity": "identical",
+      "errors": 0,
+      "extra": [],
+      "missing": []
+    },
+    "packages/plugin-legacy/tsconfig.json": {
+      "parity": "identical",
+      "errors": 0,
+      "extra": [],
+      "missing": []
+    },
+    "packages/vite/tsconfig.json": {
+      "parity": "identical",
+      "errors": 0,
+      "extra": [],
+      "missing": []
+    },
+    "packages/vite/src/node/tsconfig.json": {
+      "parity": "identical",
+      "errors": 0,
+      "extra": [],
+      "missing": []
+    },
+    "packages/vite/src/client/tsconfig.json": {
+      "parity": "identical",
+      "errors": 0,
+      "extra": [],
+      "missing": []
+    },
+    "packages/vite/src/module-runner/tsconfig.json": {
+      "parity": "identical",
+      "errors": 0,
+      "extra": [],
+      "missing": []
+    },
+    "packages/vite/src/shared/tsconfig.json": {
+      "parity": "identical",
+      "errors": 0,
+      "extra": [],
+      "missing": []
+    },
+    "packages/vite/src/node/__tests_dts__/tsconfig.json": {
+      "parity": "identical",
+      "errors": 0,
+      "extra": [],
+      "missing": []
+    },
+    "packages/vite/src/module-runner/__tests_dts__/tsconfig.json": {
+      "parity": "identical",
+      "errors": 0,
+      "extra": [],
+      "missing": []
+    }
+  },
+  "bun@1.4.3": {
+    "scripts/tsconfig.json": {
+      "parity": "same-normalized",
+      "errors": 0,
+      "extra": [],
+      "missing": []
+    },
+    "playground/tsconfig.json": {
+      "parity": "same-normalized",
+      "errors": 0,
+      "extra": [],
+      "missing": []
+    },
+    "packages/create-vite/tsconfig.json": {
+      "parity": "same-normalized",
+      "errors": 0,
+      "extra": [],
+      "missing": []
+    },
+    "packages/plugin-legacy/tsconfig.json": {
+      "parity": "same-normalized",
+      "errors": 0,
+      "extra": [],
+      "missing": []
+    },
+    "packages/vite/tsconfig.json": {
+      "parity": "same-normalized",
+      "errors": 0,
+      "extra": [],
+      "missing": []
+    },
+    "packages/vite/src/node/tsconfig.json": {
+      "parity": "same-normalized",
+      "errors": 0,
+      "extra": [],
+      "missing": []
+    },
+    "packages/vite/src/client/tsconfig.json": {
+      "parity": "same-normalized",
+      "errors": 0,
+      "extra": [],
+      "missing": []
+    },
+    "packages/vite/src/module-runner/tsconfig.json": {
+      "parity": "same-normalized",
+      "errors": 0,
+      "extra": [],
+      "missing": []
+    },
+    "packages/vite/src/shared/tsconfig.json": {
+      "parity": "same-normalized",
+      "errors": 0,
+      "extra": [],
+      "missing": []
+    },
+    "packages/vite/src/node/__tests_dts__/tsconfig.json": {
+      "parity": "same-normalized",
+      "errors": 0,
+      "extra": [],
+      "missing": []
+    },
+    "packages/vite/src/module-runner/__tests_dts__/tsconfig.json": {
+      "parity": "same-normalized",
+      "errors": 0,
+      "extra": [],
+      "missing": []
+    }
+  },
+  "tsc@6.0.3": {
+    "scripts/tsconfig.json": {
+      "parity": "identical",
+      "errors": 0,
+      "extra": [],
+      "missing": []
+    },
+    "playground/tsconfig.json": {
+      "parity": "identical",
+      "errors": 0,
+      "extra": [],
+      "missing": []
+    },
+    "packages/create-vite/tsconfig.json": {
+      "parity": "identical",
+      "errors": 0,
+      "extra": [],
+      "missing": []
+    },
+    "packages/plugin-legacy/tsconfig.json": {
+      "parity": "identical",
+      "errors": 0,
+      "extra": [],
+      "missing": []
+    },
+    "packages/vite/tsconfig.json": {
+      "parity": "identical",
+      "errors": 0,
+      "extra": [],
+      "missing": []
+    },
+    "packages/vite/src/node/tsconfig.json": {
+      "parity": "identical",
+      "errors": 0,
+      "extra": [],
+      "missing": []
+    },
+    "packages/vite/src/client/tsconfig.json": {
+      "parity": "identical",
+      "errors": 0,
+      "extra": [],
+      "missing": []
+    },
+    "packages/vite/src/module-runner/tsconfig.json": {
+      "parity": "identical",
+      "errors": 0,
+      "extra": [],
+      "missing": []
+    },
+    "packages/vite/src/shared/tsconfig.json": {
+      "parity": "identical",
+      "errors": 0,
+      "extra": [],
+      "missing": []
+    },
+    "packages/vite/src/node/__tests_dts__/tsconfig.json": {
+      "parity": "identical",
+      "errors": 0,
+      "extra": [],
+      "missing": []
+    },
+    "packages/vite/src/module-runner/__tests_dts__/tsconfig.json": {
+      "parity": "identical",
+      "errors": 0,
+      "extra": [],
+      "missing": []
+    }
+  },
+  "tsc-rs@0.6.0": {
+    "scripts/tsconfig.json": {
+      "parity": "identical",
+      "errors": 0,
+      "extra": [],
+      "missing": []
+    },
+    "playground/tsconfig.json": {
+      "parity": "identical",
+      "errors": 0,
+      "extra": [],
+      "missing": []
+    },
+    "packages/create-vite/tsconfig.json": {
+      "parity": "identical",
+      "errors": 0,
+      "extra": [],
+      "missing": []
+    },
+    "packages/plugin-legacy/tsconfig.json": {
+      "parity": "identical",
+      "errors": 0,
+      "extra": [],
+      "missing": []
+    },
+    "packages/vite/tsconfig.json": {
+      "parity": "identical",
+      "errors": 0,
+      "extra": [],
+      "missing": []
+    },
+    "packages/vite/src/node/tsconfig.json": {
+      "parity": "identical",
+      "errors": 0,
+      "extra": [],
+      "missing": []
+    },
+    "packages/vite/src/client/tsconfig.json": {
+      "parity": "identical",
+      "errors": 0,
+      "extra": [],
+      "missing": []
+    },
+    "packages/vite/src/module-runner/tsconfig.json": {
+      "parity": "identical",
+      "errors": 0,
+      "extra": [],
+      "missing": []
+    },
+    "packages/vite/src/shared/tsconfig.json": {
+      "parity": "identical",
+      "errors": 0,
+      "extra": [],
+      "missing": []
+    },
+    "packages/vite/src/node/__tests_dts__/tsconfig.json": {
+      "parity": "identical",
+      "errors": 0,
+      "extra": [],
+      "missing": []
+    },
+    "packages/vite/src/module-runner/__tests_dts__/tsconfig.json": {
+      "parity": "identical",
+      "errors": 0,
+      "extra": [],
+      "missing": []
+    }
+  },
+  "tsc-rs@0.7.0": {
+    "scripts/tsconfig.json": {
+      "parity": "identical",
+      "errors": 0,
+      "extra": [],
+      "missing": []
+    },
+    "playground/tsconfig.json": {
+      "parity": "identical",
+      "errors": 0,
+      "extra": [],
+      "missing": []
+    },
+    "packages/create-vite/tsconfig.json": {
+      "parity": "identical",
+      "errors": 0,
+      "extra": [],
+      "missing": []
+    },
+    "packages/plugin-legacy/tsconfig.json": {
+      "parity": "identical",
+      "errors": 0,
+      "extra": [],
+      "missing": []
+    },
+    "packages/vite/tsconfig.json": {
+      "parity": "identical",
+      "errors": 0,
+      "extra": [],
+      "missing": []
+    },
+    "packages/vite/src/node/tsconfig.json": {
+      "parity": "identical",
+      "errors": 0,
+      "extra": [],
+      "missing": []
+    },
+    "packages/vite/src/client/tsconfig.json": {
+      "parity": "identical",
+      "errors": 0,
+      "extra": [],
+      "missing": []
+    },
+    "packages/vite/src/module-runner/tsconfig.json": {
+      "parity": "identical",
+      "errors": 0,
+      "extra": [],
+      "missing": []
+    },
+    "packages/vite/src/shared/tsconfig.json": {
+      "parity": "identical",
+      "errors": 0,
+      "extra": [],
+      "missing": []
+    },
+    "packages/vite/src/node/__tests_dts__/tsconfig.json": {
+      "parity": "identical",
+      "errors": 0,
+      "extra": [],
+      "missing": []
+    },
+    "packages/vite/src/module-runner/__tests_dts__/tsconfig.json": {
+      "parity": "identical",
+      "errors": 0,
+      "extra": [],
+      "missing": []
+    }
+  },
+  "tsgo@7.0.2": {
+    "scripts/tsconfig.json": {
+      "parity": "identical",
+      "errors": 0,
+      "extra": [],
+      "missing": []
+    },
+    "playground/tsconfig.json": {
+      "parity": "identical",
+      "errors": 0,
+      "extra": [],
+      "missing": []
+    },
+    "packages/create-vite/tsconfig.json": {
+      "parity": "identical",
+      "errors": 0,
+      "extra": [],
+      "missing": []
+    },
+    "packages/plugin-legacy/tsconfig.json": {
+      "parity": "identical",
+      "errors": 0,
+      "extra": [],
+      "missing": []
+    },
+    "packages/vite/tsconfig.json": {
+      "parity": "identical",
+      "errors": 0,
+      "extra": [],
+      "missing": []
+    },
+    "packages/vite/src/node/tsconfig.json": {
+      "parity": "identical",
+      "errors": 0,
+      "extra": [],
+      "missing": []
+    },
+    "packages/vite/src/client/tsconfig.json": {
+      "parity": "identical",
+      "errors": 0,
+      "extra": [],
+      "missing": []
+    },
+    "packages/vite/src/module-runner/tsconfig.json": {
+      "parity": "identical",
+      "errors": 0,
+      "extra": [],
+      "missing": []
+    },
+    "packages/vite/src/shared/tsconfig.json": {
+      "parity": "identical",
+      "errors": 0,
+      "extra": [],
+      "missing": []
+    },
+    "packages/vite/src/node/__tests_dts__/tsconfig.json": {
+      "parity": "identical",
+      "errors": 0,
+      "extra": [],
+      "missing": []
+    },
+    "packages/vite/src/module-runner/__tests_dts__/tsconfig.json": {
+      "parity": "identical",
+      "errors": 0,
+      "extra": [],
+      "missing": []
+    }
+  }
+}

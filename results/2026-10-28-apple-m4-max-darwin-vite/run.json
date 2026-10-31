@@ -1,0 +1,246 @@
+{
+  "schema": 1,
+  "id": "2026-10-28-apple-m4-max-darwin-vite",
+  "label": "vite",
+  "startedAt": "2026-10-28T10:17:22.005Z",
+  "endedAt": "2026-10-28T10:23:36.075Z",
+  "source": {
+    "kind": "local"
+  },
+  "machine": {
+    "platform": "darwin-arm64",
+    "cpu": "Apple M4 Max",
+    "cores": 16,
+    "memoryGiB": 48,
+    "os": "macOS 27.0.1 (26A434)",
+    "node": "v26.0.0"
+  },
+  "target": {
+    "kind": "corpus",
+    "discovery": "list",
+    "commit": "cce559ab158cc6b177d0911a0bea73436b48faff",
+    "dirty": false
+  },
+  "reference": "tsgo@7.1.0-beta",
+  "rounds": 7,
+  "threads": [
+    "default"
+  ],
+  "checkers": [
+    {
+      "id": "tsgo@7.1.0-beta",
+      "family": "tsgo",
+      "package": "typescript",
+      "version": "7.1.0-beta",
+      "variant": null,
+      "variantArgs": [],
+      "defaultThreads": 4,
+      "available": true,
+      "versionOutput": "Version 7.1.0-beta",
+      "binarySha256": "29f5eb8daa5c8cf6ef1c0cb79fbcf47c0cfdf26edabdf148bb779d0b2d56cebc"
+    },
+    {
+      "id": "bun@1.4.3",
+      "family": "bun",
+      "package": "bun",
+      "version": "1.4.3",
+      "variant": null,
+      "variantArgs": [],
+      "defaultThreads": "per-core",
+      "available": true,
+      "versionOutput": "1.4.3",
+      "binarySha256": "28c7dd0a06916aba284d570ef44a2d70e9c538eaf2ba58dfe0910525563b3f79"
+    },
+    {
+      "id": "tsc@6.0.3",
+      "family": "tsc",
+      "package": "typescript",
+      "version": "6.0.3",
+      "variant": null,
+      "variantArgs": [],
+      "defaultThreads": 1,
+      "available": true,
+      "versionOutput": "Version 6.0.3",
+      "binarySha256": "2cffde0b8c6760dfb0b5b0382bbb7e00ba6a8b2d981b9205b256a700a481d983"
+    },
+    {
+      "id": "tsc-rs@0.6.0",
+      "family": "tsc-rs",
+      "package": "tsc-rs",
+      "version": "0.6.0",
+      "variant": null,
+      "variantArgs": [],
+      "defaultThreads": 4,
+      "available": true,
+      "versionOutput": "Version 7.1.0-dev",
+      "binarySha256": "83024f4dec3429956b9d89eed5b631297a0902a8d9021916cc3fab6eef134ded"
+    },
+    {
+      "id": "tsc-rs@0.7.0",
+      "family": "tsc-rs",
+      "package": "tsc-rs",
+      "version": "0.7.0",
+      "variant": null,
+      "variantArgs": [],
+      "defaultThreads": 4,
+      "available": true,
+      "versionOutput": "Version 7.1.0-dev",
+      "binarySha256": "23dd7b5cf77478cd6bc0f9ea40ce5807ecb69a4a4f4b16f4d1323becafb54cc7"
+    },
+    {
+      "id": "tsc-ts@0.0.4",
+      "family": "tsc-ts",
+      "package": "tsc-ts",
+      "version": "0.0.4",
+      "variant": null,
+      "variantArgs": [],
+      "defaultThreads": "per-core",
+      "available": true,
+      "versionOutput": "Version 7.0.2",
+      "binarySha256": "fe7255e19cf2872d3c60952bdb74b2feba467d0fbcb72cb9d34f366032cff035"
+    },
+    {
+      "id": "tsc-ts@0.0.5",
+      "family": "tsc-ts",
+      "package": "tsc-ts",
+      "version": "0.0.5",
+      "variant": null,
+      "variantArgs": [],
+      "defaultThreads": "per-core",
+      "available": true,
+      "versionOutput": "Version 7.0.2",
+      "binarySha256": "dc23e6e23c7a418fc623dfc4bb6ccb594fd65c38c07d44307167a29c7d2cd021"
+    },
+    {
+      "id": "tsgo@7.0.2",
+      "family": "tsgo",
+      "package": "typescript",
+      "version": "7.0.2",
+      "variant": null,
+      "variantArgs": [],
+      "defaultThreads": 4,
+      "available": true,
+      "versionOutput": "Version 7.0.2",
+      "binarySha256": "a82f731365ad69d5c4c15f5e18fba4584bf3b7b839960172a76c3462b5114bf2"
+    },
+    {
+      "id": "tsrs@0.16.0-ts7.1.0-dev.20260929",
+      "family": "tsrs",
+      "package": "tsrs",
+      "version": "0.16.0-ts7.1.0-dev.20260929",
+      "variant": null,
+      "variantArgs": [],
+      "defaultThreads": "per-core",
+      "available": true,
+      "versionOutput": "Version 7.1.0-dev.20260930.4 (tsrs 0.16.0-ts7.1.0-dev.20260929, microsoft/TypeScript@b85298b6a81f)",
+      "binarySha256": "c04e14af7538fd95272c40e4902d6048aa637cecd40cb3429b94f646e20ebceb"
+    },
+    {
+      "id": "tsrs@0.18.0-ts7.1.0-dev.20260929",
+      "family": "tsrs",
+      "package": "tsrs",
+      "version": "0.18.0-ts7.1.0-dev.20260929",
+      "variant": null,
+      "variantArgs": [],
+      "defaultThreads": "per-core",
+      "available": true,
+      "versionOutput": "Version 7.1.0-dev.20260930.4 (tsrs 0.18.0-ts7.1.0-dev.20260929, microsoft/TypeScript@b85298b6a81f)",
+      "binarySha256": "b3f1c65d555aa0dbd665922353c867a5332b00894f5c890cbf8044801fa13260"
+    },
+    {
+      "id": "tsrs@0.20.1-ts7.1.0-beta",
+      "family": "tsrs",
+      "package": "tsrs",
+      "version": "0.20.1-ts7.1.0-beta",
+      "variant": null,
+      "variantArgs": [],
+      "defaultThreads": 4,
+      "available": true,
+      "versionOutput": "Version 7.1.0-beta (tsrs 0.20.1-ts7.1.0-beta, microsoft/TypeScript@3e9236361fa9)",
+      "binarySha256": "5c1f6789358b9947e5c2176532f2cbee5488a5d7481652ee2f1763efdf105217"
+    },
+    {
+      "id": "tsrs@0.20.1-ts7.1.0-beta+fast",
+      "family": "tsrs",
+      "package": "tsrs",
+      "version": "0.20.1-ts7.1.0-beta",
+      "variant": "fast",
+      "variantArgs": [
+        "--fast"
+      ],
+      "defaultThreads": null,
+      "available": true,
+      "versionOutput": "Version 7.1.0-beta (tsrs 0.20.1-ts7.1.0-beta, microsoft/TypeScript@3e9236361fa9)",
+      "binarySha256": "5c1f6789358b9947e5c2176532f2cbee5488a5d7481652ee2f1763efdf105217"
+    }
+  ],
+  "shadows": {},
+  "configs": {
+    "checked": [
+      {
+        "config": "scripts/tsconfig.json",
+        "shadow": null
+      },
+      {
+        "config": "playground/tsconfig.json",
+        "shadow": null
+      },
+      {
+        "config": "packages/create-vite/tsconfig.json",
+        "shadow": null
+      },
+      {
+        "config": "packages/plugin-legacy/tsconfig.json",
+        "shadow": null
+      },
+      {
+        "config": "packages/vite/tsconfig.json",
+        "shadow": null
+      },
+      {
+        "config": "packages/vite/src/node/tsconfig.json",
+        "shadow": null
+      },
+      {
+        "config": "packages/vite/src/client/tsconfig.json",
+        "shadow": null
+      },
+      {
+        "config": "packages/vite/src/module-runner/tsconfig.json",
+        "shadow": null
+      },
+      {
+        "config": "packages/vite/src/shared/tsconfig.json",
+        "shadow": null
+      },
+      {
+        "config": "packages/vite/src/node/__tests_dts__/tsconfig.json",
+        "shadow": null
+      },
+      {
+        "config": "packages/vite/src/module-runner/__tests_dts__/tsconfig.json",
+        "shadow": null
+      }
+    ],
+    "rejected": []
+  },
+  "conditions": {
+    "warnings": [
+      "load average 74.23 on 16 cores",
+      "busy process: mds_stores at 88.1% CPU",
+      "busy process: corespotlightd at 42.5% CPU",
+      "busy process: mediaanalysisd at 145.9% CPU",
+      "node_modules above the target in ~"
+    ],
+    "loadStart": [
+      74.23095703125,
+      28.33935546875,
+      11.091796875
+    ],
+    "loadEnd": [
+      4.66552734375,
+      11.337890625,
+      8.75341796875
+    ]
+  }
+}

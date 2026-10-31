@@ -1,0 +1,249 @@
+{
+  "schema": 1,
+  "id": "2026-10-31-intel-r-core-tm-i7-8700b-cpu-3-20ghz-darwin-vite",
+  "label": "vite",
+  "date": "2026-10-31T14:35:46.742Z",
+  "source": {
+    "kind": "ci",
+    "runner": "macos-15-intel",
+    "image": "macos15 20260824.0482.1",
+    "runUrl": "https://github.com/relliv/ts-check-arena/actions/runs/41210657999",
+    "commit": "550885a7d52dcfffb40b8aed7984f0c0f3a78c00"
+  },
+  "machine": {
+    "platform": "darwin-x64",
+    "cpu": "Intel(R) Core(TM) i7-8700B CPU @ 3.20GHz",
+    "cores": 4,
+    "memoryGiB": 14,
+    "os": "macOS 15.7.9 (24G830)",
+    "node": "v26.13.0"
+  },
+  "reference": "tsgo@7.1.0-beta",
+  "rounds": 5,
+  "configs": {
+    "checked": 11,
+    "rejected": 0,
+    "shadowed": 0
+  },
+  "settings": [
+    {
+      "threads": "default",
+      "checkers": [
+        {
+          "id": "tsrs@0.20.1-ts7.1.0-beta",
+          "family": "tsrs",
+          "version": "0.20.1-ts7.1.0-beta",
+          "runs": 5,
+          "median": 5.4214344,
+          "min": 5.004921379,
+          "max": 6.7690918369999995,
+          "cpu": 8.62,
+          "rssMiB": 303.09375,
+          "speedup": 2.7862438855665213
+        },
+        {
+          "id": "bun@1.4.3",
+          "family": "bun",
+          "version": "1.4.3",
+          "runs": 5,
+          "median": 5.736881345,
+          "min": 5.073544279,
+          "max": 7.463426457000001,
+          "cpu": 12.09,
+          "rssMiB": 238.81640625,
+          "speedup": 2.6330400682184587
+        },
+        {
+          "id": "tsrs@0.20.1-ts7.1.0-beta+fast",
+          "family": "tsrs",
+          "version": "0.20.1-ts7.1.0-beta",
+          "runs": 5,
+          "median": 6.468622472000001,
+          "min": 4.565213426,
+          "max": 7.986933091,
+          "cpu": 11.4,
+          "rssMiB": 288.8359375,
+          "speedup": 2.3351862801369556
+        },
+        {
+          "id": "tsc-rs@0.6.0",
+          "family": "tsc-rs",
+          "version": "0.6.0",
+          "runs": 5,
+          "median": 8.972205767,
+          "min": 7.433326583,
+          "max": 9.130643997000002,
+          "cpu": 15,
+          "rssMiB": 585.54296875,
+          "speedup": 1.6835813667535564
+        },
+        {
+          "id": "tsc-rs@0.7.0",
+          "family": "tsc-rs",
+          "version": "0.7.0",
+          "runs": 5,
+          "median": 9.319776747000002,
+          "min": 7.880119199999999,
+          "max": 12.48403783,
+          "cpu": 16.09,
+          "rssMiB": 585.91015625,
+          "speedup": 1.620794023082407
+        },
+        {
+          "id": "tsgo@7.1.0-beta",
+          "family": "tsgo",
+          "version": "7.1.0-beta",
+          "runs": 5,
+          "median": 15.105438448000001,
+          "min": 12.055711128,
+          "max": 19.279154041,
+          "cpu": 29.74,
+          "rssMiB": 671.11328125,
+          "speedup": 1
+        },
+        {
+          "id": "tsc-ts@0.0.4",
+          "family": "tsc-ts",
+          "version": "0.0.4",
+          "runs": 5,
+          "median": 16.838150143999997,
+          "min": 15.48313015,
+          "max": 17.323552968,
+          "cpu": 31.169999999999998,
+          "rssMiB": 688.89453125,
+          "speedup": 0.8970960775867995
+        },
+        {
+          "id": "tsc-ts@0.0.5",
+          "family": "tsc-ts",
+          "version": "0.0.5",
+          "runs": 5,
+          "median": 18.324023495,
+          "min": 14.650164032,
+          "max": 20.468053994,
+          "cpu": 30.68,
+          "rssMiB": 682.2265625,
+          "speedup": 0.8243516197259713
+        },
+        {
+          "id": "tsgo@7.0.2",
+          "family": "tsgo",
+          "version": "7.0.2",
+          "runs": 5,
+          "median": 20.583436638000002,
+          "min": 16.718532004,
+          "max": 26.631931449,
+          "cpu": 39.879999999999995,
+          "rssMiB": 959.27734375,
+          "speedup": 0.733863771811223
+        },
+        {
+          "id": "tsc@6.0.3",
+          "family": "tsc",
+          "version": "6.0.3",
+          "runs": 5,
+          "median": 60.57387438800001,
+          "min": 53.818303372,
+          "max": 65.67473017,
+          "cpu": 105.92000000000002,
+          "rssMiB": 948.08984375,
+          "speedup": 0.24937216911772223
+        }
+      ]
+    }
+  ],
+  "parity": [
+    {
+      "id": "tsgo@7.1.0-beta",
+      "identical": 11,
+      "sameNormalized": 0,
+      "differs": 0,
+      "failed": 0,
+      "extra": 0,
+      "missing": 0
+    },
+    {
+      "id": "bun@1.4.3",
+      "identical": 0,
+      "sameNormalized": 11,
+      "differs": 0,
+      "failed": 0,
+      "extra": 0,
+      "missing": 0
+    },
+    {
+      "id": "tsc@6.0.3",
+      "identical": 11,
+      "sameNormalized": 0,
+      "differs": 0,
+      "failed": 0,
+      "extra": 0,
+      "missing": 0
+    },
+    {
+      "id": "tsc-rs@0.6.0",
+      "identical": 11,
+      "sameNormalized": 0,
+      "differs": 0,
+      "failed": 0,
+      "extra": 0,
+      "missing": 0
+    },
+    {
+      "id": "tsc-rs@0.7.0",
+      "identical": 11,
+      "sameNormalized": 0,
+      "differs": 0,
+      "failed": 0,
+      "extra": 0,
+      "missing": 0
+    },
+    {
+      "id": "tsc-ts@0.0.4",
+      "identical": 11,
+      "sameNormalized": 0,
+      "differs": 0,
+      "failed": 0,
+      "extra": 0,
+      "missing": 0
+    },
+    {
+      "id": "tsc-ts@0.0.5",
+      "identical": 11,
+      "sameNormalized": 0,
+      "differs": 0,
+      "failed": 0,
+      "extra": 0,
+      "missing": 0
+    },
+    {
+      "id": "tsgo@7.0.2",
+      "identical": 11,
+      "sameNormalized": 0,
+      "differs": 0,
+      "failed": 0,
+      "extra": 0,
+      "missing": 0
+    },
+    {
+      "id": "tsrs@0.20.1-ts7.1.0-beta",
+      "identical": 11,
+      "sameNormalized": 0,
+      "differs": 0,
+      "failed": 0,
+      "extra": 0,
+      "missing": 0
+    },
+    {
+      "id": "tsrs@0.20.1-ts7.1.0-beta+fast",
+      "identical": 11,
+      "sameNormalized": 0,
+      "differs": 0,
+      "failed": 0,
+      "extra": 0,
+      "missing": 0
+    }
+  ],
+  "unavailable": [],
+  "untimed": []
+}
