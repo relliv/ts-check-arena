@@ -20,6 +20,9 @@ const DARK = ['#3987e5', '#d95926', '#199e70', '#c98500', '#d55181', '#008300'];
 
 export const isDark = (): boolean => window.matchMedia('(prefers-color-scheme: dark)').matches;
 
+/** True on phone-width viewports; chart builders tighten margins, shrink labels and rotate ticks when set. */
+export const isNarrow = (): boolean => window.matchMedia('(max-width: 640px)').matches;
+
 export function familyColor(family: string): string {
   const i = FAMILIES.indexOf(family as (typeof FAMILIES)[number]);
   return (isDark() ? DARK : LIGHT)[i] ?? '#8a8a85';
