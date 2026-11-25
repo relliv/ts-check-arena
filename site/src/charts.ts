@@ -25,13 +25,13 @@ export const isNarrow = (): boolean => window.matchMedia('(max-width: 640px)').m
 
 export function familyColor(family: string): string {
   const i = FAMILIES.indexOf(family as (typeof FAMILIES)[number]);
-  return (isDark() ? DARK : LIGHT)[i] ?? '#8a8a85';
+  return (isDark() ? DARK : LIGHT)[i] ?? '#8492a6';
 }
 
 export function ink() {
   return isDark()
-    ? { primary: '#f0efec', secondary: '#c3c2b7', muted: '#8f8e86', axis: '#3a3936', grid: '#2a2a28', surface: '#1a1a19' }
-    : { primary: '#0b0b0b', secondary: '#52514e', muted: '#8a8984', axis: '#d9d8d3', grid: '#efeeea', surface: '#fcfcfb' };
+    ? { primary: '#f1f5f9', secondary: '#cbd5e1', muted: '#8794ab', axis: '#24314f', grid: '#152036', surface: '#0c1220' }
+    : { primary: '#0f172a', secondary: '#475569', muted: '#8492a6', axis: '#d5dce7', grid: '#e9eef5', surface: '#ffffff' };
 }
 
 /** Shared defaults: font, a quiet tooltip, recessive axes. */

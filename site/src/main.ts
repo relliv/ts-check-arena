@@ -133,8 +133,9 @@ function barsChart(run: RunSummary, checkers: CheckerSummary[], metric: Metric) 
   const fmt = (v: number) => (metric === 'memory' ? mib(v) : secs(v));
   const rows = [...checkers].sort((a, b) => value(a) - value(b)).reverse();
   return {
-    grid: { left: 8, right: n ? 64 : 120, top: 8, bottom: 24, containLabel: true },
-    xAxis: valueAxis(undefined, v => fmt(v)),
+    grid: { left: 4, right: n ? 56 : 120, top: 8, bottom: n ? 16 : 24, containLabel: true },
+    // Phones get three ticks; five second-labels do not fit in 300px.
+    xAxis: { ...valueAxis(undefined, v => fmt(v)), splitNumber: n ? 3 : 5, axisLabel: { color: c.muted, fontSize: n ? 10 : 12, hideOverlap: true, formatter: (v: number) => fmt(v) } },
     yAxis: categoryAxis(rows.map(r => short(r.id)), { axisLabel: { color: c.secondary, fontSize: n ? 10 : 12 } }),
     tooltip: {
       trigger: 'axis',
@@ -155,7 +156,7 @@ function barsChart(run: RunSummary, checkers: CheckerSummary[], metric: Metric) 
         label: {
           show: true,
           position: 'right',
-          distance: n ? 6 : metric === 'wall' ? 14 : 6,
+          distance: metric === 'wall' ? 12 : 6,
           color: c.primary,
           fontSize: n ? 10 : 11,
           formatter: (p: { dataIndex: number }) => {
@@ -210,9 +211,21 @@ function scatterChart(checkers: CheckerSummary[]) {
   const families = FAMILIES.filter(f => checkers.some(x => x.family === f));
   return {
     // Narrow puts labels above points, so the right margin can shrink instead of reserving label room.
-    grid: { left: 8, right: n ? 12 : 24, top: n ? 32 : 28, bottom: 8, containLabel: true },
+    // containLabel leaves out axis names, so the bottom margin holds the x axis title.
+    grid: { left: 8, right: n ? 12 : 24, top: n ? 32 : 28, bottom: 34, containLabel: true },
     // Log scale: one slow checker would otherwise squeeze every other point into a corner.
-    xAxis: { ...valueAxis(n ? 'Wall per pass' : 'Wall per pass (log scale)', v => secs(v)), type: 'log', logBase: 10, nameLocation: 'middle', nameGap: 26 },
+    // The range hugs the data instead of rounding out to whole powers of ten.
+    xAxis: {
+      ...valueAxis(n ? 'Wall per pass' : 'Wall per pass (log scale)', v => secs(v)),
+      type: 'log',
+      logBase: 10,
+      min: (r: { min: number }) => r.min * 0.7,
+      max: (r: { max: number }) => r.max * 1.5,
+      // The padded ends are not round numbers; only the powers of ten get a label.
+      axisLabel: { color: c.muted, showMinLabel: false, showMaxLabel: false, formatter: (v: number) => secs(v) },
+      nameLocation: 'middle',
+      nameGap: 26,
+    },
     yAxis: { ...valueAxis('Peak memory', v => mib(v)), scale: true },
     tooltip: {
       trigger: 'item',
@@ -222,6 +235,8 @@ function scatterChart(checkers: CheckerSummary[]) {
       type: 'scatter',
       name: f,
       symbolSize: n ? 11 : 14,
+      // Crowded labels are pushed apart vertically, and any that still collide are hidden; the tooltip names every point.
+      labelLayout: { moveOverlap: 'shiftY', hideOverlap: true },
       itemStyle: { color: familyColor(f), borderColor: c.surface, borderWidth: 2 },
       // Versions of one family often land on top of each other. Points within 10%
       // on both axes share one label, at the first of them; the tooltip has each.
@@ -248,8 +263,8 @@ function trendChart(family: string, points: [string, number][]) {
   const color = familyColor(family);
   return {
     grid: { left: 8, right: 16, top: 24, bottom: 8, containLabel: true },
-    xAxis: categoryAxis(points.map(p => shortVersion(p[0])), { boundaryGap: points.length === 1 }),
-    yAxis: { ...valueAxis(undefined, v => `${v}×`), min: 0 },
+    xAxis: categoryAxis(points.map(p => shortVersion(p[0])), { boundaryGap: points.length === 1 || isNarrow() }),
+    yAxis: { ...valueAxis(undefined, v => `${v}×`), min: 0, splitNumber: isNarrow() ? 3 : 5 },
     tooltip: { trigger: 'axis', formatter: (p: { dataIndex: number }[]) => `<b>${esc(family)}@${esc(points[p[0]!.dataIndex]![0])}</b><br>${times(points[p[0]!.dataIndex]![1])} vs reference` },
     series: [
       {
@@ -264,7 +279,7 @@ function trendChart(family: string, points: [string, number][]) {
           silent: true,
           symbol: 'none',
           lineStyle: { color: c.muted, type: 'dashed', width: 1 },
-          label: { formatter: 'reference', color: c.muted, fontSize: 10, position: 'insideStartBottom' },
+          label: { show: !isNarrow(), formatter: 'reference', color: c.muted, fontSize: 10, position: 'insideStartBottom' },
           data: [{ yAxis: 1 }],
         },
       },
@@ -295,26 +310,38 @@ function platformData(run: RunSummary): RunSummary[] {
   return [...newest.values()];
 }
 
+const platformIds = (list: RunSummary[]): string[] =>
+  [...new Set(list.flatMap(r => r.settings.find(s => s.threads === 'default')?.checkers.map(x => x.id) ?? []))].sort();
+
+/** Legend rows plus the plot: fixed on wide screens, one row per checker on phones, where the bars run sideways. */
+function platformHeight(list: RunSummary[]): number {
+  const n = isNarrow();
+  const legend = Math.max(0, Math.ceil(list.length / (n ? 2 : 4)) - 1) * 22;
+  return n ? 60 + legend + platformIds(list).length * Math.max(24, list.length * 6 + 6) : 340 + legend;
+}
+
 function platformChart(list: RunSummary[]) {
   const c = ink();
   const n = isNarrow();
-  const ids = [...new Set(list.flatMap(r => r.settings.find(s => s.threads === 'default')?.checkers.map(x => x.id) ?? []))].sort();
+  const ids = platformIds(list);
   // Reserve room for the legend above the plot; it wraps to two or three rows with
   // several platforms, and a too-small top margin lets those rows land on the bars.
   const legendRows = Math.max(1, Math.ceil(list.length / (n ? 2 : 4)));
-  const top = 16 + legendRows * 22;
+  const top = (n ? 8 : 16) + legendRows * 22;
+  const checkerAxis = categoryAxis(ids.map(short), { axisLabel: { color: c.secondary, rotate: n ? 0 : 30, fontSize: n ? 10 : 12, interval: 0 }, inverse: n });
+  const speedAxis = { ...valueAxis(undefined, v => `${v}×`), splitNumber: n ? 3 : 5 };
   return {
-    grid: { left: 8, right: 16, top, bottom: 8, containLabel: true },
-    legend: { top: 0, itemGap: 16, textStyle: { color: c.secondary, fontSize: n ? 11 : 12 } },
-    xAxis: categoryAxis(ids.map(short), { axisLabel: { color: c.secondary, rotate: n ? 45 : 30, fontSize: n ? 10 : 12, interval: 0 } }),
-    yAxis: valueAxis(undefined, v => `${v}×`),
+    grid: { left: 4, right: n ? 8 : 16, top, bottom: 8, containLabel: true },
+    legend: { top: 0, itemGap: n ? 10 : 16, itemWidth: n ? 12 : 25, textStyle: { color: c.secondary, fontSize: n ? 11 : 12 } },
+    xAxis: n ? speedAxis : checkerAxis,
+    yAxis: n ? checkerAxis : speedAxis,
     tooltip: { trigger: 'axis', axisPointer: { type: 'none' } },
     series: list.map((r, i) => ({
       type: 'bar',
       name: r.machine.platform,
-      barMaxWidth: 14,
+      barMaxWidth: n ? 5 : 14,
       emphasis: { focus: 'none', itemStyle: { borderColor: c.primary, borderWidth: 1.5 } },
-      itemStyle: { color: ['#2a78d6', '#eb6834', '#1baf7a'][i % 3], borderRadius: [4, 4, 0, 0] },
+      itemStyle: { color: ['#2a78d6', '#eb6834', '#1baf7a'][i % 3], borderRadius: n ? [0, 3, 3, 0] : [4, 4, 0, 0] },
       data: ids.map(id => r.settings.find(s => s.threads === 'default')?.checkers.find(x => x.id === id)?.speedup ?? null),
     })),
   };
@@ -337,6 +364,8 @@ function byDay(list: RunSummary[]): [string, RunSummary[]][] {
 }
 
 const icon = {
+  // The brand: a stopwatch with a check mark, for timed type checks. The favicon in index.html draws the same mark.
+  logo: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 2.75h4M12 2.75v3"/><path d="M18.25 6.25l1.5-1.5"/><circle cx="12" cy="13.5" r="7.25"/><path d="M8.75 13.75l2.25 2.25 4.25-4.5"/></svg>`,
   chevron: `<svg class="chevron" viewBox="0 0 16 16" aria-hidden="true"><path d="M4 6l4 4 4-4" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/></svg>`,
   check: `<svg class="check" viewBox="0 0 16 16" aria-hidden="true"><path d="M3.5 8.5l3 3 6-7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>`,
   search: `<svg viewBox="0 0 16 16" aria-hidden="true"><circle cx="7" cy="7" r="4.5" fill="none" stroke="currentColor" stroke-width="1.75"/><path d="M10.5 10.5L14 14" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"/></svg>`,
@@ -482,7 +511,7 @@ const COMPARE_METRICS: [CompareMetric, string][] = [
   ['cpu', 'CPU time'],
   ['memory', 'Peak memory'],
 ];
-const RUN_COLORS = ['#2a78d6', '#eb6834', '#1baf7a', '#c98500', '#d55181', '#13a3b8', '#8a8a85'];
+const RUN_COLORS = ['#2a78d6', '#eb6834', '#1baf7a', '#c98500', '#d55181', '#13a3b8', '#8492a6'];
 const runColor = (i: number): string => RUN_COLORS[i % RUN_COLORS.length]!;
 
 const defaultCheckers = (r: RunSummary): CheckerSummary[] => r.settings.find(s => s.threads === 'default')?.checkers ?? r.settings[0]?.checkers ?? [];
@@ -577,7 +606,7 @@ function compareChart(list: RunSummary[], metric: CompareMetric) {
 function render(): void {
   disposeAll();
   const app = document.querySelector<HTMLDivElement>('#app')!;
-  const brand = `<header class="topbar"><div class="brand"><span class="brand-mark">tsc</span>ts-check-arena</div>
+  const brand = `<header class="topbar"><div class="brand"><span class="brand-mark">${icon.logo}</span>ts-check-arena</div>
     <a class="topbar-link" href="https://github.com/relliv/ts-check-arena/blob/main/docs/METHOD.md">${icon.method}Method</a></header>`;
   const run = runs.find(r => r.id === state.runId);
   if (!run) {
@@ -614,13 +643,13 @@ function render(): void {
         ${segmented('metric', [['wall', 'Wall time'], ['cpu', 'CPU time'], ['memory', 'Peak memory']], state.metric)}
       </div>
       ${legend(families)}
-      <div class="chart" id="chart-bars" style="height:${Math.max(240, checkers.length * 40 + 48)}px"></div>
+      <div class="chart" id="chart-bars" style="height:${Math.max(240, checkers.length * (isNarrow() ? 30 : 40) + 48)}px"></div>
     </section>
 
     <div class="grid-2">
       <section class="card">
         <h2>Speed and memory</h2><p class="hint">Down and to the left is better.</p>
-        <div class="chart" id="chart-scatter" style="height:320px"></div>
+        <div class="chart fill" id="chart-scatter"></div>
       </section>
       <section class="card">
         <h2>Numbers</h2><p class="hint">Median of ${run.rounds} rounds after one warm-up, against ${esc(short(run.reference))}. Hover a wall time for its range.</p>
@@ -640,7 +669,7 @@ function render(): void {
 
     ${
       platforms.length > 1
-        ? `<section class="card"><h2>Across platforms</h2><p class="hint">Newest run per platform; each bar is the speedup against that run's own reference. Compare ratios, not seconds.</p><div class="chart" id="chart-platforms" style="height:${340 + Math.max(0, Math.ceil(platforms.length / (isNarrow() ? 2 : 4)) - 1) * 22}px"></div></section>`
+        ? `<section class="card"><h2>Across platforms</h2><p class="hint">Newest run per platform; each bar is the speedup against that run's own reference. Compare ratios, not seconds.</p><div class="chart" id="chart-platforms" style="height:${platformHeight(platforms)}px"></div></section>`
         : ''
     }
 

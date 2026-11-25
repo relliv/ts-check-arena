@@ -1,16 +1,34 @@
 @import 'tailwindcss';
+@import '@fontsource-variable/inter';
 
 @theme {
-  --font-sans: 'Inter', ui-sans-serif, system-ui, sans-serif;
+  --font-sans: 'Inter Variable', 'Inter', ui-sans-serif, system-ui, sans-serif;
   --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, monospace;
+
+  /* Brand blue, and the light page behind the cards. */
+  --color-accent: #2a78d6;
+  --color-canvas: #f3f6fb;
+
+  /* Dark mode surfaces, from the page up to raised controls, all on a blue-gray base. */
+  --color-night: #05080f;
+  --color-night-panel: #0c1220;
+  --color-night-field: #0f1729;
+  --color-night-raised: #16213a;
+  --color-night-edge: #1a2540;
+  --color-night-line: #24314f;
+}
+
+/* Native controls, scrollbars included, follow the page's light or dark mode. */
+html {
+  @apply scheme-light dark:scheme-dark;
 }
 
 body {
-  @apply bg-[#f6f5f2] text-stone-900 antialiased dark:bg-[#121211] dark:text-stone-100;
+  @apply bg-canvas text-slate-900 antialiased dark:bg-night dark:text-slate-100;
 }
 
 code {
-  @apply rounded bg-stone-200/60 px-1.5 py-0.5 font-mono text-[0.85em] dark:bg-stone-800;
+  @apply rounded bg-slate-200/60 px-1.5 py-0.5 font-mono text-[0.85em] dark:bg-night-raised;
 }
 
 .page {
@@ -25,11 +43,15 @@ code {
   }
 
   .brand-mark {
-    @apply grid h-7 place-items-center rounded-md bg-[#2a78d6] px-1.5 text-[11px] font-bold text-white;
+    @apply grid size-7 place-items-center rounded-lg bg-accent text-white shadow-sm shadow-accent/30;
+
+    svg {
+      @apply size-[18px];
+    }
   }
 
   .topbar-link {
-    @apply inline-flex items-center gap-1.5 text-sm text-stone-500 hover:text-stone-900 dark:hover:text-stone-100;
+    @apply inline-flex items-center gap-1.5 text-sm text-slate-500 hover:text-slate-900 dark:hover:text-slate-100;
 
     svg {
       @apply size-4 shrink-0;
@@ -42,14 +64,14 @@ code {
 }
 
 .field {
-  @apply flex min-w-0 flex-col gap-1.5;
+  @apply flex w-full min-w-0 flex-col gap-1.5 sm:w-auto;
 
   > span {
-    @apply text-[11px] font-medium tracking-wider text-stone-500 uppercase;
+    @apply text-[11px] font-medium tracking-wider text-slate-500 uppercase;
   }
 
   select {
-    @apply max-w-full rounded-lg border border-stone-300 bg-white px-3 py-2 text-sm shadow-xs dark:border-stone-700 dark:bg-stone-900;
+    @apply max-w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm shadow-xs dark:border-night-line dark:bg-night-field;
   }
 }
 
@@ -57,14 +79,14 @@ code {
   @apply relative w-full sm:w-auto sm:min-w-[26rem];
 
   .platform {
-    @apply ml-1.5 rounded-md bg-stone-100 px-1.5 py-0.5 font-mono text-[11px] font-medium text-stone-600 dark:bg-stone-800 dark:text-stone-300;
+    @apply ml-1.5 rounded-md bg-slate-100 px-1.5 py-0.5 font-mono text-[11px] font-medium text-slate-600 dark:bg-night-raised dark:text-slate-300;
   }
 
   .trigger {
-    @apply flex w-full items-center gap-3 rounded-lg border border-stone-300 bg-white px-3 py-2 text-left shadow-xs transition-colors hover:border-stone-400 dark:border-stone-700 dark:bg-stone-900 dark:hover:border-stone-500;
+    @apply flex w-full items-center gap-3 rounded-lg border border-slate-300 bg-white px-3 py-2 text-left shadow-xs transition-colors hover:border-slate-400 dark:border-night-line dark:bg-night-field dark:hover:border-slate-500;
 
     &[aria-expanded='true'] {
-      @apply border-[#2a78d6] ring-2 ring-[#2a78d6]/20;
+      @apply border-accent ring-2 ring-accent/20;
 
       .chevron {
         @apply rotate-180;
@@ -81,15 +103,15 @@ code {
   }
 
   .trigger-sub {
-    @apply truncate text-xs text-stone-500;
+    @apply truncate text-xs text-slate-500;
   }
 
   .chevron {
-    @apply size-4 shrink-0 text-stone-500 transition-transform;
+    @apply size-4 shrink-0 text-slate-500 transition-transform;
   }
 
   .popover {
-    @apply absolute top-full left-0 z-20 mt-2 w-full overflow-hidden rounded-xl border border-stone-200 bg-white shadow-xl sm:w-[32rem] dark:border-stone-700 dark:bg-[#1a1a19];
+    @apply absolute top-full left-0 z-20 mt-2 w-full overflow-hidden rounded-xl border border-slate-200 bg-white shadow-xl sm:w-[32rem] dark:border-night-line dark:bg-night-panel;
 
     &[hidden] {
       @apply hidden;
@@ -97,14 +119,14 @@ code {
   }
 
   .search {
-    @apply flex items-center gap-2 border-b border-stone-200 px-3 py-2.5 dark:border-stone-800;
+    @apply flex items-center gap-2 border-b border-slate-200 px-3 py-2.5 dark:border-night-edge;
 
     svg {
-      @apply size-4 shrink-0 text-stone-400;
+      @apply size-4 shrink-0 text-slate-400;
     }
 
     input {
-      @apply w-full bg-transparent text-sm outline-none placeholder:text-stone-400;
+      @apply w-full bg-transparent text-sm outline-none placeholder:text-slate-400;
     }
   }
 
@@ -119,19 +141,19 @@ code {
   }
 
   .group-head {
-    @apply sticky top-0 z-10 flex items-center gap-2 bg-white/95 px-3 py-1.5 backdrop-blur dark:bg-[#1a1a19]/95;
+    @apply sticky top-0 z-10 flex items-center gap-2 bg-white/95 px-3 py-1.5 backdrop-blur dark:bg-night-panel/95;
   }
 
   .group-date {
-    @apply text-[11px] font-semibold tracking-wider text-stone-500 uppercase;
+    @apply text-[11px] font-semibold tracking-wider text-slate-500 uppercase;
   }
 
   .group-count {
-    @apply text-[11px] text-stone-400;
+    @apply text-[11px] text-slate-400;
   }
 
   .compare-button {
-    @apply ml-auto rounded-md border border-stone-200 px-2 py-0.5 text-[11px] font-medium text-[#2a78d6] transition-colors hover:border-[#2a78d6] hover:bg-[#2a78d6]/5 dark:border-stone-700;
+    @apply ml-auto rounded-md border border-slate-200 px-2 py-0.5 text-[11px] font-medium text-accent transition-colors hover:border-accent hover:bg-accent/5 dark:border-night-line;
 
     &[hidden] {
       @apply hidden;
@@ -147,7 +169,7 @@ code {
 
     &.active,
     &:hover {
-      @apply bg-stone-100 dark:bg-stone-800;
+      @apply bg-slate-100 dark:bg-night-raised;
     }
 
     &[aria-selected='true'] .check {
@@ -164,7 +186,7 @@ code {
   }
 
   .option-sub {
-    @apply truncate text-xs text-stone-500;
+    @apply truncate text-xs text-slate-500;
   }
 
   .source {
@@ -180,11 +202,11 @@ code {
   }
 
   .check {
-    @apply size-4 shrink-0 text-[#2a78d6] opacity-0;
+    @apply size-4 shrink-0 text-accent opacity-0;
   }
 
   .empty {
-    @apply px-3 py-6 text-center text-sm text-stone-500;
+    @apply px-3 py-6 text-center text-sm text-slate-500;
 
     &[hidden] {
       @apply hidden;
@@ -193,14 +215,14 @@ code {
 }
 
 .compare-panel {
-  @apply border-[#2a78d6]/30 ring-1 ring-[#2a78d6]/10;
+  @apply border-accent/30 ring-1 ring-accent/10;
 
   .compare-actions {
     @apply flex items-center gap-2;
   }
 
   .close {
-    @apply grid size-8 shrink-0 place-items-center rounded-lg border border-stone-300 text-stone-500 transition-colors hover:bg-stone-100 hover:text-stone-900 dark:border-stone-700 dark:hover:bg-stone-800 dark:hover:text-stone-100;
+    @apply grid size-8 shrink-0 place-items-center rounded-lg border border-slate-300 text-slate-500 transition-colors hover:bg-slate-100 hover:text-slate-900 dark:border-night-line dark:hover:bg-slate-800 dark:hover:text-slate-100;
 
     svg {
       @apply size-4;
@@ -208,7 +230,7 @@ code {
   }
 
   .compare-runs {
-    @apply mb-2 flex flex-wrap gap-x-4 gap-y-1 text-xs text-stone-600 dark:text-stone-400;
+    @apply mb-2 flex flex-wrap gap-x-4 gap-y-1 text-xs text-slate-600 dark:text-slate-400;
   }
 
   .compare-run {
@@ -216,7 +238,7 @@ code {
   }
 
   .muted {
-    @apply text-stone-400;
+    @apply text-slate-400;
   }
 
   .compare-table {
@@ -230,28 +252,28 @@ code {
       @apply align-bottom text-xs font-medium tracking-normal normal-case;
 
       .sub {
-        @apply block max-w-40 truncate text-[11px] font-normal text-stone-400;
+        @apply block max-w-40 truncate text-[11px] font-normal text-slate-400;
       }
     }
 
     .best {
-      @apply font-semibold text-[#2a78d6];
+      @apply font-semibold text-accent;
     }
   }
 }
 
 .segmented {
-  @apply inline-flex max-w-full overflow-x-auto rounded-lg border border-stone-300 bg-white p-0.5 shadow-xs dark:border-stone-700 dark:bg-stone-900;
+  @apply inline-flex max-w-full overflow-x-auto rounded-lg border border-slate-300 bg-white p-0.5 shadow-xs dark:border-night-line dark:bg-night-field;
 
   button {
-    @apply shrink-0 rounded-md px-3 py-1.5 text-sm whitespace-nowrap text-stone-600 transition-colors dark:text-stone-400;
+    @apply shrink-0 rounded-md px-3 py-1.5 text-sm whitespace-nowrap text-slate-600 transition-colors dark:text-slate-400;
 
     &[aria-selected='true'] {
-      @apply bg-stone-900 text-white dark:bg-stone-100 dark:text-stone-900;
+      @apply bg-slate-900 text-white dark:bg-slate-100 dark:text-slate-900;
     }
 
     &:hover:not([aria-selected='true']) {
-      @apply text-stone-900 dark:text-stone-100;
+      @apply text-slate-900 dark:text-slate-100;
     }
   }
 }
@@ -260,7 +282,7 @@ code {
   @apply mb-6;
 
   .eyebrow {
-    @apply mb-3 font-mono text-xs tracking-wider text-stone-500 uppercase;
+    @apply mb-3 font-mono text-xs tracking-wider text-slate-500 uppercase;
   }
 
   .headline {
@@ -268,11 +290,11 @@ code {
   }
 
   .accent {
-    @apply underline decoration-stone-300 decoration-2 underline-offset-4 dark:decoration-stone-600;
+    @apply underline decoration-slate-300 decoration-2 underline-offset-4 dark:decoration-slate-600;
   }
 
   .sub {
-    @apply mt-3 max-w-3xl text-stone-600 dark:text-stone-400;
+    @apply mt-3 max-w-3xl text-slate-600 dark:text-slate-400;
   }
 }
 
@@ -281,10 +303,10 @@ code {
 }
 
 .tile {
-  @apply rounded-xl border border-stone-200 bg-white p-4 dark:border-stone-800 dark:bg-[#1a1a19];
+  @apply rounded-md border border-slate-200 bg-white p-4 dark:border-night-edge dark:bg-night-panel;
 
   .tile-label {
-    @apply flex items-center gap-2 text-xs font-medium text-stone-500;
+    @apply flex items-center gap-2 text-xs font-medium text-slate-500;
   }
 
   .tile-value {
@@ -292,11 +314,11 @@ code {
   }
 
   .tile-of {
-    @apply text-base font-normal text-stone-400;
+    @apply text-base font-normal text-slate-400;
   }
 
   .tile-note {
-    @apply mt-1 truncate text-xs text-stone-500;
+    @apply mt-1 truncate text-xs text-slate-500;
   }
 }
 
@@ -305,7 +327,7 @@ code {
 }
 
 .badge {
-  @apply rounded-full border border-stone-200 bg-white px-3 py-1 text-xs text-stone-600 dark:border-stone-800 dark:bg-[#1a1a19] dark:text-stone-400;
+  @apply rounded-full border border-slate-200 bg-white px-3 py-1 text-xs text-slate-600 dark:border-night-edge dark:bg-night-panel dark:text-slate-400;
 
   &.local {
     @apply border-emerald-200 bg-emerald-50 text-emerald-800 dark:border-emerald-900 dark:bg-emerald-950/50 dark:text-emerald-300;
@@ -321,14 +343,14 @@ code {
 }
 
 .card {
-  @apply mb-6 rounded-2xl border border-stone-200 bg-white p-5 shadow-xs sm:p-6 dark:border-stone-800 dark:bg-[#1a1a19];
+  @apply mb-6 rounded-lg border border-slate-200 bg-white p-4 shadow-xs sm:p-6 dark:border-night-edge dark:bg-night-panel;
 
   h2 {
     @apply text-base font-semibold tracking-tight;
   }
 
   .hint {
-    @apply mt-1 mb-4 text-sm text-stone-500;
+    @apply mt-1 mb-4 text-sm text-slate-500;
   }
 
   .card-head {
@@ -346,7 +368,7 @@ code {
 
   /* min-w-0 lets a wide table's .table-scroll scroll instead of stretching the grid column. */
   .card {
-    @apply mb-0 min-w-0;
+    @apply mb-0 flex min-w-0 flex-col;
   }
 
   & + .card {
@@ -356,10 +378,15 @@ code {
 
 .chart {
   @apply w-full;
+
+  /* Grows to the card's height, which a taller neighbor in .grid-2 sets; never below 360px. */
+  &.fill {
+    @apply min-h-90 flex-1;
+  }
 }
 
 .legend {
-  @apply mb-2 flex flex-wrap gap-x-4 gap-y-1 text-xs text-stone-600 dark:text-stone-400;
+  @apply mb-2 flex flex-wrap gap-x-4 gap-y-1 text-xs text-slate-600 dark:text-slate-400;
 
   .legend-item {
     @apply inline-flex items-center gap-1.5;
@@ -374,7 +401,7 @@ code {
   @apply grid gap-4 sm:grid-cols-2 lg:grid-cols-3;
 
   .trend {
-    @apply rounded-xl border border-stone-200 p-3 dark:border-stone-800;
+    @apply rounded-md border border-slate-200 p-2.5 sm:p-3 dark:border-night-edge;
   }
 
   .trend-name {
@@ -390,11 +417,11 @@ code {
   @apply w-full border-collapse text-sm;
 
   th {
-    @apply border-b border-stone-200 px-2 pb-2 text-left text-[11px] font-medium tracking-wider whitespace-nowrap text-stone-500 uppercase dark:border-stone-800;
+    @apply border-b border-slate-200 px-2 pb-2 text-left text-[11px] font-medium tracking-wider whitespace-nowrap text-slate-500 uppercase dark:border-night-edge;
   }
 
   td {
-    @apply border-b border-stone-100 px-2 py-2 whitespace-nowrap dark:border-stone-800/70;
+    @apply border-b border-slate-100 px-2 py-2 whitespace-nowrap dark:border-night-edge/70;
   }
 
   tr:last-child td {
@@ -410,11 +437,11 @@ code {
   }
 
   .muted {
-    @apply text-stone-500;
+    @apply text-slate-500;
   }
 
   .meter {
-    @apply inline-block h-1.5 w-14 overflow-hidden rounded-full bg-stone-100 align-middle dark:bg-stone-800;
+    @apply inline-block h-1.5 w-14 overflow-hidden rounded-full bg-slate-100 align-middle dark:bg-night-raised;
 
     span {
       @apply block h-full rounded-full;
@@ -443,19 +470,19 @@ code {
 }
 
 .empty {
-  @apply mt-16 rounded-2xl border border-dashed border-stone-300 p-12 text-center dark:border-stone-700;
+  @apply mt-16 rounded-lg border border-dashed border-slate-300 p-12 text-center dark:border-night-line;
 
   h2 {
     @apply mb-2 text-lg font-semibold;
   }
 
   p {
-    @apply text-stone-500;
+    @apply text-slate-500;
   }
 }
 
 .footer {
-  @apply mt-10 text-xs text-stone-500;
+  @apply mt-10 text-xs text-slate-500;
 
   a {
     @apply underline underline-offset-2;
