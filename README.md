@@ -73,6 +73,16 @@ pnpm arena run --target <path> \
 
 CI runners are shared machines: their results are ratios within a run, labeled by runner, and never charted with local runs.
 
+### Where results live
+
+| Location | Holds |
+|---|---|
+| [`results/`](results) on `main` | local runs shared with `pnpm arena publish`, reviewed and committed by hand |
+| [`results/`](https://github.com/relliv/ts-check-arena/tree/data/results) on the `data` branch | every CI run, committed by the bench workflow |
+| `results/private/` (gitignored) | runs against a local path and runs under act; they never leave the machine |
+
+The site merges the first two at build time. CI runs are kept off `main` so that a bench run never adds a commit to the code history.
+
 ## Development
 
 ```sh

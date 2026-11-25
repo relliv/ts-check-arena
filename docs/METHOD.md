@@ -35,7 +35,7 @@ Each checker's native executable is run directly, not through its npm launcher, 
 
 ## A run
 
-`pnpm arena run` writes `results/<date>-<time>-<cpu>-<os>-<label>/`, with the start time in UTC so two runs of one day on one machine keep apart (local paths: `results/private/...`; a run under act adds `-act` after the OS).
+`pnpm arena run` writes `results/<date>-<time>-<cpu>-<os>-<label>/`, with the start time in UTC so two runs of one day on one machine keep apart (local paths: `results/private/...`; a run under act adds `-act` after the OS). CI runs are committed to the `data` branch, not to `main`.
 
 1. **Preflight.** It refuses to start without a timer, on battery, under Rosetta, with a checker missing, or for a corpus project with a `node_modules/@types` folder above it, since TypeScript includes `@types` packages from every folder above a config that sets no `types`. It records warnings about load, busy processes, a CPU speed limit and any other `node_modules` folder above the target.
 2. **Configs.** From a list, from the Nx project graph (each project with a `typecheck` target: its `tsconfig.lib.json`, else `tsconfig.app.json`, else `tsconfig.json`), or the target's `tsconfig.json`.
