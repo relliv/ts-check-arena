@@ -4,23 +4,26 @@ import { cpSync, existsSync, readFileSync, readdirSync, renameSync, writeFileSyn
 import { cpus } from 'node:os';
 import { dirname, isAbsolute, join, relative, resolve } from 'node:path';
 import { parseArgs } from 'node:util';
-import { type ThreadSetting, availableOn, binaryPath, families, parseTool, variantIds } from './lib/checkers.ts';
+import { type ThreadSetting, type Tool, availableOn, binaryPath, families, parseTool, variantIds } from './lib/checkers.ts';
 import { corpusProject, setupCorpus } from './lib/corpus.ts';
 import { CORPUS_DIR, PLATFORM, RESULTS_DIR, ROOT } from './lib/paths.ts';
 import { writeIndex, writeReport } from './lib/report.ts';
 import { run } from './lib/run.ts';
 import { scrubber } from './lib/scrub.ts';
-import { addTools, listTools, pnpmInstall, removeTools } from './lib/store.ts';
+import { KEEP_VERSIONS, addTools, listTools, pnpmInstall, pruneTools, removeTools } from './lib/store.ts';
 import { type Discovery, readConfigList } from './lib/targets.ts';
 import { newVersions } from './lib/watch.ts';
 
 const HELP = `ts-check-arena: TypeScript type checkers, side by side, across versions.
 
   pnpm arena tool list                      installed tools and their status here
-  pnpm arena tool add <family@version>...   install checker versions
+  pnpm arena tool add <family@version>...   install checker versions; each family keeps its
+                                            newest ${KEEP_VERSIONS} (tsc 1), so older ones are removed
       --allow-young              before the 7-day release age (adds a reviewed exception)
       --allow-trust-downgrade    accept a reviewed trust downgrade (adds an exception)
+      --no-prune                 keep every older version this time
   pnpm arena tool remove <family@version>...
+  pnpm arena tool prune                     remove versions past each family's keep count
   pnpm arena families                       checker families and platforms
 
   pnpm arena run --target <path> [options]  benchmark a project on this machine
@@ -49,6 +52,14 @@ const HELP = `ts-check-arena: TypeScript type checkers, side by side, across ver
 
 Path targets are written to results/private/ (gitignored). Nothing leaves this
 machine unless you publish it and push.`;
+
+/** Says what pruning removed, and warns when a version just added was older than every kept one. */
+function reportPruned(added: Tool[], pruned: string[]): void {
+  if (pruned.length) console.log(`removed older versions: ${pruned.join(' ')}`);
+  for (const t of added) {
+    if (pruned.includes(t.id)) console.warn(`${t.id} is older than the versions ${t.family.name} keeps, so it was removed again; add it with --no-prune to keep it`);
+  }
+}
 
 function fail(message: string): never {
   console.error(`error: ${message}`);
@@ -91,7 +102,7 @@ async function main(): Promise<void> {
       return;
 
     case 'tool': {
-      const { values, positionals } = parseArgs({ args: rest, allowPositionals: true, options: { 'allow-young': { type: 'boolean' }, 'allow-trust-downgrade': { type: 'boolean' }, 'no-install': { type: 'boolean' } } });
+      const { values, positionals } = parseArgs({ args: rest, allowPositionals: true, options: { 'allow-young': { type: 'boolean' }, 'allow-trust-downgrade': { type: 'boolean' }, 'no-install': { type: 'boolean' }, 'no-prune': { type: 'boolean' } } });
       if (sub === 'list') {
         for (const t of listTools()) {
           const status = !availableOn(t) ? `no build for ${PLATFORM}` : binaryPath(t) ? 'installed' : 'not installed (pnpm install)';
@@ -99,9 +110,21 @@ async function main(): Promise<void> {
         }
         return;
       }
+      if (sub === 'prune') {
+        const pruned = pruneTools();
+        console.log(pruned.length ? `removed ${pruned.join(' ')}` : 'nothing past the keep count');
+        if (pruned.length && !values['no-install']) pnpmInstall();
+        return;
+      }
       if (positionals.length === 0) fail(`tool ${sub ?? ''}: give at least one family@version`);
       if (sub === 'add') {
-        addTools(positionals, { allowYoung: values['allow-young'], allowTrustDowngrade: values['allow-trust-downgrade'], install: !values['no-install'] });
+        const { added, pruned } = addTools(positionals, {
+          allowYoung: values['allow-young'],
+          allowTrustDowngrade: values['allow-trust-downgrade'],
+          install: !values['no-install'],
+          prune: !values['no-prune'],
+        });
+        reportPruned(added, pruned);
         return;
       }
       if (sub === 'remove') {
@@ -243,7 +266,10 @@ async function main(): Promise<void> {
     case 'watch': {
       const found = newVersions();
       console.log(found.length ? found.join('\n') : 'no new versions past the release age window');
-      if (sub === '--write' && found.length) addTools(found, { install: false });
+      if (sub === '--write' && found.length) {
+        const { added, pruned } = addTools(found, { install: false });
+        reportPruned(added, pruned);
+      }
       return;
     }
 

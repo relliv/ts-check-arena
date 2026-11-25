@@ -25,9 +25,12 @@ Each family ([checkers.json](checkers.json)) is a set of exact versions, one wor
 ```sh
 pnpm arena tool add tsgo@7.1.0-beta tsrs@0.18.0-ts7.1.0-dev.20260929 bun@1.4.3
 pnpm arena tool remove tsc-ts@0.0.4
+pnpm arena tool prune              # remove versions past each family's keep count
 pnpm arena watch [--write]         # versions on npm older than 7 days that the store lacks (--write adds them)
 pnpm arena families                # families, platforms and variants
 ```
+
+Each family keeps its newest 3 versions (tsc keeps 1, set by `keep` in checkers.json): adding a newer one removes the oldest, so CI time stays flat as releases pile up. Results of past runs stay on the site. `--no-prune` keeps everything for one add.
 
 A documented opt-in mode runs as a variant next to the default: `tsrs@0.20.1-ts7.1.0-beta+fast` adds `--fast`. Runs include every installed tool's variants unless `--checkers` lists entries.
 

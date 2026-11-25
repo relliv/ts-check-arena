@@ -2,7 +2,7 @@
 // family, the newest version on the npm dist-tags the family follows, once it is
 // older than the release age window.
 import { spawnSync } from 'node:child_process';
-import { families, inRange } from './checkers.ts';
+import { compareVersions, families, inRange } from './checkers.ts';
 import { listTools } from './store.ts';
 
 const RELEASE_AGE_MS = 7 * 24 * 60 * 60 * 1000;
@@ -24,7 +24,15 @@ function npmView(pkg: string): { 'dist-tags': Record<string, string>; time: Reco
 }
 
 export function newVersions(now = Date.now()): string[] {
-  const have = new Set(listTools().map(t => t.id));
+  const installed = listTools();
+  const have = new Set(installed.map(t => t.id));
+  // The store prunes old versions, so a version older than the newest kept one was
+  // removed on purpose and must not come back.
+  const newest = new Map<string, string>();
+  for (const t of installed) {
+    const prev = newest.get(t.family.name);
+    if (!prev || compareVersions(t.version, prev) > 0) newest.set(t.family.name, t.version);
+  }
   const found: string[] = [];
   const cache = new Map<string, ReturnType<typeof npmView>>();
   for (const family of families) {
@@ -47,7 +55,9 @@ export function newVersions(now = Date.now()): string[] {
     for (const version of candidates) {
       const published = Date.parse(info.time[version] ?? '');
       const id = `${family.name}@${version}`;
-      if (inRange(version, family.versions) && now - published >= RELEASE_AGE_MS && !have.has(id)) found.push(id);
+      const floor = newest.get(family.name);
+      const newer = !floor || compareVersions(version, floor) > 0;
+      if (inRange(version, family.versions) && now - published >= RELEASE_AGE_MS && !have.has(id) && newer) found.push(id);
     }
   }
   return found;

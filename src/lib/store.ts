@@ -1,6 +1,9 @@
 // The tool store: one pnpm workspace package per checker version, tools/<id>/, all
 // pinned by the one lockfile. Adding a tool writes its package.json and installs;
-// removing deletes the folder and installs again so the lockfile drops it.
+// removing deletes the folder and installs again so the lockfile drops it. Each
+// family keeps its newest few versions: adding a newer one prunes the oldest, so
+// runs stay short as releases pile up. Past runs keep their results.
+
 import { spawnSync } from 'node:child_process';
 import { existsSync, mkdirSync, readdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
@@ -8,6 +11,8 @@ import { type Tool, compareVersions, parseTool, toolDir } from './checkers.ts';
 import { ROOT, TOOLS_DIR } from './paths.ts';
 
 /** Every tool with a folder under tools/, installed or not. */
+export const KEEP_VERSIONS = 3;
+
 export function listTools(): Tool[] {
   if (!existsSync(TOOLS_DIR)) return [];
   return readdirSync(TOOLS_DIR, { withFileTypes: true })
@@ -58,8 +63,8 @@ export function pnpmInstall(args: string[] = []): void {
 
 export function addTools(
   ids: string[],
-  options: { allowYoung?: boolean; allowTrustDowngrade?: boolean; install?: boolean } = {}
-): Tool[] {
+  options: { allowYoung?: boolean; allowTrustDowngrade?: boolean; install?: boolean; prune?: boolean } = {}
+): { added: Tool[]; pruned: string[] } {
   const tools = ids.map(parseTool);
   for (const tool of tools) {
     mkdirSync(toolDir(tool), { recursive: true });
@@ -68,8 +73,29 @@ export function addTools(
     if (options.allowYoung) addPnpmException('minimumReleaseAgeExclude', spec);
     if (options.allowTrustDowngrade) addPnpmException('trustPolicyExclude', spec);
   }
+  const pruned = options.prune === false ? [] : pruneTools();
   if (options.install !== false) pnpmInstall();
-  return tools;
+  return { added: tools, pruned };
+}
+
+/**
+ * The tools past their family's keep count, oldest first. The newest versions always
+ * stay, so the default reference (the newest tsgo) is never among them.
+ */
+export function toPrune(tools: Tool[]): Tool[] {
+  const byFamily = new Map<string, Tool[]>();
+  for (const t of tools) byFamily.set(t.family.name, [...(byFamily.get(t.family.name) ?? []), t]);
+  return [...byFamily.values()].flatMap(list => {
+    const keep = Math.max(1, list[0]!.family.keep ?? KEEP_VERSIONS);
+    return [...list].sort((a, b) => compareVersions(a.version, b.version)).slice(0, Math.max(0, list.length - keep));
+  });
+}
+
+/** Removes what toPrune names from tools/; returns their ids. The caller installs. */
+export function pruneTools(): string[] {
+  const old = toPrune(listTools());
+  for (const tool of old) rmSync(toolDir(tool), { recursive: true, force: true });
+  return old.map(t => t.id);
 }
 
 export function removeTools(ids: string[], options: { install?: boolean } = {}): void {
