@@ -29,6 +29,8 @@ A family ([`checkers.json`](../checkers.json)) describes what stays the same acr
 
 Each version is a workspace package, `tools/<family>@<version>/`, added with `pnpm arena tool add`. The repository's supply chain policy applies to them like any dependency: a version must be 7 days old, and a version whose publish trust is weaker than an earlier one is refused. Exceptions are exact versions in `pnpm-workspace.yaml`, with their evidence in a comment.
 
+The store keeps the newest 3 versions of each family (tsc keeps 1, its TypeScript 6 baseline; the `keep` field in `checkers.json` sets it). Adding a newer version removes the oldest past that count, so a run's length stays flat as releases pile up. The newest versions always stay, so the default reference is never removed, and `pnpm arena watch` never proposes a version older than the newest one kept. Pruning changes only what later runs include: earlier runs keep their results, and the site still shows them.
+
 Each checker's native executable is run directly, not through its npm launcher, so Node's start-up is not part of its time. The executable's path is resolved from the platform package next to the checker's package, and its sha256 is recorded. A family that publishes no build for a platform is recorded as not available there.
 
 ## A run
@@ -118,9 +120,9 @@ The gate makes the reference clean on every timed config, so on most projects th
 A run records where it ran: `local`, or `ci` with the runner label, image and workflow run link. They answer different questions.
 
 - **Local runs** on a quiet machine are the precise numbers, in seconds.
-- **CI runs** are breadth: six runners (Linux x64 and arm64, macOS arm64 and x64, Windows x64 and arm64), started by hand. Hosted runners are shared virtual machines whose CPU model can change between runs, so CI results are read as ratios against the reference within one run, never as seconds across runs. Each CI run records its CPU model, and only runs with matching models are compared.
+- **CI runs** are breadth: six runners (Linux x64 and arm64, macOS arm64 and x64, Windows x64 and arm64), started by a push that changes `tools/` or by hand. Hosted runners are shared virtual machines whose CPU model can change between runs, so CI results are read as ratios against the reference within one run, never as seconds across runs. Each CI run records its CPU model, and only runs with matching models are compared.
 
-The site never puts local and CI runs on one axis.
+The site never puts local and CI runs on one axis. An older run shows a note naming the checkers the newest run on its platform added or dropped, and whether the reference changed, since speedups against different references are not directly comparable.
 
 ## Projects
 
