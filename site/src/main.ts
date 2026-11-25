@@ -372,6 +372,7 @@ const icon = {
   search: `<svg viewBox="0 0 16 16" aria-hidden="true"><circle cx="7" cy="7" r="4.5" fill="none" stroke="currentColor" stroke-width="1.75"/><path d="M10.5 10.5L14 14" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"/></svg>`,
   cross: `<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M4 4l8 8M12 4l-8 8" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"/></svg>`,
   libs: `<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="2" width="5" height="5" rx="1"/><rect x="9" y="2" width="5" height="5" rx="1"/><rect x="2" y="9" width="5" height="5" rx="1"/><rect x="9" y="9" width="5" height="5" rx="1"/></svg>`,
+  info: `<svg class="note-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" aria-hidden="true"><circle cx="8" cy="8" r="6.25"/><path d="M8 7.25v3.75M8 5h.01"/></svg>`,
   method: `<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 1.75H4.5A1.5 1.5 0 0 0 3 3.25v9.5a1.5 1.5 0 0 0 1.5 1.5h7a1.5 1.5 0 0 0 1.5-1.5V5.5L9 1.75Z"/><path d="M9 1.75V5.5h3.75"/><path d="M5.75 8.5h4.5M5.75 10.75h4.5"/></svg>`,
 };
 
@@ -536,6 +537,33 @@ function compareNames(list: RunSummary[]): string[] {
   return extend(extend(base, r => r.machine.cpu), r => `${where(r)} · ${day(r.date)}`);
 }
 
+/**
+ * For a run that is not the newest of its project on its platform: what the newest
+ * one tests differently. Platforms are not mixed, since some checkers have no build
+ * for some platforms and would show up as removed. Null when there is nothing to say.
+ */
+function versionNote(run: RunSummary): string | null {
+  const newest = runs.find(r => r.label === run.label && r.machine.platform === run.machine.platform);
+  if (!newest || newest.id === run.id) return null;
+  const here = new Set(defaultCheckers(run).map(c => c.id));
+  const there = new Set(defaultCheckers(newest).map(c => c.id));
+  const added = [...there].filter(id => !here.has(id)).sort();
+  const removed = [...here].filter(id => !there.has(id)).sort();
+  const reference = newest.reference !== run.reference;
+  if (!added.length && !removed.length && !reference && day(newest.date) === day(run.date)) return null;
+  const list = (ids: string[], sign: string, kind: string) =>
+    ids.length ? `<p class="note-line"><span class="note-label">${kind}</span>${ids.map(id => `<span class="note-chip ${sign === '+' ? 'added' : 'removed'}">${sign} ${esc(short(id))}</span>`).join('')}</p>` : '';
+  return `<aside class="version-note" role="note">
+    ${icon.info}
+    <div class="note-body">
+      <p><b>Older run (${esc(day(run.date))}).</b> The newest ${esc(run.label)} run on ${esc(run.machine.platform)} is from ${esc(day(newest.date))}.</p>
+      ${list(added, '+', 'Added since')}${list(removed, '−', 'Dropped since')}
+      ${reference ? `<p>The reference here is ${esc(short(run.reference))}; it is now ${esc(short(newest.reference))}, so speedups are not directly comparable.</p>` : ''}
+    </div>
+    <button type="button" class="note-action" data-run="${esc(newest.id)}">View newest</button>
+  </aside>`;
+}
+
 function compareSection(list: RunSummary[]): string {
   const ids = compareIds(list);
   const names = compareNames(list);
@@ -559,6 +587,12 @@ function compareSection(list: RunSummary[]): string {
       <div><h2>Compare ${list.length} runs</h2><p class="hint">${esc(when)}. Checkers as shipped. Speedups are against each run's own reference, so compare ratios across machines and seconds within one.</p></div>
       <div class="compare-actions">${segmented('compare-metric', COMPARE_METRICS, metric)}<button type="button" class="close" id="compare-close" aria-label="Close comparison">${icon.cross}</button></div>
     </div>
+    ${(() => {
+      const refs = [...new Set(list.map(r => r.reference))];
+      return refs.length > 1
+        ? `<p class="compare-note">These runs use different references (${refs.map(r => esc(short(r))).join(', ')}), so their speedups are not directly comparable; compare wall time within a machine instead.</p>`
+        : '';
+    })()}
     <div class="compare-runs">${list
       .map((r, i) => `<span class="compare-run"><span class="swatch" style="background:${runColor(i)}"></span>${esc(names[i]!)}<span class="muted"> · ${esc(where(r))} · ${esc(r.machine.cpu)}</span></span>`)
       .join('')}</div>
@@ -631,6 +665,7 @@ function render(): void {
       <div class="field"><span>Run</span>${runPicker(run)}</div>
       ${settings.length > 1 ? `<div class="field"><span>Threads</span>${segmented('threads', settings.map(t => [t, t === 'default' ? 'As shipped' : `${t}`]), state.threads)}</div>` : ''}
     </div>
+    ${versionNote(run) ?? ''}
     ${compared.length ? compareSection(compared) : ''}
     ${hero(run, checkers)}
     <div class="meta">
@@ -693,6 +728,10 @@ function render(): void {
   if (compared.length) mount(app.querySelector('#chart-compare'), compareChart(compared, state.compareMetric));
 
   wireRunPicker(app);
+  app.querySelector<HTMLElement>('.note-action')?.addEventListener('click', e => {
+    state.runId = (e.currentTarget as HTMLElement).dataset['run']!;
+    render();
+  });
   app.querySelector('#compare-close')?.addEventListener('click', () => {
     state.compare = null;
     render();

@@ -323,6 +323,44 @@ code {
   }
 }
 
+/* Under the run picker on an older run: what the newest run of that platform tests differently. */
+.version-note {
+  @apply mb-6 flex flex-wrap items-start gap-3 rounded-lg border border-sky-200 bg-sky-50 p-3 text-sm text-sky-900 sm:flex-nowrap sm:p-4 dark:border-sky-900/70 dark:bg-sky-950/40 dark:text-sky-100;
+
+  .note-icon {
+    @apply mt-0.5 size-4 shrink-0 text-sky-600 dark:text-sky-400;
+  }
+
+  /* On phones the text takes the whole row, so the button wraps below it. */
+  .note-body {
+    @apply flex min-w-[calc(100%-1.75rem)] flex-1 flex-col gap-1.5 sm:min-w-0;
+  }
+
+  .note-line {
+    @apply flex flex-wrap items-center gap-1.5;
+  }
+
+  .note-label {
+    @apply mr-1 text-xs text-sky-700 dark:text-sky-300;
+  }
+
+  .note-chip {
+    @apply rounded-md px-1.5 py-0.5 font-mono text-xs;
+
+    &.added {
+      @apply bg-emerald-100 text-emerald-800 dark:bg-emerald-950/70 dark:text-emerald-300;
+    }
+
+    &.removed {
+      @apply bg-slate-200 text-slate-700 line-through decoration-slate-400 dark:bg-night-raised dark:text-slate-400;
+    }
+  }
+
+  .note-action {
+    @apply ml-7 shrink-0 rounded-md border border-sky-300 bg-white px-2.5 py-1 text-xs font-medium text-sky-800 transition-colors hover:bg-sky-100 sm:ml-0 dark:border-sky-800 dark:bg-transparent dark:text-sky-200 dark:hover:bg-sky-900/50;
+  }
+}
+
 .compare-panel {
   @apply border-accent/30 ring-1 ring-accent/10;
 
@@ -336,6 +374,10 @@ code {
     svg {
       @apply size-4;
     }
+  }
+
+  .compare-note {
+    @apply mb-3 rounded-md bg-sky-50 px-3 py-2 text-xs text-sky-900 dark:bg-sky-950/40 dark:text-sky-100;
   }
 
   .compare-runs {
