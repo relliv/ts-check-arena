@@ -325,5 +325,10 @@
     }
   ],
   "unavailable": [],
-  "untimed": []
+  "untimed": [],
+  "project": {
+    "repo": "https://github.com/vitejs/vite",
+    "commit": "cce559ab158cc6b177d0911a0bea73436b48faff",
+    "description": "Frontend tooling monorepo: the dev server, build pipeline and module runner, checked as several configs"
+  }
 }

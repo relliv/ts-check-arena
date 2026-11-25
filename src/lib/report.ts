@@ -4,6 +4,7 @@
 // every past run.
 import { existsSync, readdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { join, relative } from 'node:path';
+import { type CorpusProject, corpus } from './corpus.ts';
 import type { ParityResult } from './diagnostics.ts';
 import { RESULTS_DIR } from './paths.ts';
 import type { RunMeta } from './run.ts';
@@ -42,6 +43,19 @@ export interface RunSummary {
   unavailable: string[];
   /** Checkers that failed on a config and were therefore not timed. */
   untimed: string[];
+  /**
+   * The public project checked, for corpus runs: its repository, the exact commit
+   * checked and what it is. Absent for runs against a path, which may be private, and
+   * in summaries written before this field existed.
+   */
+  project?: { repo: string; commit: string; description: string };
+}
+
+/** The project block of a summary: only corpus runs with a recorded, clean commit get one. */
+export function projectOf(meta: Pick<RunMeta, 'label' | 'target'>, projects: CorpusProject[] = corpus): RunSummary['project'] {
+  if (meta.target.kind !== 'corpus' || !meta.target.commit || meta.target.dirty) return undefined;
+  const p = projects.find(x => x.name === meta.label);
+  return p ? { repo: p.repo, commit: meta.target.commit, description: p.description } : undefined;
 }
 
 interface Row {
@@ -119,6 +133,7 @@ export function summarizeRun(meta: RunMeta, rows: Row[], parity: Record<string, 
     parity: paritySummaries,
     unavailable: meta.checkers.filter(c => !c.available).map(c => c.id),
     untimed: paritySummaries.filter(p => p.failed > 0).map(p => p.id),
+    project: projectOf(meta),
   };
 }
 

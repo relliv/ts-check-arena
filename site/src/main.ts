@@ -5,6 +5,7 @@ import type { CheckerSummary, RunSummary } from '../../src/lib/report.ts';
 import dataBranch from 'virtual:arena-data';
 import { FAMILIES, categoryAxis, disposeAll, familyColor, ink, isNarrow, mount, valueAxis } from './charts.ts';
 import { mountLibs } from './libs.ts';
+import corpusFile from '../../corpus.json' with { type: 'json' };
 
 declare const __ARENA_PRIVATE__: boolean;
 
@@ -397,6 +398,7 @@ const icon = {
   cross: `<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M4 4l8 8M12 4l-8 8" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"/></svg>`,
   libs: `<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="2" width="5" height="5" rx="1"/><rect x="9" y="2" width="5" height="5" rx="1"/><rect x="2" y="9" width="5" height="5" rx="1"/><rect x="9" y="9" width="5" height="5" rx="1"/></svg>`,
   info: `<svg class="note-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" aria-hidden="true"><circle cx="8" cy="8" r="6.25"/><path d="M8 7.25v3.75M8 5h.01"/></svg>`,
+  repo: `<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3.5 13V3.5a1.5 1.5 0 0 1 1.5-1.5h7.5v9.5H5a1.5 1.5 0 0 0-1.5 1.5Zm0 0A1.5 1.5 0 0 0 5 14.5h7.5"/><path d="M6 5h4"/></svg>`,
   method: `<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 1.75H4.5A1.5 1.5 0 0 0 3 3.25v9.5a1.5 1.5 0 0 0 1.5 1.5h7a1.5 1.5 0 0 0 1.5-1.5V5.5L9 1.75Z"/><path d="M9 1.75V5.5h3.75"/><path d="M5.75 8.5h4.5M5.75 10.75h4.5"/></svg>`,
 };
 
@@ -559,6 +561,30 @@ function compareNames(list: RunSummary[]): string[] {
     names.map((n, i) => (names.filter(x => x === n).length > 1 ? `${n} · ${more(list[i]!)}` : n));
   const base = list.map(r => `${r.label} · ${r.machine.platform}`);
   return extend(extend(base, r => r.machine.cpu), r => `${where(r)} · ${day(r.date)}`);
+}
+
+const pinned = (corpusFile as { projects: { name: string; repo: string; sha: string; description: string }[] }).projects;
+
+/**
+ * The public project a run checked. Newer summaries carry it; older CI runs, always
+ * of a corpus project, fall back to the commit corpus.json pins, marked as such.
+ * Local runs without the field may be private projects, so they get none.
+ */
+function projectFor(run: RunSummary): { repo: string; commit: string; description: string; fromPin: boolean } | null {
+  if (run.project) return { ...run.project, fromPin: false };
+  const p = run.source.kind === 'ci' ? pinned.find(x => x.name === run.label) : undefined;
+  return p ? { repo: p.repo, commit: p.sha, description: p.description, fromPin: true } : null;
+}
+
+/** The project badge: owner/name at the short commit, linking to the tree that was checked. */
+function projectBadge(run: RunSummary): string {
+  const p = projectFor(run);
+  if (!p) return '';
+  const name = p.repo.replace(/^https:\/\/github\.com\//, '');
+  return `<a class="badge project" href="${esc(p.repo)}/tree/${esc(p.commit)}" target="_blank" rel="noopener" aria-describedby="project-tip">
+    ${icon.repo}<span>${esc(name)}</span><code>${esc(p.commit.slice(0, 7))}</code>
+    <span class="project-tip" role="tooltip" id="project-tip"><b>${esc(name)}</b><span>${esc(p.description)}</span><span>${run.configs.checked} configs checked at ${esc(p.commit.slice(0, 12))}${p.fromPin ? ', the commit corpus.json pins' : ''}</span></span>
+  </a>`;
 }
 
 /**
@@ -758,6 +784,7 @@ function render(): void {
     ${compared.length ? compareSection(compared) : ''}
     ${hero(run, checkers)}
     <div class="meta">
+      ${projectBadge(run)}
       <span class="badge ${run.source.kind}">${esc(where(run))}</span>
       <span class="badge">${esc(run.machine.cpu)} · ${run.machine.cores} cores · ${run.machine.memoryGiB} GiB</span>
       <span class="badge">${esc(run.machine.os)}</span>

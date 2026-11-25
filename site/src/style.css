@@ -596,6 +596,32 @@ code {
     @apply border-sky-200 bg-sky-50 text-sky-800 dark:border-sky-900 dark:bg-sky-950/50 dark:text-sky-300;
   }
 
+  /* The checked project: a link to its repository at the exact commit, with a tooltip saying what it is. */
+  &.project {
+    @apply relative inline-flex items-center gap-1.5 border-accent/40 text-slate-700 transition-colors outline-none hover:border-accent hover:text-accent focus-visible:ring-2 focus-visible:ring-accent/50 dark:border-accent/50 dark:text-slate-200 dark:hover:text-sky-300;
+
+    svg {
+      @apply size-3.5 shrink-0;
+    }
+
+    code {
+      @apply px-1 py-0 text-[11px];
+    }
+
+    &:hover .project-tip,
+    &:focus-visible .project-tip {
+      @apply visible opacity-100;
+    }
+  }
+
+  .project-tip {
+    @apply invisible absolute top-full left-0 z-20 mt-1.5 flex w-max max-w-80 flex-col gap-1 rounded-md border border-slate-200 bg-white px-3 py-2 text-left text-xs font-normal whitespace-normal text-slate-600 opacity-0 shadow-lg transition-opacity dark:border-night-line dark:bg-night-raised dark:text-slate-300;
+
+    b {
+      @apply font-semibold text-slate-900 dark:text-slate-100;
+    }
+  }
+
   &.warn {
     @apply border-amber-200 bg-amber-50 text-amber-800 dark:border-amber-900 dark:bg-amber-950/50 dark:text-amber-300;
   }
