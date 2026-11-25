@@ -167,6 +167,14 @@ code {
     }
   }
 
+  .lib-variant {
+    @apply flex-col gap-1;
+
+    .lib-variant-text {
+      @apply text-xs text-slate-500 dark:text-slate-400;
+    }
+  }
+
   .lib-range {
     @apply text-xs text-slate-500;
   }
@@ -357,6 +365,36 @@ code {
     &[hidden] {
       @apply hidden;
     }
+  }
+}
+
+/* "+fast" after a checker name: a button that opens the shared variant popover. */
+.variant-tag {
+  @apply ml-0.5 inline-flex cursor-help items-center rounded-md border border-dashed border-current/50 px-1 py-px font-mono text-[0.85em] leading-tight transition-colors outline-none hover:bg-accent/10 focus-visible:ring-2 focus-visible:ring-accent/50;
+
+  &[aria-expanded='true'] {
+    @apply border-solid bg-accent/15 text-accent dark:text-sky-300;
+  }
+}
+
+/* Lives on <body> and is placed by script next to the tag, so table scroll containers cannot clip it. */
+.variant-pop {
+  @apply fixed z-50 flex w-max max-w-80 flex-col gap-1.5 rounded-md border border-slate-200 bg-white px-3 py-2.5 text-xs leading-relaxed font-normal text-slate-600 shadow-xl dark:border-night-line dark:bg-night-raised dark:text-slate-300;
+
+  &[hidden] {
+    @apply hidden;
+  }
+
+  b {
+    @apply text-sm font-semibold text-slate-900 dark:text-slate-100;
+  }
+
+  code {
+    @apply text-[0.9em];
+  }
+
+  .variant-note {
+    @apply border-t border-slate-200 pt-1.5 text-slate-500 dark:border-night-line;
   }
 }
 

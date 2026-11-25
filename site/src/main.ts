@@ -5,6 +5,7 @@ import type { CheckerSummary, RunSummary } from '../../src/lib/report.ts';
 import dataBranch from 'virtual:arena-data';
 import { FAMILIES, categoryAxis, disposeAll, familyColor, ink, isNarrow, mount, valueAxis } from './charts.ts';
 import { mountLibs } from './libs.ts';
+import { checkerName, mountVariantPopover } from './variants.ts';
 import corpusFile from '../../corpus.json' with { type: 'json' };
 
 declare const __ARENA_PRIVATE__: boolean;
@@ -66,6 +67,9 @@ function short(id: string): string {
   return `${id.slice(0, at)} ${shortVersion(id.slice(at + 1))}`;
 }
 
+/** A checker's name as HTML, with a variant suffix (+fast) as a tag that explains it. */
+const nameHtml = (id: string): string => checkerName(id, short);
+
 /** Drops the TypeScript port tag and spaces out a variant: "0.20.1-ts7.1.0-beta+fast" is "0.20.1 +fast". */
 const shortVersion = (version: string): string => version.replace(/-ts\d[^+]*/, '').replace('+', ' +');
 
@@ -95,13 +99,13 @@ function hero(run: RunSummary, checkers: CheckerSummary[]): string {
   const lightest = [...checkers].sort((a, b) => a.rssMiB - b.rssMiB)[0]!;
   return `<section class="hero">
     <p class="eyebrow">${esc(run.label)} · ${esc(day(run.date))}</p>
-    <h1 class="headline"><span style="color:${familyColor(fastest.family)}">${esc(short(fastest.id))}</span> checks ${esc(run.label)}
+    <h1 class="headline"><span style="color:${familyColor(fastest.family)}">${nameHtml(fastest.id)}</span> checks ${esc(run.label)}
       ${fastest.id === run.reference ? 'fastest' : `<span class="accent">${times(fastest.speedup)}</span> faster than ${esc(short(run.reference))}`}</h1>
     <p class="sub">${run.configs.checked} configs, one after another, median of ${run.rounds} rounds on ${esc(run.machine.cpu)}.</p>
     <div class="tiles">
-      ${tile('Fastest pass', secs(fastest.median), esc(short(fastest.id)), familyColor(fastest.family))}
+      ${tile('Fastest pass', secs(fastest.median), nameHtml(fastest.id), familyColor(fastest.family))}
       ${ref ? tile('Reference pass', secs(ref.median), esc(short(ref.id)), familyColor(ref.family)) : ''}
-      ${tile('Lightest peak', mib(lightest.rssMiB), esc(short(lightest.id)), familyColor(lightest.family))}
+      ${tile('Lightest peak', mib(lightest.rssMiB), nameHtml(lightest.id), familyColor(lightest.family))}
       ${tile('Same diagnostics', `${agree}<span class="tile-of">/${run.parity.length}</span>`, 'checkers agree with the reference')}
     </div>
   </section>`;
@@ -124,7 +128,7 @@ function numbersTable(run: RunSummary, checkers: CheckerSummary[]): string {
     <tbody>${checkers
       .map(
         c => `<tr>
-        <td><span class="swatch" style="background:${familyColor(c.family)}"></span><span title="${esc(c.id)}">${esc(short(c.id))}</span></td>
+        <td><span class="swatch" style="background:${familyColor(c.family)}"></span><span title="${esc(c.id)}">${nameHtml(c.id)}</span></td>
         <td class="num strong" title="${secs(c.min)} to ${secs(c.max)} over ${run.rounds} rounds">${secs(c.median)}</td>
         <td><div class="meter"><span style="width:${((c.speedup / top) * 100).toFixed(1)}%;background:${familyColor(c.family)}"></span></div><span class="meter-value">${times(c.speedup)}</span></td>
         <td class="num">${secs(c.cpu)}</td>
@@ -141,7 +145,7 @@ function parityTable(run: RunSummary): string {
     <tbody>${run.parity
       .map(p => {
         const [kind, label] = status(p);
-        return `<tr><td><span class="swatch" style="background:${familyColor(familyOf(p.id))}"></span>${esc(short(p.id))}</td>
+        return `<tr><td><span class="swatch" style="background:${familyColor(familyOf(p.id))}"></span>${nameHtml(p.id)}</td>
           <td><span class="chip ${kind}">${kind === 'ok' ? '✓' : '!'} ${label}</span></td>
           <td class="num">${p.identical}</td><td class="num">${p.sameNormalized}</td><td class="num">${p.differs}</td>
           <td class="num">${p.failed}</td><td class="num">${p.extra}</td><td class="num">${p.missing}</td></tr>`;
@@ -648,7 +652,7 @@ function compareSection(list: RunSummary[]): string {
     const present = values.filter(Number.isFinite);
     // A row where every run reads the same, such as the reference at 1.0×, has no best.
     const best = present.length > 1 && new Set(present).size > 1 ? better(...present) : NaN;
-    return `<tr><td><span class="swatch" style="background:${familyColor(familyOf(id))}"></span><span title="${esc(id)}">${esc(short(id))}</span></td>${values
+    return `<tr><td><span class="swatch" style="background:${familyColor(familyOf(id))}"></span><span title="${esc(id)}">${nameHtml(id)}</span></td>${values
       .map((v, i) => {
         if (!Number.isFinite(v)) return '<td class="num"><span class="muted">n/a</span></td>';
         const classes = ['num', v === best ? 'best' : '', v === winners[i] ? 'winner' : '', v === losers[i] ? 'loser' : ''].filter(Boolean).join(' ');
@@ -878,3 +882,4 @@ window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', ren
 window.matchMedia('(max-width: 640px)').addEventListener('change', render);
 render();
 mountLibs(runs);
+mountVariantPopover();

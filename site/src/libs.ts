@@ -6,6 +6,7 @@ import type { Family } from '../../src/lib/checkers.ts';
 import type { RunSummary } from '../../src/lib/report.ts';
 import checkers from '../../checkers.json' with { type: 'json' };
 import { FAMILIES, familyColor } from './charts.ts';
+import { familyVariants } from './variants.ts';
 
 const HASH = '#libs';
 
@@ -68,6 +69,11 @@ function card(family: Family, runs: RunSummary[]): string {
           : 'Not in a published run yet'
       }</dd>
       <dt>Platforms</dt><dd>${esc(platforms(family))}</dd>
+      ${familyVariants(family)
+        .map(
+          v => `<dt>Variant</dt><dd class="lib-variant"><span><code>+${esc(v.name)}</code> runs <code>${esc(v.args.join(' '))}</code>${v.versions ? ` (${esc(family.name)} ${esc(v.versions)})` : ''}</span><span class="lib-variant-text">${esc(v.description)}</span></dd>`
+        )
+        .join('')}
     </dl>
     <nav class="lib-links">
       <a href="${esc(family.about.repo)}" target="_blank" rel="noopener">${esc(repoName(family.about.repo))}${external}</a>
