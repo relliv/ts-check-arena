@@ -6,7 +6,7 @@ import os from 'node:os';
 import { basename, dirname, join, relative } from 'node:path';
 import { type ThreadSetting, type Tool, availableOn, binaryPath, command, defaultThreads, installedVersion, parseTool, threadArgs } from './checkers.ts';
 import { type ParityResult, compareOutputs } from './diagnostics.ts';
-import { type Machine, type Source, holdAwake, machine, onAC, source, underRosetta, warnings } from './machine.ts';
+import { type Machine, type Source, cpuModel, holdAwake, machine, onAC, source, underRosetta, warnings } from './machine.ts';
 import { capture, measure, timingPrerequisites } from './measure.ts';
 import { PLATFORM, RESULTS_DIR, ROOT } from './paths.ts';
 import { type Scrubber, scrubber } from './scrub.ts';
@@ -105,7 +105,7 @@ export function runId(parts: { now: Date; cpu: string; platform: string; act: bo
 }
 
 const newRunId = (label: string, smoke: boolean): string =>
-  runId({ now: new Date(), cpu: os.cpus()[0]?.model ?? os.machine(), platform: process.platform, act: source().kind === 'act', label, smoke });
+  runId({ now: new Date(), cpu: cpuModel(), platform: process.platform, act: source().kind === 'act', label, smoke });
 
 function uniqueDir(base: string): string {
   let dir = base;
