@@ -90,14 +90,22 @@ export interface TimingRow {
 const slug = (s: string) => s.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
 const sha256 = (file: string) => createHash('sha256').update(readFileSync(file)).digest('hex');
 
-function runId(label: string, smoke: boolean): string {
-  const now = new Date().toISOString();
-  const cpu = slug(os.cpus()[0]?.model ?? os.machine());
-  // An act run replays a CI job on this machine and would otherwise take the id of
-  // that CI runner's run of the same day, which the site would then replace.
-  const act = source().kind === 'act' ? '-act' : '';
-  return smoke ? `${now.slice(0, 19).replaceAll(':', '')}-${slug(label)}` : `${now.slice(0, 10)}-${cpu}-${process.platform}${act}-${slug(label)}`;
+/**
+ * A run's id and folder name: `2026-11-25-1300-cobalt-100-win32-vite`. The UTC start
+ * time keeps two runs of one day on one runner apart: CI writes every run into the
+ * same data branch folder, so a second run of the day used to replace the first. An
+ * act run, which replays a CI job on this machine, also says so, so it can never take
+ * the id of the CI run it imitates.
+ */
+export function runId(parts: { now: Date; cpu: string; platform: string; act: boolean; label: string; smoke: boolean }): string {
+  const iso = parts.now.toISOString();
+  if (parts.smoke) return `${iso.slice(0, 19).replaceAll(':', '')}-${slug(parts.label)}`;
+  const time = iso.slice(11, 16).replace(':', '');
+  return `${iso.slice(0, 10)}-${time}-${slug(parts.cpu)}-${parts.platform}${parts.act ? '-act' : ''}-${slug(parts.label)}`;
 }
+
+const newRunId = (label: string, smoke: boolean): string =>
+  runId({ now: new Date(), cpu: os.cpus()[0]?.model ?? os.machine(), platform: process.platform, act: source().kind === 'act', label, smoke });
 
 function uniqueDir(base: string): string {
   let dir = base;
@@ -151,8 +159,8 @@ export async function run(options: RunOptions): Promise<string | null> {
   // gets its own id too.
   const save = options.save !== false;
   const dir = save
-    ? uniqueDir(join(RESULTS_DIR, smoke ? '.smoke' : options.corpus ? '' : 'private', runId(label, smoke)))
-    : join(mkdtempSync(join(os.tmpdir(), 'arena-run-')), runId(label, smoke));
+    ? uniqueDir(join(RESULTS_DIR, smoke ? '.smoke' : options.corpus ? '' : 'private', newRunId(label, smoke)))
+    : join(mkdtempSync(join(os.tmpdir(), 'arena-run-')), newRunId(label, smoke));
   const id = basename(dir);
   mkdirSync(dir, { recursive: true });
   const scrub: Scrubber = scrubber({ '<target>': options.target, '<arena>': ROOT });
