@@ -1,0 +1,338 @@
+{
+  "schema": 1,
+  "id": "2026-11-25-intel-r-xeon-r-6975p-c-linux-vite",
+  "label": "vite",
+  "date": "2026-11-25T13:01:43.595Z",
+  "source": {
+    "kind": "ci",
+    "runner": "ubuntu-24.04",
+    "image": "ubuntu24 20261116.133.1",
+    "runUrl": "https://github.com/relliv/ts-check-arena/actions/runs/45619268993",
+    "commit": "b1d1d6ec97bb331f3dc925eb6fd383c2bf4af94d"
+  },
+  "machine": {
+    "platform": "linux-x64",
+    "cpu": "Intel(R) Xeon(R) 6975P-C",
+    "cores": 4,
+    "memoryGiB": 15,
+    "os": "Ubuntu 24.04.5 LTS (7.0.0-1014-aws)",
+    "node": "v26.13.1"
+  },
+  "reference": "tsgo@7.1.0-beta",
+  "rounds": 5,
+  "configs": {
+    "checked": 11,
+    "rejected": 0,
+    "shadowed": 0
+  },
+  "settings": [
+    {
+      "threads": "default",
+      "checkers": [
+        {
+          "id": "tsrs@0.16.0-ts7.1.0-dev.20260929",
+          "family": "tsrs",
+          "version": "0.16.0-ts7.1.0-dev.20260929",
+          "runs": 5,
+          "median": 2.90229134,
+          "min": 2.822835806,
+          "max": 2.9240405270000003,
+          "cpu": 5.369999999999999,
+          "rssMiB": 327.5625,
+          "speedup": 3.0934652787131975
+        },
+        {
+          "id": "tsrs@0.18.0-ts7.1.0-dev.20260929",
+          "family": "tsrs",
+          "version": "0.18.0-ts7.1.0-dev.20260929",
+          "runs": 5,
+          "median": 2.921906742,
+          "min": 2.8583712549999993,
+          "max": 2.9696097519999998,
+          "cpu": 5.35,
+          "rssMiB": 326.85546875,
+          "speedup": 3.072698166559075
+        },
+        {
+          "id": "tsrs@0.20.1-ts7.1.0-beta+fast",
+          "family": "tsrs",
+          "version": "0.20.1-ts7.1.0-beta",
+          "runs": 5,
+          "median": 2.942245604,
+          "min": 2.8735427319999998,
+          "max": 3.00870693,
+          "cpu": 5.35,
+          "rssMiB": 303.36328125,
+          "speedup": 3.051457525093816
+        },
+        {
+          "id": "tsrs@0.20.1-ts7.1.0-beta",
+          "family": "tsrs",
+          "version": "0.20.1-ts7.1.0-beta",
+          "runs": 5,
+          "median": 3.1895905950000003,
+          "min": 3.148827793,
+          "max": 3.208500498,
+          "cpu": 5.170000000000001,
+          "rssMiB": 321.1171875,
+          "speedup": 2.8148244176146373
+        },
+        {
+          "id": "bun@1.4.3",
+          "family": "bun",
+          "version": "1.4.3",
+          "runs": 5,
+          "median": 3.821828326,
+          "min": 3.7781910560000003,
+          "max": 3.8685259790000006,
+          "cpu": 8.290000000000001,
+          "rssMiB": 219.9609375,
+          "speedup": 2.349173412086956
+        },
+        {
+          "id": "tsc-rs@0.7.0",
+          "family": "tsc-rs",
+          "version": "0.7.0",
+          "runs": 5,
+          "median": 4.234705936,
+          "min": 4.156449967,
+          "max": 4.273862466,
+          "cpu": 7.32,
+          "rssMiB": 614.015625,
+          "speedup": 2.120132454221964
+        },
+        {
+          "id": "tsc-rs@0.8.0",
+          "family": "tsc-rs",
+          "version": "0.8.0",
+          "runs": 5,
+          "median": 4.273836158,
+          "min": 4.225596943,
+          "max": 4.285707018,
+          "cpu": 7.33,
+          "rssMiB": 613.87890625,
+          "speedup": 2.1007210283890343
+        },
+        {
+          "id": "tsc-rs@0.6.0",
+          "family": "tsc-rs",
+          "version": "0.6.0",
+          "runs": 5,
+          "median": 4.277756613999999,
+          "min": 4.171760446,
+          "max": 4.463770303,
+          "cpu": 7.369999999999999,
+          "rssMiB": 613.9140625,
+          "speedup": 2.0987957705720937
+        },
+        {
+          "id": "tsc-ts@0.1.5",
+          "family": "tsc-ts",
+          "version": "0.1.5",
+          "runs": 5,
+          "median": 4.796965082000001,
+          "min": 4.631358713,
+          "max": 4.887453583,
+          "cpu": 9.299999999999999,
+          "rssMiB": 383.0859375,
+          "speedup": 1.8716286934606456
+        },
+        {
+          "id": "tsc-ts@0.0.5",
+          "family": "tsc-ts",
+          "version": "0.0.5",
+          "runs": 5,
+          "median": 6.974236101,
+          "min": 6.791908568000001,
+          "max": 7.076460002999999,
+          "cpu": 13.72,
+          "rssMiB": 714.0234375,
+          "speedup": 1.2873291582016662
+        },
+        {
+          "id": "tsc-ts@0.0.4",
+          "family": "tsc-ts",
+          "version": "0.0.4",
+          "runs": 5,
+          "median": 7.032962467,
+          "min": 6.978538427999999,
+          "max": 7.046560616000001,
+          "cpu": 13.770000000000001,
+          "rssMiB": 724.984375,
+          "speedup": 1.276579753002683
+        },
+        {
+          "id": "tsgo@7.1.0-beta",
+          "family": "tsgo",
+          "version": "7.1.0-beta",
+          "runs": 5,
+          "median": 8.978137489,
+          "min": 8.842999512,
+          "max": 9.080608577000001,
+          "cpu": 19.369999999999997,
+          "rssMiB": 695.9609375,
+          "speedup": 1
+        },
+        {
+          "id": "tsgo@7.0.2",
+          "family": "tsgo",
+          "version": "7.0.2",
+          "runs": 5,
+          "median": 12.494006118,
+          "min": 11.896523795999999,
+          "max": 12.537944222,
+          "cpu": 25.989999999999995,
+          "rssMiB": 963.2578125,
+          "speedup": 0.7185955732857597
+        },
+        {
+          "id": "tsc@6.0.3",
+          "family": "tsc",
+          "version": "6.0.3",
+          "runs": 1,
+          "median": 34.226469086,
+          "min": 34.226469086,
+          "max": 34.226469086,
+          "cpu": 65.33,
+          "rssMiB": 964.84765625,
+          "speedup": 0.2623156208851359
+        }
+      ]
+    }
+  ],
+  "parity": [
+    {
+      "id": "tsgo@7.1.0-beta",
+      "identical": 11,
+      "sameNormalized": 0,
+      "differs": 0,
+      "failed": 0,
+      "extra": 0,
+      "missing": 0
+    },
+    {
+      "id": "bun@1.4.3",
+      "identical": 0,
+      "sameNormalized": 11,
+      "differs": 0,
+      "failed": 0,
+      "extra": 0,
+      "missing": 0
+    },
+    {
+      "id": "tsc@6.0.3",
+      "identical": 11,
+      "sameNormalized": 0,
+      "differs": 0,
+      "failed": 0,
+      "extra": 0,
+      "missing": 0
+    },
+    {
+      "id": "tsc-rs@0.6.0",
+      "identical": 11,
+      "sameNormalized": 0,
+      "differs": 0,
+      "failed": 0,
+      "extra": 0,
+      "missing": 0
+    },
+    {
+      "id": "tsc-rs@0.7.0",
+      "identical": 11,
+      "sameNormalized": 0,
+      "differs": 0,
+      "failed": 0,
+      "extra": 0,
+      "missing": 0
+    },
+    {
+      "id": "tsc-rs@0.8.0",
+      "identical": 11,
+      "sameNormalized": 0,
+      "differs": 0,
+      "failed": 0,
+      "extra": 0,
+      "missing": 0
+    },
+    {
+      "id": "tsc-ts@0.0.4",
+      "identical": 11,
+      "sameNormalized": 0,
+      "differs": 0,
+      "failed": 0,
+      "extra": 0,
+      "missing": 0
+    },
+    {
+      "id": "tsc-ts@0.0.5",
+      "identical": 11,
+      "sameNormalized": 0,
+      "differs": 0,
+      "failed": 0,
+      "extra": 0,
+      "missing": 0
+    },
+    {
+      "id": "tsc-ts@0.1.5",
+      "identical": 11,
+      "sameNormalized": 0,
+      "differs": 0,
+      "failed": 0,
+      "extra": 0,
+      "missing": 0
+    },
+    {
+      "id": "tsgo@7.0.2",
+      "identical": 11,
+      "sameNormalized": 0,
+      "differs": 0,
+      "failed": 0,
+      "extra": 0,
+      "missing": 0
+    },
+    {
+      "id": "tsrs@0.16.0-ts7.1.0-dev.20260929",
+      "identical": 11,
+      "sameNormalized": 0,
+      "differs": 0,
+      "failed": 0,
+      "extra": 0,
+      "missing": 0
+    },
+    {
+      "id": "tsrs@0.18.0-ts7.1.0-dev.20260929",
+      "identical": 11,
+      "sameNormalized": 0,
+      "differs": 0,
+      "failed": 0,
+      "extra": 0,
+      "missing": 0
+    },
+    {
+      "id": "tsrs@0.20.1-ts7.1.0-beta",
+      "identical": 11,
+      "sameNormalized": 0,
+      "differs": 0,
+      "failed": 0,
+      "extra": 0,
+      "missing": 0
+    },
+    {
+      "id": "tsrs@0.20.1-ts7.1.0-beta+fast",
+      "identical": 11,
+      "sameNormalized": 0,
+      "differs": 0,
+      "failed": 0,
+      "extra": 0,
+      "missing": 0
+    }
+  ],
+  "unavailable": [],
+  "untimed": [],
+  "project": {
+    "repo": "https://github.com/vitejs/vite",
+    "commit": "cce559ab158cc6b177d0911a0bea73436b48faff",
+    "description": "Frontend tooling monorepo: the dev server, build pipeline and module runner, checked as several configs"
+  }
+}

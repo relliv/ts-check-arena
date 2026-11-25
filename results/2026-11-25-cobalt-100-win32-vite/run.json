@@ -2,14 +2,14 @@
   "schema": 1,
   "id": "2026-11-25-cobalt-100-win32-vite",
   "label": "vite",
-  "startedAt": "2026-11-25T09:54:55.383Z",
-  "endedAt": "2026-11-25T10:13:15.646Z",
+  "startedAt": "2026-11-25T13:03:47.349Z",
+  "endedAt": "2026-11-25T13:16:57.642Z",
   "source": {
     "kind": "ci",
     "runner": "windows-11-arm",
     "image": "win11-vs2026-arm64 20261115.219.1",
-    "runUrl": "https://github.com/relliv/ts-check-arena/actions/runs/45589558818",
-    "commit": "ce7545bc87c958bd954c8342a6ed0d63c04279db"
+    "runUrl": "https://github.com/relliv/ts-check-arena/actions/runs/45619268993",
+    "commit": "b1d1d6ec97bb331f3dc925eb6fd383c2bf4af94d"
   },
   "machine": {
     "platform": "win32-arm64",

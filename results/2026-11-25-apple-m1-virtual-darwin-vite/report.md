@@ -1,12 +1,12 @@
 # vite
 
-> **`tsrs@0.20.1+fast`** is **3.2×** faster than `tsgo@7.1.0-beta`: 3.99 s for one pass over 11 configs. 14 of 14 checkers report exactly the reference's diagnostics.
+> **`tsrs@0.20.1`** is **3.1×** faster than `tsgo@7.1.0-beta`: 3.65 s for one pass over 11 configs. 14 of 14 checkers report exactly the reference's diagnostics.
 
 | | |
 |---|---|
 | **Machine** | Apple M1 (Virtual), 3 cores, 7 GiB |
 | **System** | macOS 15.8.2 (24H232), Node v26.13.1, CI runner `macos-15` |
-| **When** | 2026-11-25 09:53 UTC, 20 min |
+| **When** | 2026-11-25 13:01 UTC, 11 min |
 | **Method** | median of 5 rounds after one warm-up; checker order rotated every round |
 | **Configs** | 11 checked, 0 through a shadow config, 0 rejected |
 | **Reference** | `tsgo@7.1.0-beta` |
@@ -18,20 +18,22 @@ One pass checks every config once, one after another. Wall and CPU time are summ
 
 | Checker | Wall | Range | vs reference | CPU | Peak |
 |---|--:|--:|--:|--:|--:|
-| `tsrs@0.20.1+fast` | **3.99 s** | 3.37 to 4.36 | 3.2× | 5.93 s | 295 MiB |
-| `tsrs@0.18.0` | **4.24 s** | 3.39 to 5.28 | 3.0× | 6.46 s | 316 MiB |
-| `tsrs@0.16.0` | **4.37 s** | 3.33 to 4.65 | 2.9× | 6.81 s | 317 MiB |
-| `tsrs@0.20.1` | **4.53 s** | 3.58 to 5.39 | 2.8× | 6.48 s | 309 MiB |
-| `tsc-rs@0.7.0` | **5.52 s** | 4.35 to 8.65 | 2.3× | 8.24 s | 604 MiB |
-| `tsc-rs@0.6.0` | **5.58 s** | 4.78 to 9.08 | 2.3× | 8.28 s | 603 MiB |
-| `bun@1.4.3` | **5.74 s** | 4.38 to 7.77 | 2.2× | 10.08 s | 257 MiB |
-| `tsc-rs@0.8.0` | **5.77 s** | 5.11 to 7.84 | 2.2× | 8.73 s | 604 MiB |
-| `tsc-ts@0.1.5` | **8.95 s** | 6.25 to 13.48 | 1.4× | 13.00 s | 513 MiB |
-| `tsc-ts@0.0.5` | **9.75 s** | 9.14 to 14.29 | 1.3× | 15.88 s | 691 MiB |
-| `tsc-ts@0.0.4` | **10.45 s** | 9.63 to 14.87 | 1.2× | 16.07 s | 703 MiB |
-| `tsgo@7.1.0-beta` | **12.85 s** | 10.53 to 17.52 | 1.0× | 21.69 s | 689 MiB |
-| `tsgo@7.0.2` | **18.84 s** | 12.45 to 22.54 | 0.7× | 30.44 s | 960 MiB |
-| `tsc@6.0.3` | **57.39 s** | 46.48 to 65.80 | 0.2× | 90.93 s | 968 MiB |
+| `tsrs@0.20.1` | **3.65 s** | 3.46 to 5.41 | 3.1× | 5.40 s | 308 MiB |
+| `tsrs@0.18.0` | **3.65 s** | 2.77 to 5.45 | 3.1× | 5.63 s | 315 MiB |
+| `tsrs@0.20.1+fast` | **3.80 s** | 2.66 to 5.65 | 3.0× | 5.86 s | 294 MiB |
+| `tsrs@0.16.0` | **4.31 s** | 3.19 to 6.46 | 2.6× | 5.61 s | 318 MiB |
+| `bun@1.4.3` | **4.84 s** | 3.53 to 5.13 | 2.3× | 7.98 s | 258 MiB |
+| `tsc-rs@0.8.0` | **5.31 s** | 4.37 to 6.25 | 2.1× | 7.70 s | 604 MiB |
+| `tsc-rs@0.7.0` | **5.42 s** | 4.70 to 6.13 | 2.1× | 8.43 s | 604 MiB |
+| `tsc-rs@0.6.0` | **5.99 s** | 4.61 to 6.43 | 1.9× | 8.80 s | 603 MiB |
+| `tsc-ts@0.1.5` | **7.14 s** | 6.43 to 7.98 | 1.6× | 11.12 s | 514 MiB |
+| `tsc-ts@0.0.5` | **10.19 s** | 6.60 to 10.76 | 1.1× | 16.04 s | 691 MiB |
+| `tsc-ts@0.0.4` | **10.54 s** | 7.71 to 11.88 | 1.1× | 16.44 s | 702 MiB |
+| `tsgo@7.1.0-beta` | **11.34 s** | 9.20 to 12.64 | 1.0× | 19.67 s | 687 MiB |
+| `tsgo@7.0.2` | **17.88 s** | 15.49 to 21.44 | 0.6× | 28.55 s | 962 MiB |
+| `tsc@6.0.3` | **40.93 s** | 1 round, baseline | 0.3× | 67.04 s | 971 MiB |
+
+A baseline is timed in fewer rounds, without a warm-up of its own: it places the other checkers, and is not compared closely.
 
 ## Diagnostics
 
@@ -77,5 +79,5 @@ Extra: diagnostics only that checker reported. Missing: diagnostics only the ref
 
 ## Conditions
 
-- load average 51.02 on 3 cores
-- busy process: mdsync at 27.0% CPU
+- load average 49.45 on 3 cores
+- busy process: trustd at 26.8% CPU

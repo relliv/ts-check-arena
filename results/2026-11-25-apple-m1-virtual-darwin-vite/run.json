@@ -2,14 +2,14 @@
   "schema": 1,
   "id": "2026-11-25-apple-m1-virtual-darwin-vite",
   "label": "vite",
-  "startedAt": "2026-11-25T09:53:48.316Z",
-  "endedAt": "2026-11-25T10:13:58.840Z",
+  "startedAt": "2026-11-25T13:01:37.877Z",
+  "endedAt": "2026-11-25T13:12:52.260Z",
   "source": {
     "kind": "ci",
     "runner": "macos-15",
     "image": "macos15 20261118.0550.1",
-    "runUrl": "https://github.com/relliv/ts-check-arena/actions/runs/45589558818",
-    "commit": "ce7545bc87c958bd954c8342a6ed0d63c04279db"
+    "runUrl": "https://github.com/relliv/ts-check-arena/actions/runs/45619268993",
+    "commit": "b1d1d6ec97bb331f3dc925eb6fd383c2bf4af94d"
   },
   "machine": {
     "platform": "darwin-arm64",
@@ -254,18 +254,18 @@
   },
   "conditions": {
     "warnings": [
-      "load average 51.02 on 3 cores",
-      "busy process: mdsync at 27.0% CPU"
+      "load average 49.45 on 3 cores",
+      "busy process: trustd at 26.8% CPU"
     ],
     "loadStart": [
-      51.01904296875,
-      38.26953125,
-      16.779296875
+      49.45263671875,
+      29.74365234375,
+      12.56494140625
     ],
     "loadEnd": [
-      3.173828125,
-      7.28076171875,
-      11.50390625
+      8.0654296875,
+      14.04736328125,
+      12.6015625
     ]
   }
 }
