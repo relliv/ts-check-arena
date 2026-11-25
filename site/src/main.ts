@@ -341,7 +341,7 @@ function platformChart(list: RunSummary[]) {
       name: r.machine.platform,
       barMaxWidth: n ? 5 : 14,
       emphasis: { focus: 'none', itemStyle: { borderColor: c.primary, borderWidth: 1.5 } },
-      itemStyle: { color: ['#2a78d6', '#eb6834', '#1baf7a'][i % 3], borderRadius: n ? [0, 3, 3, 0] : [4, 4, 0, 0] },
+      itemStyle: { color: RUN_COLORS[i % RUN_COLORS.length], borderRadius: n ? [0, 3, 3, 0] : [4, 4, 0, 0] },
       data: ids.map(id => r.settings.find(s => s.threads === 'default')?.checkers.find(x => x.id === id)?.speedup ?? null),
     })),
   };

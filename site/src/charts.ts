@@ -3,10 +3,11 @@
 import { BarChart, CustomChart, LineChart, ScatterChart } from 'echarts/charts';
 import { GridComponent, LegendComponent, MarkLineComponent, TooltipComponent } from 'echarts/components';
 import * as echarts from 'echarts/core';
+import { LabelLayout } from 'echarts/features';
 import type { EChartsCoreOption } from 'echarts/core';
 import { SVGRenderer } from 'echarts/renderers';
 
-echarts.use([BarChart, LineChart, ScatterChart, CustomChart, GridComponent, TooltipComponent, LegendComponent, MarkLineComponent, SVGRenderer]);
+echarts.use([BarChart, LineChart, ScatterChart, CustomChart, GridComponent, TooltipComponent, LegendComponent, MarkLineComponent, LabelLayout, SVGRenderer]);
 
 /**
  * Families in their fixed order. Colors are the first six categorical slots of
