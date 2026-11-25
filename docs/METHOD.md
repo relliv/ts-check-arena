@@ -42,7 +42,7 @@ Each checker's native executable is run directly, not through its npm launcher, 
 3. **Shadows.** Each config is read with the TypeScript 6 API. Where it sets an option TypeScript 7 removed, a shadow config that extends it unsets only that option (see [Shadow configs](#shadow-configs)). Every checker, TypeScript 6 included, checks the same file, so all of them check the same program.
 4. **Gate.** The reference checker, by default the newest installed tsgo (prereleases included, in semver order), runs each config. A config where it reports any error is rejected and recorded with the count; one where it exits non-zero without a diagnostic (crashed, killed, unreadable) is recorded as not measured.
 5. **Diagnostics.** Every checker runs each accepted config once with plain output, and its output is compared with the reference's (see [Diagnostics](#diagnostics)). A checker that failed on any config is excluded from timing.
-6. **Timing.** For each thread setting: one warm-up round, then the given number of rounds (odd, 7 by default). A round checks every config with every checker. Each round starts one checker further along than the round before, so every checker runs in every position. The exit code of every timed check must match the exit code recorded in step 5.
+6. **Timing.** For each thread setting: one warm-up round, then the given number of rounds (odd, 7 by default). A fixed baseline with its own `rounds` in `checkers.json` is timed in that many rounds instead, without a warm-up of its own (see [Baseline](#baseline)). A round checks every config with every checker. Each round starts one checker further along than the round before, so every checker runs in every position. The exit code of every timed check must match the exit code recorded in step 5.
 7. **Records.** `run.json`, `timing.csv` (one row per check, warm-ups marked), `parity.json`, `parity/<checker>/<config>.txt` for every output that differs, `summary.json` and `report.md`. With `--no-save` they are written to a temporary folder, the report is printed, and the folder is deleted.
 
 The machine is kept awake with `caffeinate -dis` on macOS and `SetThreadExecutionState` on Windows, and power is checked before every round.
@@ -63,6 +63,12 @@ The machine is kept awake with `caffeinate -dis` on macOS and `SetThreadExecutio
 - **CPU** is user plus sys time summed over all threads, as a median. **Peak** is the median of the passes' peak memory, in MiB.
 
 Peak memory is comparable between checkers on one machine, not exactly between operating systems: Windows reports the process alone, macOS and Linux include children.
+
+## Baseline
+
+tsc, TypeScript 6, is the arena's fixed baseline: one version that never changes, several times slower than every native checker. It is timed in one round, without a warm-up of its own, and its report row says so instead of showing a range. The other checkers' warm-up round has already read the project's files into the system's cache, and tsc carries nothing from one process to the next, so its warm-up would not change what it measures.
+
+One round is enough for what the baseline is for: placing the other checkers, not being compared closely. tsc runs at 0.2 to 0.3× the reference on every runner; a single sample on the noisiest CI runner moves that by a few tenths at most, and it stays last. It still goes through the gate and the diagnostics comparison like any checker, and the reference can never be a baseline. Without this, tsc took about a third of every run's timing.
 
 ## Threads
 
@@ -120,7 +126,7 @@ The gate makes the reference clean on every timed config, so on most projects th
 A run records where it ran: `local`, or `ci` with the runner label, image and workflow run link. They answer different questions.
 
 - **Local runs** on a quiet machine are the precise numbers, in seconds.
-- **CI runs** are breadth: six runners (Linux x64 and arm64, macOS arm64 and x64, Windows x64 and arm64), started by a push that changes `tools/` or by hand. Hosted runners are shared virtual machines whose CPU model can change between runs, so CI results are read as ratios against the reference within one run, never as seconds across runs. Each CI run records its CPU model, and only runs with matching models are compared.
+- **CI runs** are breadth: five runners (Linux x64 and arm64, macOS arm64, Windows x64 and arm64), started by a push that changes `tools/` or by hand. A manual run can add Intel macOS (macos-15-intel), the slowest runner by about 30%, which adds an older CPU rather than a new architecture. Hosted runners are shared virtual machines whose CPU model can change between runs, so CI results are read as ratios against the reference within one run, never as seconds across runs. Each CI run records its CPU model, and only runs with matching models are compared.
 
 The site never puts local and CI runs on one axis. An older run shows a note naming the checkers the newest run on its platform added or dropped, and whether the reference changed, since speedups against different references are not directly comparable.
 

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { combine, median, parseGnuTime, parseMacTime, rotate, summarize } from '../src/lib/stats.ts';
+import { combine, median, parseGnuTime, parseMacTime, rotate, summarize, takesPart } from '../src/lib/stats.ts';
 
 describe('median', () => {
   it('takes the middle of an odd-length list', () => {
@@ -54,5 +54,19 @@ describe('time parsers', () => {
       maxrss: 2048 * 1024,
       exit: 2,
     });
+  });
+});
+
+describe('takesPart', () => {
+  it('times an ordinary checker in every round, warm-up included', () => {
+    expect([0, 1, 2, 3, 4, 5].map(r => takesPart(undefined, r, 5))).toEqual([true, true, true, true, true, true]);
+  });
+
+  it('times a one-round baseline once, after the warm-up', () => {
+    expect([0, 1, 2, 3, 4, 5].map(r => takesPart(1, r, 5))).toEqual([false, true, false, false, false, false]);
+  });
+
+  it('never times a baseline in more rounds than the run has', () => {
+    expect([0, 1, 2].map(r => takesPart(3, r, 1))).toEqual([false, true, false]);
   });
 });

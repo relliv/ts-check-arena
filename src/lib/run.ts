@@ -11,7 +11,7 @@ import { capture, measure, timingPrerequisites } from './measure.ts';
 import { PLATFORM, RESULTS_DIR, ROOT } from './paths.ts';
 import { type Scrubber, scrubber } from './scrub.ts';
 import { type CheckedConfig, ShadowStore } from './shadow.ts';
-import { type Measured, rotate } from './stats.ts';
+import { type Measured, rotate, takesPart } from './stats.ts';
 import { type Discovery, discoverConfigs, targetRevision } from './targets.ts';
 import { writeReport } from './report.ts';
 
@@ -128,6 +128,8 @@ export async function run(options: RunOptions): Promise<string | null> {
 
   const blockers = [...timingPrerequisites()];
   if (underRosetta()) blockers.push('node runs under Rosetta; use an arm64 node');
+  // Every speedup divides by the reference's median, so it must have the full round count.
+  if (reference.family.rounds !== undefined) throw new Error(`the reference ${reference.id} is a baseline with ${reference.family.rounds} round(s); pick a reference with full rounds`);
   if (!options.allowBattery && !onAC()) blockers.push('on battery power; connect power or pass --allow-battery');
   if (blockers.length) throw new Error(`refusing to run:\n  ${blockers.join('\n  ')}`);
 
@@ -214,7 +216,8 @@ export async function run(options: RunOptions): Promise<string | null> {
 
     // Timing: a warm-up round, then `rounds` rounds per thread setting. Each round
     // checks every config with every checker, starting one checker further along
-    // than the round before.
+    // than the round before. A baseline family with its own `rounds` (tsc 6) skips the
+    // warm-up, since the others have already loaded the files, and stops after its count.
     const rows: TimingRow[] = [];
     for (const setting of threads) {
       const lane = timed.filter(t => threadArgs(t, setting) !== null);
@@ -225,6 +228,7 @@ export async function run(options: RunOptions): Promise<string | null> {
           let total = 0;
           for (const c of checked) {
             const m = measure(command(t, c.path, { threads: setting })!, options.target);
+          if (!takesPart(t.family.rounds, round, rounds)) continue;
             const expected = outputs.get(c.config)!.get(t.id)!.exit;
             if (setting === 'default' && m.exit !== expected) throw new Error(`${t.id} exited ${m.exit} on ${c.config} while timed, ${expected} when its output was recorded`);
             rows.push({ threads: setting, round, warm, checker: t.id, config: c.config, m });

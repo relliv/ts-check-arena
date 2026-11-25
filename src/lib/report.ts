@@ -172,7 +172,12 @@ export function renderMarkdown(meta: RunMeta, summary: RunSummary): string {
     lines.push('One pass checks every config once, one after another. Wall and CPU time are summed over the pass; peak memory is the largest single config.', '');
     lines.push('| Checker | Wall | Range | vs reference | CPU | Peak |', '|---|--:|--:|--:|--:|--:|');
     for (const c of setting.checkers) {
-      lines.push(`| \`${shortId(c.id)}\` | **${s2(c.median)} s** | ${s2(c.min)} to ${s2(c.max)} | ${c.speedup.toFixed(1)}× | ${s2(c.cpu)} s | ${Math.round(c.rssMiB)} MiB |`);
+      // A baseline timed fewer rounds than the run has no range worth showing: say how many it had.
+      const range = c.runs < meta.rounds ? `${c.runs} ${c.runs === 1 ? 'round' : 'rounds'}, baseline` : `${s2(c.min)} to ${s2(c.max)}`;
+      lines.push(`| \`${shortId(c.id)}\` | **${s2(c.median)} s** | ${range} | ${c.speedup.toFixed(1)}× | ${s2(c.cpu)} s | ${Math.round(c.rssMiB)} MiB |`);
+    }
+    if (setting.checkers.some(c => c.runs < meta.rounds)) {
+      lines.push('', 'A baseline is timed in fewer rounds, without a warm-up of its own: it places the other checkers, and is not compared closely.');
     }
     lines.push('');
   }

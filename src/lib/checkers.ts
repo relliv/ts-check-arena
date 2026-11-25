@@ -17,6 +17,12 @@ export interface BinarySpec {
 export interface Family {
   name: string;
   description: string;
+  /**
+   * Timed rounds for a fixed baseline, without a warm-up of its own, in place of the
+   * run's count. tsc 6 never changes and is several times slower than the rest, so
+   * one round places it without spending a third of every run on it.
+   */
+  rounds?: number;
   /** How many versions the store keeps; adding a newer one removes the oldest past this. Default KEEP_VERSIONS. */
   keep?: number;
   /** Who maintains it and why the arena tests it; the site's Libs dialog shows it. */

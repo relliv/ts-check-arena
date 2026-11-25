@@ -56,6 +56,15 @@ export function combine(runs: Timing[]): Timing {
   };
 }
 
+/**
+ * Whether a checker is timed in a round (0 is the warm-up). A baseline with its own
+ * count skips the warm-up and stops after that many rounds; any other checker takes
+ * part in every round.
+ */
+export function takesPart(baselineRounds: number | undefined, round: number, rounds: number): boolean {
+  return baselineRounds === undefined || (round >= 1 && round <= Math.min(baselineRounds, rounds));
+}
+
 /** The list started k places along, wrapping: rotate([a, b, c], 1) is [b, c, a]. */
 export const rotate = <T>(xs: T[], k: number): T[] => xs.map((_, i) => xs[(i + k) % xs.length]!);
 

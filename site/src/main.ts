@@ -128,8 +128,11 @@ function numbersTable(run: RunSummary, checkers: CheckerSummary[]): string {
     <tbody>${checkers
       .map(
         c => `<tr>
-        <td><span class="swatch" style="background:${familyColor(c.family)}"></span><span title="${esc(c.id)}">${nameHtml(c.id)}</span></td>
-        <td class="num strong" title="${secs(c.min)} to ${secs(c.max)} over ${run.rounds} rounds">${secs(c.median)}</td>
+        <td><span class="swatch" style="background:${familyColor(c.family)}"></span><span title="${esc(c.id)}">${nameHtml(c.id)}</span>${
+          // A fixed baseline (tsc 6) is timed once: it places the others and is not compared closely.
+          c.runs < run.rounds ? `<span class="baseline-tag" title="Timed in ${c.runs} ${c.runs === 1 ? 'round' : 'rounds'}, without a warm-up of its own: a fixed baseline that places the other checkers">baseline</span>` : ''
+        }</td>
+        <td class="num strong" title="${c.runs < run.rounds ? `${c.runs} ${c.runs === 1 ? 'round' : 'rounds'}, baseline` : `${secs(c.min)} to ${secs(c.max)} over ${run.rounds} rounds`}">${secs(c.median)}</td>
         <td><div class="meter"><span style="width:${((c.speedup / top) * 100).toFixed(1)}%;background:${familyColor(c.family)}"></span></div><span class="meter-value">${times(c.speedup)}</span></td>
         <td class="num">${secs(c.cpu)}</td>
         <td class="num">${mib(c.rssMiB)}</td></tr>`
