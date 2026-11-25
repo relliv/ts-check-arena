@@ -209,6 +209,8 @@ function barsChart(run: RunSummary, checkers: CheckerSummary[], metric: Metric) 
               type: 'custom',
               silent: true,
               z: 3,
+              // The row index is the y category; only min and max belong on the time axis.
+              encode: { x: [1, 2], y: 0 },
               data: rows.map((r, i) => [i, r.min, r.max]),
               renderItem: (_: unknown, api: { value: (i: number) => number; coord: (p: number[]) => number[] }) => {
                 const [x0, y] = api.coord([api.value(1), api.value(0)]);
