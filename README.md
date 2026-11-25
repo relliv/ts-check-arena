@@ -25,7 +25,7 @@ Each family ([checkers.json](checkers.json)) is a set of exact versions, one wor
 ```sh
 pnpm arena tool add tsgo@7.1.0-beta tsrs@0.18.0-ts7.1.0-dev.20260929 bun@1.4.3
 pnpm arena tool remove tsc-ts@0.0.4
-pnpm arena watch                   # versions on npm older than 7 days that the store lacks
+pnpm arena watch [--write]         # versions on npm older than 7 days that the store lacks (--write adds them)
 pnpm arena families                # families, platforms and variants
 ```
 
@@ -67,9 +67,8 @@ pnpm arena run --target <path> \
 | [check](.github/workflows/check.yml) | every push and PR | types, tests, site build, smoke run on macOS, Linux and Windows |
 | [bench](.github/workflows/bench.yml) | by hand (Actions, bench, Run workflow), with projects, rounds and threads as inputs | the corpus on six runners; results committed to the `data` branch |
 | [site](.github/workflows/site.yml) | after bench, on site changes | builds the site with the `data` branch results and deploys GitHub Pages |
-| [watch](.github/workflows/watch.yml) | daily | opens a PR adding checker versions past the release age window |
 
-CI runners are shared machines: their results are ratios within a run, labeled by runner, and never charted with local runs. Pull requests opened by the watch workflow use the default token, so GitHub does not start their checks; close and reopen the PR, or push to it, to run them.
+CI runners are shared machines: their results are ratios within a run, labeled by runner, and never charted with local runs.
 
 ## Development
 
