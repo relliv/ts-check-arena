@@ -75,7 +75,10 @@ const shortVersion = (version: string): string => version.replace(/-ts\d[^+]*/, 
 
 const familyOf = (id: string): string => id.slice(0, id.lastIndexOf('@'));
 const versionOf = (id: string): string => id.slice(id.lastIndexOf('@') + 1);
-const where = (run: RunSummary): string => (run.source.kind === 'ci' ? `CI · ${run.source.runner ?? ''}` : 'Local machine');
+/** The pill text for a run's source. An act run is the workflow replayed on this machine, kept apart from both. */
+const sourceLabel = (r: RunSummary): string => (r.source.kind === 'ci' ? 'CI' : r.source.kind === 'act' ? 'Act local' : 'Local');
+const where = (run: RunSummary): string =>
+  run.source.kind === 'ci' ? `CI · ${run.source.runner ?? ''}` : run.source.kind === 'act' ? `Act local · ${run.source.runner ?? ''}` : 'Local machine';
 const day = (iso: string): string => new Date(iso).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
 
 function compareVersions(a: string, b: string): number {
@@ -416,8 +419,8 @@ function runPicker(current: RunSummary): string {
   let index = 0;
   const option = (r: RunSummary): string => `<button type="button" role="option" class="option" id="run-option-${index++}" data-id="${esc(r.id)}" data-search="${esc(searchText(r))}" aria-selected="${r.id === current.id}">
     <span class="option-text">
-      <span class="option-main">${esc(r.label)}${platformTag(r)}<span class="source ${esc(r.source.kind)}">${r.source.kind === 'ci' ? 'CI' : 'Local'}</span></span>
-      <span class="option-sub">${esc(r.machine.cpu)} · ${r.machine.cores} cores · ${esc(r.machine.os)}${r.source.kind === 'ci' && r.source.runner ? ` · ${esc(r.source.runner)}` : ''}</span>
+      <span class="option-main">${esc(r.label)}${platformTag(r)}<span class="source ${esc(r.source.kind)}">${sourceLabel(r)}</span></span>
+      <span class="option-sub">${esc(r.machine.cpu)} · ${r.machine.cores} cores · ${esc(r.machine.os)}${r.source.kind !== 'local' && r.source.runner ? ` · ${esc(r.source.runner)}` : ''}</span>
     </span>
     ${icon.check}
   </button>`;
@@ -711,7 +714,7 @@ function compareSection(list: RunSummary[]): string {
       <thead><tr><th aria-sort="${ariaSort('checker')}"><button type="button" class="sort" data-sort="checker">Checker${arrow('checker')}</button></th>${list
         // The CPU name is cut to fit the column; hovering or focusing the header shows the whole run.
         .map(
-          (r, i) => `<th class="num run-head" aria-sort="${ariaSort(i)}"><button type="button" class="sort" data-sort="${i}" aria-describedby="run-tip-${i}"><span class="head-text"><span class="head-main"><span class="swatch" style="background:${runColor(i)}"></span>${esc(r.machine.platform)}<span class="source ${r.source.kind}">${r.source.kind === 'ci' ? 'CI' : 'Local'}</span></span><span class="sub">${esc(r.machine.cpu)}</span></span>${arrow(i)}</button>
+          (r, i) => `<th class="num run-head" aria-sort="${ariaSort(i)}"><button type="button" class="sort" data-sort="${i}" aria-describedby="run-tip-${i}"><span class="head-text"><span class="head-main"><span class="swatch" style="background:${runColor(i)}"></span>${esc(r.machine.platform)}<span class="source ${r.source.kind}">${sourceLabel(r)}</span></span><span class="sub">${esc(r.machine.cpu)}</span></span>${arrow(i)}</button>
             <span class="run-tip" role="tooltip" id="run-tip-${i}"><b>${esc(r.machine.cpu)}</b><span>${r.machine.cores} cores · ${esc(r.machine.os)}</span><span>${esc(where(r))} · ${esc(day(r.date))}</span></span></th>`
         )
         .join('')}</tr></thead>

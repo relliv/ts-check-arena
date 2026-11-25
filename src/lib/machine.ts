@@ -20,8 +20,9 @@ export interface Machine {
 }
 
 export interface Source {
-  kind: 'local' | 'ci';
-  /** CI only: the runner label and image, and the workflow run. */
+  /** `act` is the workflow run on this machine by nektos/act: neither a quiet local run nor a CI runner. */
+  kind: 'local' | 'ci' | 'act';
+  /** CI and act: the runner label (act: the one it stands in for); CI only: the image and the workflow run. */
   runner?: string;
   image?: string;
   runUrl?: string;
@@ -63,8 +64,10 @@ export function machine(): Machine {
   };
 }
 
-/** GitHub Actions sets these; anything else counts as a local run. */
+/** GitHub Actions sets these; act sets them too, plus ACT. Anything else counts as a local run. */
 export function source(env = process.env): Source {
+  // act runs the workflow in a container on this machine, so it is neither CI nor a plain local run.
+  if (env['ACT'] === 'true') return { kind: 'act', runner: env['ARENA_RUNNER_LABEL'] ?? `${env['RUNNER_OS']}-${env['RUNNER_ARCH']}` };
   if (env['GITHUB_ACTIONS'] !== 'true') return { kind: 'local' };
   return {
     kind: 'ci',

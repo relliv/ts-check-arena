@@ -144,7 +144,8 @@ export const shortToolId = (id: string): string => id.replace(/-ts\d[^+]*/, '');
 
 export function renderMarkdown(meta: RunMeta, summary: RunSummary): string {
   const lines: string[] = [];
-  const where = meta.source.kind === 'ci' ? `CI runner \`${meta.source.runner}\`` : 'local machine';
+  const where =
+    meta.source.kind === 'ci' ? `CI runner \`${meta.source.runner}\`` : meta.source.kind === 'act' ? `act on this machine, as \`${meta.source.runner}\`` : 'local machine';
   const shortId = shortToolId;
   const minutes = Math.round((Date.parse(meta.endedAt) - Date.parse(meta.startedAt)) / 60000);
   const main = summary.settings.find(s => s.threads === 'default') ?? summary.settings[0];

@@ -93,7 +93,10 @@ const sha256 = (file: string) => createHash('sha256').update(readFileSync(file))
 function runId(label: string, smoke: boolean): string {
   const now = new Date().toISOString();
   const cpu = slug(os.cpus()[0]?.model ?? os.machine());
-  return smoke ? `${now.slice(0, 19).replaceAll(':', '')}-${slug(label)}` : `${now.slice(0, 10)}-${cpu}-${process.platform}-${slug(label)}`;
+  // An act run replays a CI job on this machine and would otherwise take the id of
+  // that CI runner's run of the same day, which the site would then replace.
+  const act = source().kind === 'act' ? '-act' : '';
+  return smoke ? `${now.slice(0, 19).replaceAll(':', '')}-${slug(label)}` : `${now.slice(0, 10)}-${cpu}-${process.platform}${act}-${slug(label)}`;
 }
 
 function uniqueDir(base: string): string {
@@ -125,11 +128,11 @@ export async function run(options: RunOptions): Promise<string | null> {
     if (!binaryPath(t)) throw new Error(`${t.id} is not installed; run pnpm arena tool add ${t.id}`);
   }
   if (!availableOn(reference)) throw new Error(`the reference ${reference.id} has no build for ${PLATFORM}`);
+  // Every speedup divides by the reference's median, so it must have the full round count.
+  if (reference.family.rounds !== undefined) throw new Error(`the reference ${reference.id} is a baseline with ${reference.family.rounds} round(s); pick a reference with full rounds`);
 
   const blockers = [...timingPrerequisites()];
   if (underRosetta()) blockers.push('node runs under Rosetta; use an arm64 node');
-  // Every speedup divides by the reference's median, so it must have the full round count.
-  if (reference.family.rounds !== undefined) throw new Error(`the reference ${reference.id} is a baseline with ${reference.family.rounds} round(s); pick a reference with full rounds`);
   if (!options.allowBattery && !onAC()) blockers.push('on battery power; connect power or pass --allow-battery');
   if (blockers.length) throw new Error(`refusing to run:\n  ${blockers.join('\n  ')}`);
 
@@ -225,10 +228,10 @@ export async function run(options: RunOptions): Promise<string | null> {
         const warm = round === 0;
         if (!options.allowBattery && !onAC()) throw new Error('power was disconnected during the run');
         for (const t of rotate(lane, round % lane.length)) {
+          if (!takesPart(t.family.rounds, round, rounds)) continue;
           let total = 0;
           for (const c of checked) {
             const m = measure(command(t, c.path, { threads: setting })!, options.target);
-          if (!takesPart(t.family.rounds, round, rounds)) continue;
             const expected = outputs.get(c.config)!.get(t.id)!.exit;
             if (setting === 'default' && m.exit !== expected) throw new Error(`${t.id} exited ${m.exit} on ${c.config} while timed, ${expected} when its output was recorded`);
             rows.push({ threads: setting, round, warm, checker: t.id, config: c.config, m });

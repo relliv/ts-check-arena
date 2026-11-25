@@ -13,6 +13,7 @@
     "arena": "node src/cli.ts",
     "dev": "vite",
     "build": "vite build",
+    "bench:act": "bash scripts/act-bench.sh",
     "preview": "vite preview",
     "test": "vitest run",
     "typecheck": "tsc -p tsconfig.json"

@@ -78,7 +78,10 @@ CI runners are shared machines: their results are ratios within a run, labeled b
 ```sh
 pnpm typecheck && pnpm test && pnpm build
 pnpm arena run --target fixtures/small --smoke
+pnpm bench:act                     # the bench workflow's Linux job, locally with nektos/act and Docker
 ```
+
+`pnpm bench:act` tests a workflow change before it reaches GitHub. Its run is recorded as **Act local** and written to `results/private/`, so it stays on this machine; `ARENA_SITE_PRIVATE=1 pnpm dev` shows it in the run list. Fixed settings are in [.actrc](.actrc). Only the bench job runs, never publish; macOS and Windows jobs need GitHub's runners.
 
 ## Credits
 
