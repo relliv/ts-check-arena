@@ -16,6 +16,9 @@
   --color-night-raised: #16213a;
   --color-night-edge: #1a2540;
   --color-night-line: #24314f;
+  /* Day headings in the run list: a step above night-raised, the row hover. */
+  --color-night-head: #22304f;
+  --color-night-head-line: #34466f;
 }
 
 /* Native controls, scrollbars included, follow the page's light or dark mode. */
@@ -247,7 +250,7 @@ code {
   }
 
   .group-head {
-    @apply sticky top-0 z-10 flex items-center gap-2 bg-slate-100/95 px-3 py-1.5 backdrop-blur dark:bg-night-edge/95;
+    @apply sticky top-0 z-10 flex items-center gap-2 border-y border-slate-200 bg-slate-50/95 px-3 py-1.5 backdrop-blur dark:border-night-head-line dark:bg-night-head/95;
   }
 
   .group-date {
@@ -259,7 +262,7 @@ code {
   }
 
   .compare-button {
-    @apply ml-auto rounded-md border border-slate-200 px-2 py-0.5 text-[11px] font-medium text-accent transition-colors hover:border-accent hover:bg-accent/5 dark:border-night-line;
+    @apply ml-auto rounded-md border border-slate-300 bg-white px-2 py-0.5 text-[11px] font-medium text-accent transition-colors hover:border-accent hover:bg-accent/5 dark:border-slate-600 dark:bg-night-panel/60;
 
     &[hidden] {
       @apply hidden;
