@@ -1,9 +1,15 @@
 {
-  "$comment": "Checker families. A family describes what stays the same across its versions; the version is chosen per run (family@version) and installed into tools/<family>@<version>/ by `pnpm arena tool add`. Fields: package: the npm package installed; versions: the major versions this family covers (a version outside the range belongs to another family, such as typescript 6 under tsc and 7 under tsgo); binary: per <platform>-<arch>, the package holding the native executable and its path inside that package, with an optional versions range for a platform added in a later release (a platform that is missing, or out of range, means no build is published for it); runtime: 'node' when the executable is a JavaScript file run with the current node, otherwise it is run directly; args: placed before the config arguments, where an {args, versions} entry applies only to that version range (bun check gained --no-script in 1.4.4); project: how the config is passed; plainOutput: one line per diagnostic; listFiles: how it lists its program's files, or null; threads: thread flags as documented by the checker, {n} replaced, or null when it documents none; defaultThreads: what it uses with no thread flag, as documented: a number or 'per-core', or a list of {versions, value} when a release changed it; variants: documented opt-in modes, each {args, versions, description}, run as family@version+name; source: where the thread flags are documented.",
+  "$comment": "Checker families. A family describes what stays the same across its versions; the version is chosen per run (family@version) and installed into tools/<family>@<version>/ by `pnpm arena tool add`. Fields: package: the npm package installed; versions: the major versions this family covers (a version outside the range belongs to another family, such as typescript 6 under tsc and 7 under tsgo); binary: per <platform>-<arch>, the package holding the native executable and its path inside that package, with an optional versions range for a platform added in a later release (a platform that is missing, or out of range, means no build is published for it); runtime: 'node' when the executable is a JavaScript file run with the current node, otherwise it is run directly; args: placed before the config arguments, where an {args, versions} entry applies only to that version range (bun check gained --no-script in 1.4.4); project: how the config is passed; plainOutput: one line per diagnostic; listFiles: how it lists its program's files, or null; threads: thread flags as documented by the checker, {n} replaced, or null when it documents none; defaultThreads: what it uses with no thread flag, as documented: a number or 'per-core', or a list of {versions, value} when a release changed it; about: who maintains it, its repository, what it is written in and why the arena tests it, shown in the site's Libs dialog; variants: documented opt-in modes, each {args, versions, description}, run as family@version+name; source: where the thread flags are documented.",
   "families": [
     {
       "name": "tsc",
       "description": "The JavaScript TypeScript compiler (TypeScript 6 and earlier)",
+      "about": {
+        "maintainer": "Microsoft",
+        "repo": "https://github.com/microsoft/TypeScript",
+        "language": "TypeScript (runs on Node)",
+        "why": "The JavaScript compiler most projects still run today. It shows where the native ports started from."
+      },
       "package": "typescript",
       "versions": "<7",
       "runtime": "node",
@@ -21,6 +27,12 @@
     {
       "name": "tsgo",
       "description": "Microsoft's native TypeScript 7 compiler (Go)",
+      "about": {
+        "maintainer": "Microsoft",
+        "repo": "https://github.com/microsoft/typescript-go",
+        "language": "Go",
+        "why": "The official native compiler that TypeScript 7 ships as. Every run uses a tsgo version as its reference, for speed and for diagnostics."
+      },
       "package": "typescript",
       "versions": ">=7",
       "binary": {
@@ -45,6 +57,12 @@
     {
       "name": "tsrs",
       "description": "A Rust port of the TypeScript 7 checker (oxc-project/tsrs)",
+      "about": {
+        "maintainer": "Oxc",
+        "repo": "https://github.com/oxc-project/tsrs",
+        "language": "Rust",
+        "why": "A Rust port of the type checker from the team behind the Oxc toolchain. It tests whether Rust can beat the official Go port on speed and memory while reporting the same errors."
+      },
       "package": "tsrs",
       "versions": "*",
       "binary": {
@@ -78,6 +96,12 @@
     {
       "name": "tsc-rs",
       "description": "A Rust port of the TypeScript 7 compiler (pingdotgg/ts-rust)",
+      "about": {
+        "maintainer": "Ping.gg",
+        "repo": "https://github.com/pingdotgg/ts-rust",
+        "language": "Rust",
+        "why": "A separate, experimental Rust port of the whole compiler. Next to tsrs, it shows how much of the result comes from the language and how much from each port's design."
+      },
       "package": "tsc-rs",
       "versions": "*",
       "binary": {
@@ -102,6 +126,12 @@
     {
       "name": "tsc-ts",
       "description": "A TypeScript port of tsgo compiled to a native executable (Vercel Labs)",
+      "about": {
+        "maintainer": "Vercel Labs",
+        "repo": "https://github.com/vercel-labs/tsc-ts",
+        "language": "TypeScript, compiled to a native executable",
+        "why": "TypeScript 7 ported back to TypeScript and compiled ahead of time. It tests whether that route can keep up with ports to Go and Rust."
+      },
       "package": "tsc-ts",
       "versions": "*",
       "binary": {
@@ -125,6 +155,12 @@
     {
       "name": "bun",
       "description": "Bun's built-in type checker (bun check)",
+      "about": {
+        "maintainer": "Oven",
+        "repo": "https://github.com/oven-sh/bun",
+        "language": "Part of the Bun runtime",
+        "why": "A type checker built into the Bun runtime (bun check), so a project on Bun needs no separate compiler. It shows how a runtime's own checker compares."
+      },
       "package": "bun",
       "versions": ">=1.4.3",
       "binary": {

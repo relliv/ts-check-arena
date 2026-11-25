@@ -17,6 +17,8 @@ export interface BinarySpec {
 export interface Family {
   name: string;
   description: string;
+  /** Who maintains it and why the arena tests it; the site's Libs dialog shows it. */
+  about: { maintainer: string; repo: string; language: string; why: string };
   package: string;
   versions: string;
   runtime?: 'node';

@@ -4,6 +4,7 @@
 import type { CheckerSummary, RunSummary } from '../../src/lib/report.ts';
 import dataBranch from 'virtual:arena-data';
 import { FAMILIES, categoryAxis, disposeAll, familyColor, ink, isNarrow, mount, valueAxis } from './charts.ts';
+import { mountLibs } from './libs.ts';
 
 declare const __ARENA_PRIVATE__: boolean;
 
@@ -370,6 +371,7 @@ const icon = {
   check: `<svg class="check" viewBox="0 0 16 16" aria-hidden="true"><path d="M3.5 8.5l3 3 6-7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>`,
   search: `<svg viewBox="0 0 16 16" aria-hidden="true"><circle cx="7" cy="7" r="4.5" fill="none" stroke="currentColor" stroke-width="1.75"/><path d="M10.5 10.5L14 14" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"/></svg>`,
   cross: `<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M4 4l8 8M12 4l-8 8" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"/></svg>`,
+  libs: `<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="2" width="5" height="5" rx="1"/><rect x="9" y="2" width="5" height="5" rx="1"/><rect x="2" y="9" width="5" height="5" rx="1"/><rect x="9" y="9" width="5" height="5" rx="1"/></svg>`,
   method: `<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 1.75H4.5A1.5 1.5 0 0 0 3 3.25v9.5a1.5 1.5 0 0 0 1.5 1.5h7a1.5 1.5 0 0 0 1.5-1.5V5.5L9 1.75Z"/><path d="M9 1.75V5.5h3.75"/><path d="M5.75 8.5h4.5M5.75 10.75h4.5"/></svg>`,
 };
 
@@ -607,7 +609,10 @@ function render(): void {
   disposeAll();
   const app = document.querySelector<HTMLDivElement>('#app')!;
   const brand = `<header class="topbar"><div class="brand"><span class="brand-mark">${icon.logo}</span>ts-check-arena</div>
-    <a class="topbar-link" href="https://github.com/relliv/ts-check-arena/blob/main/docs/METHOD.md">${icon.method}Method</a></header>`;
+    <nav class="topbar-links">
+      <a class="topbar-link" href="#libs">${icon.libs}Libs</a>
+      <a class="topbar-link" href="https://github.com/relliv/ts-check-arena/blob/main/docs/METHOD.md">${icon.method}Method</a>
+    </nav></header>`;
   const run = runs.find(r => r.id === state.runId);
   if (!run) {
     app.innerHTML = `${brand}<div class="empty"><h2>No published runs yet</h2><p>Run <code>pnpm arena run</code>, then publish a run or let CI commit results.</p></div>`;
@@ -706,3 +711,4 @@ window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', ren
 // Crossing the phone-width breakpoint re-renders so charts pick up their narrow layout.
 window.matchMedia('(max-width: 640px)').addEventListener('change', render);
 render();
+mountLibs(runs);
