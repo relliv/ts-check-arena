@@ -65,7 +65,7 @@ pnpm arena run --target <path> \
 | Workflow | When | What |
 |---|---|---|
 | [check](.github/workflows/check.yml) | every push and PR | types, tests, site build, smoke run on macOS, Linux and Windows |
-| [bench](.github/workflows/bench.yml) | by hand (Actions, bench, Run workflow), with projects, rounds and threads as inputs | the corpus on six runners; results committed to the `data` branch |
+| [bench](.github/workflows/bench.yml) | when a push to main changes `tools/`, or by hand (Actions, bench, Run workflow) with projects, rounds and threads as inputs | the corpus on six runners; results committed to the `data` branch |
 | [site](.github/workflows/site.yml) | after bench, on site changes | builds the site with the `data` branch results and deploys GitHub Pages |
 
 CI runners are shared machines: their results are ratios within a run, labeled by runner, and never charted with local runs.

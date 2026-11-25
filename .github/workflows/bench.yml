@@ -1,9 +1,13 @@
 # The cross-platform benchmark: every installed checker on the pinned corpus, on six
 # runners. Results go to the data branch (one folder per run), which the site
-# workflow publishes. Started by hand only (Actions, bench, Run workflow).
+# workflow publishes. Runs when a push to main changes the tool list (tools/), once
+# per push and with the default inputs, or by hand (Actions, bench, Run workflow).
 name: bench
 
 on:
+  push:
+    branches: [main]
+    paths: ['tools/**']
   workflow_dispatch:
     inputs:
       projects:
@@ -59,7 +63,7 @@ jobs:
           list="${PROJECTS:-$(node -e "console.log(require('./corpus.json').projects.map(p => p.name).join(','))")}"
           for project in ${list//,/ }; do pnpm arena corpus setup "$project"; done
         env:
-          PROJECTS: ${{ inputs.projects }}
+          PROJECTS: ${{ inputs.projects || 'vite' }}
       - name: Benchmark
         run: |
           list="${PROJECTS:-$(node -e "console.log(require('./corpus.json').projects.map(p => p.name).join(','))")}"
@@ -67,7 +71,7 @@ jobs:
             pnpm arena run --corpus "$project" --rounds "${ROUNDS:-5}" --threads "${THREADS:-default}"
           done
         env:
-          PROJECTS: ${{ inputs.projects }}
+          PROJECTS: ${{ inputs.projects || 'vite' }}
           ROUNDS: ${{ inputs.rounds }}
           THREADS: ${{ inputs.threads }}
       - name: Report
