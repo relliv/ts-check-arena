@@ -704,7 +704,7 @@ function compareSection(list: RunSummary[]): string {
       <thead><tr><th aria-sort="${ariaSort('checker')}"><button type="button" class="sort" data-sort="checker">Checker${arrow('checker')}</button></th>${list
         // The CPU name is cut to fit the column; hovering or focusing the header shows the whole run.
         .map(
-          (r, i) => `<th class="num run-head" aria-sort="${ariaSort(i)}"><button type="button" class="sort" data-sort="${i}" aria-describedby="run-tip-${i}"><span class="head-text"><span class="head-main"><span class="swatch" style="background:${runColor(i)}"></span>${esc(r.machine.platform)}</span><span class="sub">${esc(r.machine.cpu)}</span></span>${arrow(i)}</button>
+          (r, i) => `<th class="num run-head" aria-sort="${ariaSort(i)}"><button type="button" class="sort" data-sort="${i}" aria-describedby="run-tip-${i}"><span class="head-text"><span class="head-main"><span class="swatch" style="background:${runColor(i)}"></span>${esc(r.machine.platform)}<span class="source ${r.source.kind}">${r.source.kind === 'ci' ? 'CI' : 'Local'}</span></span><span class="sub">${esc(r.machine.cpu)}</span></span>${arrow(i)}</button>
             <span class="run-tip" role="tooltip" id="run-tip-${i}"><b>${esc(r.machine.cpu)}</b><span>${r.machine.cores} cores · ${esc(r.machine.os)}</span><span>${esc(where(r))} · ${esc(day(r.date))}</span></span></th>`
         )
         .join('')}</tr></thead>

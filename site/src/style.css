@@ -463,6 +463,19 @@ code {
         @apply inline-flex items-center;
       }
 
+      /* Local and CI runs answer different questions; the same pill as in the run list says which. */
+      .source {
+        @apply ml-1.5 rounded-full px-1.5 py-px text-[9px] font-semibold tracking-wider uppercase;
+
+        &.ci {
+          @apply bg-sky-50 text-sky-700 dark:bg-sky-950/60 dark:text-sky-300;
+        }
+
+        &.local {
+          @apply bg-emerald-50 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-300;
+        }
+      }
+
       .sub {
         @apply block max-w-40 truncate text-[11px] font-normal text-slate-400;
       }
