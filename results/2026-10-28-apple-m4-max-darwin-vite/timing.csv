@@ -1055,14 +1055,3 @@ default,7,false,tsc-ts@0.0.5,packages/vite/src/module-runner/tsconfig.json,0.876
 default,7,false,tsc-ts@0.0.5,packages/vite/src/shared/tsconfig.json,0.112796,0.27,0.06,187793408,0
 default,7,false,tsc-ts@0.0.5,packages/vite/src/node/__tests_dts__/tsconfig.json,0.88541125,1.54,0.17,784580608,0
 default,7,false,tsc-ts@0.0.5,packages/vite/src/module-runner/__tests_dts__/tsconfig.json,0.108316667,0.27,0.06,183123968,0
-42,0.07,0.04,95682560,0
-default,7,false,tsc-ts@0.0.5,playground/tsconfig.json,0.161351958,0.6,0.14,313556992,0
-default,7,false,tsc-ts@0.0.5,packages/create-vite/tsconfig.json,0.046615125,0.14,0.11,153993216,0
-default,7,false,tsc-ts@0.0.5,packages/plugin-legacy/tsconfig.json,0.050622125,0.16,0.13,163921920,0
-default,7,false,tsc-ts@0.0.5,packages/vite/tsconfig.json,0.873101542,1.45,0.15,764166144,0
-default,7,false,tsc-ts@0.0.5,packages/vite/src/node/tsconfig.json,0.114653916,0.54,0.13,261996544,0
-default,7,false,tsc-ts@0.0.5,packages/vite/src/client/tsconfig.json,0.110814625,0.29,0.06,194641920,0
-default,7,false,tsc-ts@0.0.5,packages/vite/src/module-runner/tsconfig.json,0.876754917,1.57,0.17,802177024,0
-default,7,false,tsc-ts@0.0.5,packages/vite/src/shared/tsconfig.json,0.112796,0.27,0.06,187793408,0
-default,7,false,tsc-ts@0.0.5,packages/vite/src/node/__tests_dts__/tsconfig.json,0.88541125,1.54,0.17,784580608,0
-default,7,false,tsc-ts@0.0.5,packages/vite/src/module-runner/__tests_dts__/tsconfig.json,0.108316667,0.27,0.06,183123968,0

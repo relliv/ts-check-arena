@@ -1,5 +1,11 @@
 {
   "runs": [
+    "2026-11-25-unknown-linux-vite",
+    "2026-11-25-intel-r-core-tm-i7-8700b-cpu-3-20ghz-darwin-vite",
+    "2026-11-25-cobalt-100-win32-vite",
+    "2026-11-25-apple-m1-virtual-darwin-vite",
+    "2026-11-25-amd-epyc-9v74-80-core-processor-linux-vite",
+    "2026-11-25-amd-epyc-9v45-96-core-processor-win32-vite",
     "2026-10-31-unknown-linux-vite",
     "2026-10-31-intel-r-core-tm-i7-8700b-cpu-3-20ghz-darwin-vite",
     "2026-10-31-cobalt-100-win32-vite",
