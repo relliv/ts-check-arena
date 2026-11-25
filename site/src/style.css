@@ -73,7 +73,8 @@ code {
 
 /* The Libs dialog: a centered panel on wide screens, a full-screen sheet on phones. */
 .libs {
-  @apply m-auto h-dvh max-h-dvh w-full max-w-full overflow-hidden bg-transparent p-0 text-slate-900 outline-none sm:h-auto sm:max-h-[min(88dvh,56rem)] sm:max-w-4xl sm:rounded-2xl dark:text-slate-100;
+  /* The border lives here, outside the scrolling body, so the sticky header cannot paint over its top edge. */
+  @apply m-auto h-dvh max-h-dvh w-full max-w-full overflow-hidden bg-transparent p-0 text-slate-900 outline-none sm:h-auto sm:max-h-[min(88dvh,56rem)] sm:max-w-4xl sm:rounded-lg sm:border sm:border-slate-300 sm:shadow-2xl dark:text-slate-100 sm:dark:border-slate-700/55;
 
   &::backdrop {
     @apply bg-slate-950/60 backdrop-blur-sm;
@@ -84,7 +85,8 @@ code {
   }
 
   .libs-body {
-    @apply flex w-full flex-col overflow-y-auto overscroll-contain border-slate-200 bg-canvas sm:rounded-2xl sm:border dark:border-night-line dark:bg-night;
+    /* Opening the dialog focuses this scroller so arrow keys scroll it; its focus ring would only redraw the dialog's edge. */
+    @apply flex w-full flex-col overflow-y-auto overscroll-contain bg-canvas outline-none dark:bg-night;
   }
 
   .libs-head {
@@ -151,6 +153,20 @@ code {
     }
   }
 
+  /* Each tested version opens its own page on npm. */
+  .lib-version {
+    @apply rounded transition-colors;
+
+    code {
+      @apply transition-colors;
+    }
+
+    &:hover code,
+    &:focus-visible code {
+      @apply bg-accent/15 text-accent dark:text-sky-300;
+    }
+  }
+
   .lib-range {
     @apply text-xs text-slate-500;
   }
@@ -181,6 +197,27 @@ code {
 
   select {
     @apply max-w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm shadow-xs dark:border-night-line dark:bg-night-field;
+  }
+}
+
+.picker-row {
+  @apply flex items-stretch gap-2;
+
+  .run-picker {
+    @apply min-w-0 flex-1 sm:min-w-[26rem] sm:flex-none;
+  }
+}
+
+/* Next to the run picker while runs are compared; on phones only the icon shows. */
+.exit-compare {
+  @apply inline-flex shrink-0 items-center gap-1.5 rounded-lg border border-accent/40 bg-accent/10 px-3 text-sm font-medium text-accent transition-colors hover:bg-accent/20 dark:text-sky-300;
+
+  svg {
+    @apply size-4;
+  }
+
+  span {
+    @apply hidden sm:inline;
   }
 }
 
@@ -368,14 +405,6 @@ code {
     @apply flex items-center gap-2;
   }
 
-  .close {
-    @apply grid size-8 shrink-0 place-items-center rounded-lg border border-slate-300 text-slate-500 transition-colors hover:bg-slate-100 hover:text-slate-900 dark:border-night-line dark:hover:bg-slate-800 dark:hover:text-slate-100;
-
-    svg {
-      @apply size-4;
-    }
-  }
-
   .compare-note {
     @apply mb-3 rounded-md bg-sky-50 px-3 py-2 text-xs text-sky-900 dark:bg-sky-950/40 dark:text-sky-100;
   }
@@ -399,22 +428,101 @@ code {
       @apply mr-1.5;
     }
 
+    /* Every header is a sort button: first click best first, second worst first, third back to family order. */
+    .sort {
+      @apply inline-flex items-end gap-1 rounded-md text-left uppercase transition-colors outline-none hover:text-slate-900 focus-visible:ring-2 focus-visible:ring-accent/50 dark:hover:text-slate-100;
+
+      .sort-icon {
+        @apply mb-px size-3.5 shrink-0 opacity-40;
+      }
+    }
+
+    th[aria-sort='ascending'],
+    th[aria-sort='descending'] {
+      .sort {
+        @apply text-accent dark:text-sky-300;
+      }
+
+      .sort-icon {
+        @apply opacity-100;
+      }
+    }
+
     .run-head {
-      @apply align-bottom text-xs font-medium tracking-normal normal-case;
+      @apply relative align-bottom text-xs font-medium tracking-normal normal-case;
+
+      .sort {
+        @apply ml-auto normal-case;
+      }
+
+      .head-text {
+        @apply flex flex-col items-end;
+      }
+
+      .head-main {
+        @apply inline-flex items-center;
+      }
 
       .sub {
         @apply block max-w-40 truncate text-[11px] font-normal text-slate-400;
       }
+
+      /* Keyboard focus shows it; focus left by a mouse click does not, or it would cover the sorted rows. */
+      &:hover .run-tip,
+      &:has(.sort:focus-visible) .run-tip {
+        @apply visible opacity-100;
+      }
+    }
+
+    /* The whole run behind a cut header: CPU, cores, OS, source and day. */
+    .run-tip {
+      @apply invisible absolute top-full right-0 z-20 mt-1 flex w-max max-w-72 flex-col gap-0.5 rounded-md border border-slate-200 bg-white px-3 py-2 text-left text-xs font-normal whitespace-normal text-slate-600 opacity-0 shadow-lg transition-opacity dark:border-night-line dark:bg-night-raised dark:text-slate-300;
+
+      b {
+        @apply font-semibold text-slate-900 dark:text-slate-100;
+      }
+    }
+
+    .cell {
+      @apply inline-block rounded-md px-1.5 py-0.5;
     }
 
     .best {
-      @apply font-semibold text-accent;
+      @apply font-bold text-slate-900 dark:text-white;
+    }
+
+    .winner .cell {
+      @apply bg-accent/15 font-semibold text-accent ring-1 ring-accent/40 dark:bg-accent/25 dark:text-sky-300;
+    }
+
+    .loser .cell {
+      @apply bg-rose-500/10 font-semibold text-rose-700 ring-1 ring-rose-500/35 dark:bg-rose-500/15 dark:text-rose-300;
+    }
+  }
+
+  .compare-legend {
+    @apply mt-3 flex flex-wrap items-center gap-x-1.5 gap-y-1 text-xs text-slate-500;
+
+    .cell {
+      @apply inline-block rounded-md px-1.5 py-0.5;
+    }
+
+    .winner-key {
+      @apply bg-accent/15 font-semibold text-accent ring-1 ring-accent/40 dark:bg-accent/25 dark:text-sky-300;
+    }
+
+    .loser-key {
+      @apply ml-3 bg-rose-500/10 font-semibold text-rose-700 ring-1 ring-rose-500/35 dark:bg-rose-500/15 dark:text-rose-300;
+    }
+
+    .best-key {
+      @apply ml-3 font-bold text-slate-900 dark:text-white;
     }
   }
 }
 
 .segmented {
-  @apply inline-flex max-w-full overflow-x-auto rounded-lg border border-slate-300 bg-white p-0.5 shadow-xs dark:border-night-line dark:bg-night-field;
+  @apply inline-flex max-w-full gap-0.5 overflow-x-auto rounded-lg border border-slate-300 bg-white p-1 shadow-xs dark:border-night-line dark:bg-night-field;
 
   button {
     @apply shrink-0 rounded-md px-3 py-1.5 text-sm whitespace-nowrap text-slate-600 transition-colors dark:text-slate-400;

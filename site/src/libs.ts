@@ -26,18 +26,23 @@ function platforms(family: Family): string {
   return keys.includes('*') ? 'Everywhere Node runs' : keys.map(k => PLATFORMS[k] ?? k).join(', ');
 }
 
-/** Versions of a family that appear in any published run, oldest first; variants fold into their version. */
-function tested(family: string, runs: RunSummary[]): string[] {
+/**
+ * Versions of a family that appear in any published run, oldest first. Variants fold
+ * into their version. `full` is the npm version, `label` drops the TypeScript port tag.
+ */
+function tested(family: string, runs: RunSummary[]): { full: string; label: string }[] {
   const versions = new Set<string>();
   for (const run of runs) {
     for (const setting of run.settings) {
       for (const c of setting.checkers) {
         if (c.family !== family) continue;
-        versions.add(c.id.slice(c.id.lastIndexOf('@') + 1).replace(/\+.*$/, '').replace(/-ts\d.*$/, ''));
+        versions.add(c.id.slice(c.id.lastIndexOf('@') + 1).replace(/\+.*$/, ''));
       }
     }
   }
-  return [...versions].sort((a, b) => a.localeCompare(b, 'en', { numeric: true }));
+  return [...versions]
+    .sort((a, b) => a.localeCompare(b, 'en', { numeric: true }))
+    .map(full => ({ full, label: full.replace(/-ts\d.*$/, '') }));
 }
 
 const external = `<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6.5 3.5h-3v9h9v-3M9.5 2.5h4v4M13.5 2.5l-6 6"/></svg>`;
@@ -55,7 +60,13 @@ function card(family: Family, runs: RunSummary[]): string {
     <dl class="lib-facts">
       <dt>Written in</dt><dd>${esc(family.about.language)}</dd>
       <dt>npm</dt><dd><code>${esc(family.package)}</code>${family.versions === '*' ? '' : ` <span class="lib-range">${esc(family.versions)}</span>`}</dd>
-      <dt>Tested</dt><dd>${versions.length ? versions.map(v => `<code>${esc(v)}</code>`).join(' ') : 'Not in a published run yet'}</dd>
+      <dt>Tested</dt><dd>${
+        versions.length
+          ? versions
+              .map(v => `<a class="lib-version" href="https://www.npmjs.com/package/${esc(family.package)}/v/${esc(v.full)}" target="_blank" rel="noopener" title="${esc(family.package)}@${esc(v.full)} on npm"><code>${esc(v.label)}</code></a>`)
+              .join(' ')
+          : 'Not in a published run yet'
+      }</dd>
       <dt>Platforms</dt><dd>${esc(platforms(family))}</dd>
     </dl>
     <nav class="lib-links">

@@ -19,13 +19,37 @@ type Metric = 'wall' | 'cpu' | 'memory';
 
 type CompareMetric = 'speedup' | Metric;
 
-const state: { runId: string; threads: string; metric: Metric; compare: string[] | null; compareMetric: CompareMetric } = {
-  runId: runs[0]?.id ?? '',
+/** `?run=<id>` names the run on screen, so a refresh or a shared link opens the same one. Unknown ids fall back to the newest. */
+const RUN_PARAM = 'run';
+const linkedRun = new URL(location.href).searchParams.get(RUN_PARAM);
+// A link to a run that no longer exists drops the parameter instead of keeping a stale one.
+if (linkedRun !== null && !runs.some(r => r.id === linkedRun)) {
+  const url = new URL(location.href);
+  url.searchParams.delete(RUN_PARAM);
+  history.replaceState(history.state, '', url);
+}
+
+/**
+ * How the compare table's rows are ordered: by checker name, or by one run's column
+ * (its index), best first or worst first. Null keeps family order.
+ */
+type CompareSort = { by: 'checker' | number; reverse: boolean } | null;
+
+const state: {
+  runId: string;
+  threads: string;
+  metric: Metric;
+  compare: string[] | null;
+  compareMetric: CompareMetric;
+  compareSort: CompareSort;
+} = {
+  runId: runs.find(r => r.id === linkedRun)?.id ?? runs[0]?.id ?? '',
   threads: 'default',
   metric: 'wall',
   // Runs shown side by side, from a day's Compare button; null hides the panel.
   compare: null,
   compareMetric: 'speedup',
+  compareSort: null,
 };
 
 // ---------------------------------------------------------------------------- formatting
@@ -94,7 +118,7 @@ function legend(families: string[]): string {
 
 function numbersTable(run: RunSummary, checkers: CheckerSummary[]): string {
   const top = Math.max(...checkers.map(c => c.speedup).filter(Number.isFinite));
-  return `<div class="table-scroll"><table class="data">
+  return `<div class="table-scroll" data-scroll="numbers"><table class="data">
     <thead><tr><th>Checker</th><th class="num">Wall</th><th>vs reference</th><th class="num">CPU</th><th class="num">Peak</th></tr></thead>
     <tbody>${checkers
       .map(
@@ -111,7 +135,7 @@ function numbersTable(run: RunSummary, checkers: CheckerSummary[]): string {
 function parityTable(run: RunSummary): string {
   const status = (p: RunSummary['parity'][number]) =>
     p.failed ? ['bad', 'Failed'] : p.differs ? ['warn', 'Differs'] : p.sameNormalized ? ['ok', 'Same errors'] : ['ok', 'Identical'];
-  return `<div class="table-scroll"><table class="data">
+  return `<div class="table-scroll" data-scroll="diagnostics"><table class="data">
     <thead><tr><th>Checker</th><th>Result</th><th class="num">Identical</th><th class="num">Same after normalizing</th><th class="num">Differs</th><th class="num">Failed</th><th class="num">Extra</th><th class="num">Missing</th></tr></thead>
     <tbody>${run.parity
       .map(p => {
@@ -488,11 +512,11 @@ function wireRunPicker(app: HTMLElement): void {
     const option = target.closest<HTMLElement>('.option');
     const compare = target.closest<HTMLElement>('.compare-button');
     if (option) {
-      state.runId = option.dataset['id']!;
-      render();
+      selectRun(option.dataset['id']!);
     } else if (compare) {
       const group = compare.closest<HTMLElement>('.group')!;
       state.compare = [...group.querySelectorAll<HTMLElement>('.option:not([hidden])')].map(o => o.dataset['id']!);
+      state.compareSort = null;
       render();
     }
   };
@@ -538,6 +562,18 @@ function compareNames(list: RunSummary[]): string[] {
 }
 
 /**
+ * Shows a run and writes it to the address bar, keeping the rest of the URL (#libs
+ * included). Replaced, not pushed: switching runs does not fill the back button.
+ */
+function selectRun(id: string): void {
+  state.runId = id;
+  const url = new URL(location.href);
+  url.searchParams.set(RUN_PARAM, id);
+  history.replaceState(history.state, '', url);
+  render();
+}
+
+/**
  * For a run that is not the newest of its project on its platform: what the newest
  * one tests differently. Platforms are not mixed, since some checkers have no build
  * for some platforms and would show up as removed. Null when there is nothing to say.
@@ -571,21 +607,62 @@ function compareSection(list: RunSummary[]): string {
   const better = metric === 'speedup' ? Math.max : Math.min;
   const days = [...new Set(list.map(r => day(r.date)))];
   const when = days.length === 1 ? days[0]! : `${days[days.length - 1]} to ${days[0]}`;
+  // Three highlights: the best and worst checker of each run (a column), and each checker's best run (a row).
+  const worse = metric === 'speedup' ? Math.min : Math.max;
+  const value = (r: RunSummary, id: string): number => {
+    const c = defaultCheckers(r).find(x => x.id === id);
+    return c ? compareValue(c, metric) : NaN;
+  };
+  const column = (r: RunSummary) => ids.map(id => value(r, id)).filter(Number.isFinite);
+  const winners = list.map(r => (column(r).length ? better(...column(r)) : NaN));
+  // A run with one checker has no slowest: it would be its fastest too.
+  const losers = list.map(r => (column(r).length > 1 ? worse(...column(r)) : NaN));
   const row = (id: string): string => {
-    const cells = list.map(r => defaultCheckers(r).find(c => c.id === id));
-    const values = cells.map(c => (c ? compareValue(c, metric) : NaN)).filter(Number.isFinite);
-    const best = values.length ? better(...values) : NaN;
-    return `<tr><td><span class="swatch" style="background:${familyColor(familyOf(id))}"></span><span title="${esc(id)}">${esc(short(id))}</span></td>${cells
-      .map(c => {
-        const v = c ? compareValue(c, metric) : NaN;
-        return `<td class="num${v === best ? ' best' : ''}">${Number.isFinite(v) ? compareFormat(v, metric) : '<span class="muted">n/a</span>'}</td>`;
+    const values = list.map(r => value(r, id));
+    const present = values.filter(Number.isFinite);
+    // A row where every run reads the same, such as the reference at 1.0×, has no best.
+    const best = present.length > 1 && new Set(present).size > 1 ? better(...present) : NaN;
+    return `<tr><td><span class="swatch" style="background:${familyColor(familyOf(id))}"></span><span title="${esc(id)}">${esc(short(id))}</span></td>${values
+      .map((v, i) => {
+        if (!Number.isFinite(v)) return '<td class="num"><span class="muted">n/a</span></td>';
+        const classes = ['num', v === best ? 'best' : '', v === winners[i] ? 'winner' : '', v === losers[i] ? 'loser' : ''].filter(Boolean).join(' ');
+        return `<td class="${classes}"><span class="cell">${compareFormat(v, metric)}</span></td>`;
       })
       .join('')}</tr>`;
+  };
+  const top = metric === 'memory' ? 'Lightest' : 'Fastest';
+  const bottom = metric === 'memory' ? 'Heaviest' : 'Slowest';
+
+  // Sorting: a run column orders best first (worst first when reversed), runs
+  // without that checker last either way; ties keep family order.
+  const sort = state.compareSort && (state.compareSort.by === 'checker' || state.compareSort.by < list.length) ? state.compareSort : null;
+  const sign = metric === 'speedup' ? -1 : 1;
+  const rows = [...ids];
+  if (sort?.by === 'checker') {
+    rows.sort((a, b) => short(a).localeCompare(short(b), 'en', { numeric: true }) * (sort.reverse ? -1 : 1));
+  } else if (sort) {
+    const r = list[sort.by]!;
+    rows.sort((a, b) => {
+      const [va, vb] = [value(r, a), value(r, b)];
+      if (!Number.isFinite(va) || !Number.isFinite(vb)) return Number.isFinite(va) ? -1 : Number.isFinite(vb) ? 1 : 0;
+      return (va - vb) * sign * (sort.reverse ? -1 : 1);
+    });
+  }
+  // aria-sort names the visible order: speedups best first are descending, seconds and MiB ascending.
+  const ariaSort = (by: 'checker' | number): string => {
+    if (!sort || sort.by !== by) return 'none';
+    const ascending = by === 'checker' ? !sort.reverse : (sign === 1) !== sort.reverse;
+    return ascending ? 'ascending' : 'descending';
+  };
+  const arrow = (by: 'checker' | number): string => {
+    const dir = ariaSort(by);
+    const path = dir === 'ascending' ? 'M8 12.5v-9M4.5 7 8 3.5 11.5 7' : dir === 'descending' ? 'M8 3.5v9M4.5 9 8 12.5 11.5 9' : 'M5 6.5 8 3.5l3 3M5 9.5l3 3 3-3';
+    return `<svg class="sort-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="${path}"/></svg>`;
   };
   return `<section class="card compare-panel">
     <div class="card-head">
       <div><h2>Compare ${list.length} runs</h2><p class="hint">${esc(when)}. Checkers as shipped. Speedups are against each run's own reference, so compare ratios across machines and seconds within one.</p></div>
-      <div class="compare-actions">${segmented('compare-metric', COMPARE_METRICS, metric)}<button type="button" class="close" id="compare-close" aria-label="Close comparison">${icon.cross}</button></div>
+      <div class="compare-actions">${segmented('compare-metric', COMPARE_METRICS, metric)}</div>
     </div>
     ${(() => {
       const refs = [...new Set(list.map(r => r.reference))];
@@ -597,11 +674,16 @@ function compareSection(list: RunSummary[]): string {
       .map((r, i) => `<span class="compare-run"><span class="swatch" style="background:${runColor(i)}"></span>${esc(names[i]!)}<span class="muted"> · ${esc(where(r))} · ${esc(r.machine.cpu)}</span></span>`)
       .join('')}</div>
     <div class="chart" id="chart-compare" style="height:340px"></div>
-    <div class="table-scroll"><table class="data compare-table">
-      <thead><tr><th>Checker</th>${list
-        .map((r, i) => `<th class="num run-head" title="${esc(names[i]!)}"><span class="swatch" style="background:${runColor(i)}"></span>${esc(r.machine.platform)}<span class="sub">${esc(r.machine.cpu)}</span></th>`)
+    <div class="table-scroll" data-scroll="compare"><table class="data compare-table">
+      <thead><tr><th aria-sort="${ariaSort('checker')}"><button type="button" class="sort" data-sort="checker">Checker${arrow('checker')}</button></th>${list
+        // The CPU name is cut to fit the column; hovering or focusing the header shows the whole run.
+        .map(
+          (r, i) => `<th class="num run-head" aria-sort="${ariaSort(i)}"><button type="button" class="sort" data-sort="${i}" aria-describedby="run-tip-${i}"><span class="head-text"><span class="head-main"><span class="swatch" style="background:${runColor(i)}"></span>${esc(r.machine.platform)}</span><span class="sub">${esc(r.machine.cpu)}</span></span>${arrow(i)}</button>
+            <span class="run-tip" role="tooltip" id="run-tip-${i}"><b>${esc(r.machine.cpu)}</b><span>${r.machine.cores} cores · ${esc(r.machine.os)}</span><span>${esc(where(r))} · ${esc(day(r.date))}</span></span></th>`
+        )
         .join('')}</tr></thead>
-      <tbody>${ids.map(row).join('')}</tbody></table></div>
+      <tbody>${rows.map(row).join('')}</tbody></table></div>
+    <p class="compare-legend"><span class="cell winner-key">${top}</span> in its run <span class="cell loser-key">${bottom}</span> in its run <span class="best-key">Bold</span> this checker's best run</p>
   </section>`;
 }
 
@@ -642,6 +724,10 @@ function compareChart(list: RunSummary[], metric: CompareMetric) {
 function render(): void {
   disposeAll();
   const app = document.querySelector<HTMLDivElement>('#app')!;
+  // Re-rendering replaces every element, so a table scrolled sideways (sorting the
+  // compare table on a phone) would jump back to its start. Each [data-scroll]
+  // container gets its offset back below.
+  const scrolled = new Map([...app.querySelectorAll<HTMLElement>('[data-scroll]')].map(el => [el.dataset['scroll']!, el.scrollLeft]));
   const brand = `<header class="topbar"><div class="brand"><span class="brand-mark">${icon.logo}</span>ts-check-arena</div>
     <nav class="topbar-links">
       <a class="topbar-link" href="#libs">${icon.libs}Libs</a>
@@ -662,7 +748,10 @@ function render(): void {
 
   app.innerHTML = `${brand}
     <div class="controls">
-      <div class="field"><span>Run</span>${runPicker(run)}</div>
+      <div class="field"><span>Run</span><div class="picker-row">${runPicker(run)}${
+        // While runs are compared, leaving that view sits next to the picker that started it.
+        compared.length ? `<button type="button" class="exit-compare" id="compare-close" aria-label="Exit compare">${icon.cross}<span>Exit compare</span></button>` : ''
+      }</div></div>
       ${settings.length > 1 ? `<div class="field"><span>Threads</span>${segmented('threads', settings.map(t => [t, t === 'default' ? 'As shipped' : `${t}`]), state.threads)}</div>` : ''}
     </div>
     ${versionNote(run) ?? ''}
@@ -727,14 +816,25 @@ function render(): void {
   if (platforms.length > 1) mount(app.querySelector('#chart-platforms'), platformChart(platforms));
   if (compared.length) mount(app.querySelector('#chart-compare'), compareChart(compared, state.compareMetric));
 
+  for (const el of app.querySelectorAll<HTMLElement>('[data-scroll]')) el.scrollLeft = scrolled.get(el.dataset['scroll']!) ?? 0;
   wireRunPicker(app);
   app.querySelector<HTMLElement>('.note-action')?.addEventListener('click', e => {
-    state.runId = (e.currentTarget as HTMLElement).dataset['run']!;
-    render();
+    selectRun((e.currentTarget as HTMLElement).dataset['run']!);
   });
   app.querySelector('#compare-close')?.addEventListener('click', () => {
     state.compare = null;
+    state.compareSort = null;
     render();
+  });
+  app.querySelector('.compare-table thead')?.addEventListener('click', e => {
+    const raw = (e.target as HTMLElement).closest<HTMLElement>('button.sort')?.dataset['sort'];
+    if (raw === undefined) return;
+    const by = raw === 'checker' ? 'checker' : Number(raw);
+    const now = state.compareSort;
+    state.compareSort = now?.by !== by ? { by, reverse: false } : now.reverse ? null : { by, reverse: true };
+    render();
+    // The re-render replaces the header; a keyboard user (no click count) keeps their place on it.
+    if ((e as MouseEvent).detail === 0) app.querySelector<HTMLElement>(`.compare-table button.sort[data-sort="${raw}"]`)?.focus();
   });
   for (const [id, key] of [['threads', 'threads'], ['metric', 'metric'], ['compare-metric', 'compareMetric']] as const) {
     app.querySelector(`#${id}`)?.addEventListener('click', e => {

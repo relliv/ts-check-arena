@@ -159,8 +159,8 @@
       "about": {
         "maintainer": "Oven",
         "repo": "https://github.com/oven-sh/bun",
-        "language": "Part of the Bun runtime",
-        "why": "A type checker built into the Bun runtime (bun check), so a project on Bun needs no separate compiler. It shows how a runtime's own checker compares."
+        "language": "Rust, built into the Bun runtime",
+        "why": "Bun's own type checker, written in Rust and built into the runtime (bun check), so a project on Bun needs no separate compiler. With tsrs and tsc-rs, it is one of three Rust checkers in the arena."
       },
       "package": "bun",
       "versions": ">=1.4.3",
