@@ -247,7 +247,7 @@ code {
   }
 
   .group-head {
-    @apply sticky top-0 z-10 flex items-center gap-2 bg-white/95 px-3 py-1.5 backdrop-blur dark:bg-night-panel/95;
+    @apply sticky top-0 z-10 flex items-center gap-2 bg-slate-100/95 px-3 py-1.5 backdrop-blur dark:bg-night-edge/95;
   }
 
   .group-date {
